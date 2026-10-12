@@ -1919,14 +1919,13 @@ function limparSessaoLocal(manterMatricula = true) {
   }
 }
 
-// --- FUNÇÃO PRINCIPAL DE LOGIN ---
-async function fazerLogin(autoLogin = false) {
+// INSIRA AQUI A URL DO SEU WEB APP DO GOOGLE APPS SCRIPT (Gerada após publicar como Web App)
+const GAS_WEB_APP_URL = 'SUA_URL_DO_WEB_APP_DO_GAS_AQUI';
 
+async function fazerLogin(autoLogin = false) {
   const inputUser = document.getElementById('usuario');
-  const boxLoginHide = document.getElementById('loginBox');
-  
-  // Tenta obter do input ou recupera do localStorage
   let usuario = inputUser ? inputUser.value.trim() : '';
+  
   if (!usuario) {
     usuario = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
     if (usuario && inputUser) inputUser.value = usuario;
@@ -1945,7 +1944,6 @@ async function fazerLogin(autoLogin = false) {
   };
 
   if (btn) { btn.innerText = "Validando..."; btn.disabled = true; }
-  
 
   // --- CAPTURA DO IP DO USUÁRIO ---
   const sessaoExistente = obterSessaoLocal();
@@ -1962,8 +1960,6 @@ async function fazerLogin(autoLogin = false) {
 
   // --- MODAL DE ALERTA DE ERRO ---
   const exibirModalCustomizado = (mensagem) => {
-
-    
     const overlay = document.createElement('div');
     overlay.style.cssText = `
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -1991,11 +1987,9 @@ async function fazerLogin(autoLogin = false) {
     btnFechar.style.cssText = `
       background: #dc3545; color: #ffffff; border: none;
       padding: 10px 35px; font-size: 14px; border-radius: 6px;
-      cursor: pointer; font-weight: bold; transition: background 0.2s;
+      cursor: pointer; font-weight: bold;
     `;
     
-    btnFechar.onmouseover = () => btnFechar.style.background = '#bd2130';
-    btnFechar.onmouseout = () => btnFechar.style.background = '#dc3545';
     btnFechar.onclick = () => overlay.remove();
 
     modalBox.appendChild(textoMsg);
@@ -2004,91 +1998,90 @@ async function fazerLogin(autoLogin = false) {
     document.body.appendChild(overlay);
   };
 
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    google.script.run.withSuccessHandler(res => {
-      restaurarBotao();
+  try {
+    // Comunicação com o Google Apps Script via Fetch POST
+    const response = await fetch(GAS_WEB_APP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // text/plain evita bloqueio de CORS pré-flight do GAS
+      body: JSON.stringify({ acao: 'validarLogin', usuario: usuario })
+    });
 
-      if (res && res.success) {
-        salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
+    const res = await response.json();
+    restaurarBotao();
 
-        google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
+    if (res && res.success) {
+      salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
 
-        google.script.run.withSuccessHandler(licRes => {
-          if (licRes && licRes.expirado) {
-            ocultarCabecalhosEMenus();
-            if (typeof abrirLink === 'function') {
-              abrirLink("LICENÇA");
-            } else if (typeof abrirPagina === 'function') {
-              abrirPagina("LICENÇA");
-            }
-          } else {
-            const dias = licRes ? licRes.diasRestantes : 0;
-            const msgBoasVindas = `Licença Ativa ( ${dias} dias restantes )`;
+      // Registrar log no GAS
+      fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ acao: 'registrarLog', mensagem: `Login efetuado com sucesso | IP: ${userIp}`, usuario: res.nome })
+      }).catch(err => console.error(err));
 
-            const prosseguirAcesso = () => {
-              const proceed = function(){
-                try { 
-                  salvarSessao(res.nome, res.acesso, usuario); 
-                } catch(e){ 
-                  console.error(e); 
-                }
-              };
-              if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
-                showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
-              } else { 
-                proceed(); 
-              }
-            };
+      // Verificar Licença
+      const licResponse = await fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ acao: 'verificarLicenca', usuario: usuario })
+      });
+      const licRes = await licResponse.json();
 
-            if (autoLogin) {
-              prosseguirAcesso();
-            } else {
-              exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
-            }
-          }
-        }).withFailureHandler(e => {
-          console.error('Erro ao verificar licença:', e);
-          alert('Erro ao validar licença: ' + e);
-        }).verificarLicenca();
-
-      } else {
-        limparSessaoLocal(true); // Mantém a matrícula salva mesmo se a senha falhar
-        const stringResposta = res ? String(res.status || res.motivo || res.error || res.mensagem || '').toUpperCase() : '';
-        const mensagemLog = `Usuario tentou acesso Ambev | IP: ${userIp}`;
-        google.script.run.registrarLog(mensagemLog, usuario);
-
-        let mensagemFinal = "Senha incorreta";
-        if (stringResposta.includes('NOK') || (res && res.nok)) {
-          mensagemFinal = "Acesso temporariamente indisponível, aguardando permissão oficial para uso do sistema OutLog.";
+      if (licRes && licRes.expirado) {
+        ocultarCabecalhosEMenus();
+        if (typeof abrirLink === 'function') {
+          abrirLink("LICENÇA");
+        } else if (typeof abrirPagina === 'function') {
+          abrirPagina("LICENÇA");
         }
-
-        exibirModalCustomizado(mensagemFinal);
-      }
-    }).withFailureHandler(e => {
-      restaurarBotao();
-      alert('Erro de conexão: ' + e);
-    }).validarLogin(usuario);
-  } else {
-    // Modo local demo
-    setTimeout(() => {
-      restaurarBotao();
-      salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
-      
-      const prosseguirDemo = () => {
-        const proceed = function(){
-          try { salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario); } catch(e){}
-        };
-        if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
-          showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
-        } else proceed();
-      };
-
-      if (autoLogin) {
-        prosseguirDemo();
       } else {
-        exibirModalBoasVindasLicenca("Licença Ativa ( Demo - 30 dias restantes )", 1500, prosseguirDemo);
+        const dias = licRes ? licRes.diasRestantes : 0;
+        const msgBoasVindas = `Licença Ativa ( ${dias} dias restantes )`;
+
+        const prosseguirAcesso = () => {
+          const proceed = function(){
+            try { 
+              salvarSessao(res.nome, res.acesso, usuario); 
+            } catch(e){ 
+              console.error(e); 
+            }
+          };
+          if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
+            showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
+          } else { 
+            proceed(); 
+          }
+        };
+
+        if (autoLogin) {
+          prosseguirAcesso();
+        } else {
+          exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
+        }
       }
-    }, 500);
+
+    } else {
+      limparSessaoLocal(true); 
+      const stringResposta = res ? String(res.status || res.motivo || res.error || res.mensagem || '').toUpperCase() : '';
+      
+      fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ acao: 'registrarLog', mensagem: `Usuario tentou acesso Ambev | IP: ${userIp}`, usuario: usuario })
+      }).catch(err => console.error(err));
+
+      let mensagemFinal = "Senha incorreta";
+      if (stringResposta.includes('NOK') || (res && res.nok)) {
+        mensagemFinal = "Acesso temporariamente indisponível, aguardando permissão oficial para uso do sistema OutLog.";
+      }
+
+      exibirModalCustomizado(mensagemFinal);
+    }
+
+  } catch (e) {
+    restaurarBotao();
+    console.error('Erro de conexão:', e);
+    alert('Erro de conexão com o servidor: ' + e);
   }
 }
 
@@ -2096,14 +2089,12 @@ async function fazerLogin(autoLogin = false) {
 document.addEventListener('DOMContentLoaded', () => {
   inicializarCampoMatricula();
 
-  // Verifica se há sessão ativa para auto-login
   const sessao = obterSessaoLocal();
   if (sessao && sessao.usuario) {
     fazerLogin(true);
   }
 });
 
-// Restauração ao minimizar/reabrir
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
     inicializarCampoMatricula();
