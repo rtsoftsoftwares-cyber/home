@@ -2414,7 +2414,10 @@ window.logout = logout;
 // -----------------------
 // abrirLink / injetar HTML (mantidos)
 // -----------------------
-function abrirLink(nomeArquivo) {
+// Certifique-se de que a constante GAS_WEB_APP_URL já foi declarada no topo do seu script (conforme o passo anterior)
+// const GAS_WEB_APP_URL = 'SUA_URL_DO_WEB_APP_DO_GAS_AQUI';
+
+async function abrirLink(nomeArquivo) {
   if (typeof closeSidebar === 'function') closeSidebar();
   const contentDiv = qs('loadedContent');
   const loader = qs('loader');
@@ -2429,49 +2432,45 @@ function abrirLink(nomeArquivo) {
                       sessionStorage.getItem('outlog_matricula') || 
                       localStorage.getItem('outlog_matricula') || '';
 
-    if (matricula && nomeArquivo && typeof google !== 'undefined' && google.script && google.script.run) {
-      if (typeof google.script.run.saveLastOpenedPage === 'function') {
-        // CORRIGIDO: Primeiro envia a matrícula, depois o nome do arquivo/página
-        google.script.run
-          .withFailureHandler(function(err){ 
-            console.warn('Falha silenciosa ao registrar página no servidor:', err); 
-          })
-          .saveLastOpenedPage(nomeArquivo,matricula);
-      }
-    };
+    if (matricula && nomeArquivo) {
+      fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ 
+          acao: 'saveLastOpenedPage', 
+          nomeArquivo: nomeArquivo, 
+          matricula: matricula 
+        })
+      }).catch(err => {
+        console.warn('Falha silenciosa ao registrar página no servidor:', err);
+      });
+    }
   } catch(e){
     console.warn('Erro ao disparar salvamento da página:', e);
   }
 
-  // 2. CARREGA O CONTEÚDO DO MÓDULO VIA GAS
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    google.script.run
-      .withSuccessHandler(html => {
-        loader.style.display = 'none';
-        // Utiliza a função robusta para injetar o HTML e disparar o 3D
-        injetarHTMLSeguro(html, contentDiv);
-      })
-      .withFailureHandler(e => {
-        loader.style.display = 'none';
-        contentDiv.innerHTML = `<div style="padding:20px;color:#f55;text-align:center">
-          <i class="fa-solid fa-triangle-exclamation" style="font-size:40px;margin-bottom:10px"></i><br>
-          <strong>Erro ao carregar módulo.</strong><br><small>${e}</small>
-        </div>`;
-      })
-      .carregarConteudo(nomeArquivo);
-      
-    // REMOVIDO DAQUI O window.onload antigo, pois ele falhava por rodar antes da hora.
-    
-  } else {
-    // Modo local demo
+  // 2. CARREGA O CONTEÚDO DO MÓDULO VIA FETCH
+  try {
+    const response = await fetch(GAS_WEB_APP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ acao: 'carregarConteudo', nomeArquivo: nomeArquivo })
+    });
+
+    const data = await response.json();
     loader.style.display = 'none';
-    contentDiv.innerHTML = `<div style="padding:20px;color:#aaa;text-align:center">
-      <h3>Modo Local</h3>
-      <p>Tentando carregar: <strong>${nomeArquivo}</strong></p>
-      <p>Dados de sessão injetados: ${window.APP_SESSION ? window.APP_SESSION.nome : 'Nenhum'}</p>
+
+    // Extrai o HTML retornado pelo GAS
+    const html = typeof data === 'string' ? data : (data.html || data.conteudo || '');
+    injetarHTMLSeguro(html, contentDiv);
+
+  } catch (e) {
+    loader.style.display = 'none';
+    contentDiv.innerHTML = `<div style="padding:20px;color:#f55;text-align:center">
+      <i class="fa-solid fa-triangle-exclamation" style="font-size:40px;margin-bottom:10px"></i><br>
+      <strong>Erro ao carregar módulo.</strong><br><small>${e}</small>
     </div>`;
   }
-
 }
 window.abrirLink = abrirLink;
 
@@ -2501,21 +2500,18 @@ function injetarHTMLSeguro(html, container) {
   const temp = document.createElement('div');
   temp.innerHTML = html;
 
-  // Extrai os scripts para re-injetá-los de forma controlada
   const scripts = Array.from(temp.querySelectorAll('script'));
-  scripts.forEach(s => s.remove()); // Remove do temp para não duplicar
+  scripts.forEach(s => s.remove()); 
 
-  // Move o conteúdo HTML (elementos 3D, divs, canvas) para o container sem usar innerHTML +=
   while (temp.firstChild) {
     container.appendChild(temp.firstChild);
   }
 
-  // 4. Gerenciador de carregamento de scripts externos (Garante que bibliotecas 3D carreguem antes)
+  // 4. Gerenciador de carregamento de scripts externos
   let scriptsPendentes = scripts.filter(s => s.src).length;
 
   const tentarInicializar = () => {
     if (scriptsPendentes <= 0) {
-      // Pequeno respiro para o navegador recalcular o layout do Canvas/WebGL
       setTimeout(() => {
         if (typeof window.inicializarPagina === 'function') {
             console.log("Iniciando página 3D carregada com inicializarPagina().");
@@ -2531,7 +2527,6 @@ function injetarHTMLSeguro(html, container) {
     }
   };
 
-  // Reinjeta cada script respeitando o carregamento assíncrono/síncrono
   scripts.forEach(oldScript => {
     const newScript = document.createElement('script');
     Array.from(oldScript.attributes).forEach(attr => {
@@ -2557,13 +2552,12 @@ function injetarHTMLSeguro(html, container) {
     container.appendChild(newScript);
   });
 
-  // Se o HTML carregado não possuir scripts externos com src, inicializa direto
   if (scriptsPendentes === 0) {
     tentarInicializar();
   }
 }
 
-  function showNews() {
+async function showNews() {
   try { closeSidebar && closeSidebar(); } catch(e){}
   const contentDiv = qs('loadedContent');
   if (!contentDiv) return;
@@ -2583,22 +2577,17 @@ function injetarHTMLSeguro(html, container) {
 
   contentDiv.appendChild(wrapper);
 
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    google.script.run.withSuccessHandler(function(res){
-      renderNews(res, list);
-    }).withFailureHandler(function(err){
-      console.error('Erro getNews', err);
-      renderNews(null, list, err);
-    }).getNews();
-  } else {
-    setTimeout(()=> {
-      const demo = [
-        { title: 'Comunicação: Atualização de Sistema', body: 'Iremos realizar manutenção hoje à noite das 22h às 23h. Esperamos breve interrupção.', image: '' , timestamp: new Date().toLocaleString() },
-        { title: 'Novo Procedimento', body: 'O procedimento X foi atualizado. Consulte o manual anexo.', image: '' },
-        { title: 'Boletim Rápido', body: 'Teste de envio contendo imagem.', image: 'https://via.placeholder.com/320x180.png?text=Not%C3%ADcia' }
-      ];
-      renderNews(demo, list);
-    }, 300);
+  try {
+    const response = await fetch(GAS_WEB_APP_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ acao: 'getNews' })
+    });
+    const res = await response.json();
+    renderNews(res, list);
+  } catch (err) {
+    console.error('Erro getNews', err);
+    renderNews(null, list, err);
   }
 }
 
