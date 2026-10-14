@@ -8,9 +8,6 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-
-          
-
 <style>
   :root {
     --bg: #090d12;
@@ -923,7 +920,10 @@
 
 
 <script>
+
+if (!operadorNome) {
 const operadorNome = localStorage.getItem('operadorNome') || sessionStorage.getItem('operadorNome');
+}
   // =========================================================================
   // CONFIGURAÇÃO DA URL DO WEB APP DO GOOGLE APPS SCRIPT
   // =========================================================================
