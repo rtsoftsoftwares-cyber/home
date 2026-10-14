@@ -1111,7 +1111,7 @@
   (function verifyAdmAccess() {
     const checkPermission = () => {
       const menuAdm = document.getElementById('menuAdm');
-      const operadorNome = sessionStorage.getItem('operadorNome');
+      const operadorNome = localStorage.getItem('operadorNome');
       if (menuAdm && (operadorNome === '[Administrador]' || operadorNome === 'Marcos Barnabe')) {
         menuAdm.style.display = 'block';
       }
