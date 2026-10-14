@@ -1443,70 +1443,196 @@
     } catch(e){}
   }
 
-  async function fazerLogin(autoLogin = false) {
+  // --- FUNÇÃO PRINCIPAL DE LOGIN ---
+async function fazerLogin(autoLogin = false) {
+
   const inputUser = document.getElementById('usuario');
+  const boxLoginHide = document.getElementById('loginBox');
+  
+  // Tenta obter do input ou recupera do localStorage
   let usuario = inputUser ? inputUser.value.trim() : '';
   if (!usuario) {
     usuario = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
     if (usuario && inputUser) inputUser.value = usuario;
   }
+
   if (!usuario) return alert('Digite a matrícula');
 
-  const btn = qs('btnLogin');
-  const txtOriginal = btn ? btn.innerText : 'Login';
+  const btn = typeof qs === 'function' ? qs('btnLogin') : document.getElementById('btnLogin');
+  const txtOriginal = btn && (btn.innerText || 'Login');
+
+  const restaurarBotao = () => {
+    if (btn) {
+      btn.innerText = txtOriginal;
+      btn.disabled = false;
+    }
+  };
+
   if (btn) { btn.innerText = "Validando..."; btn.disabled = true; }
+  
 
-  const restaurarBotao = () => { if (btn) { btn.innerText = txtOriginal; btn.disabled = false; } };
-
-  let userIp = 'IP não identificado';
+  // --- CAPTURA DO IP DO USUÁRIO ---
+  const sessaoExistente = obterSessaoLocal();
+  let userIp = sessaoExistente ? (sessaoExistente.ip || 'IP não identificado') : 'IP não identificado';
   try {
-    const resIp = await fetch('https://api.ipify.org?format=json');
-    if (resIp.ok) { const d = await resIp.json(); userIp = d.ip || userIp; }
-  } catch(e){}
+    const responseIp = await fetch('https://api.ipify.org?format=json');
+    if (responseIp.ok) {
+      const dataIp = await responseIp.json();
+      userIp = dataIp.ip || userIp;
+    }
+  } catch (err) {
+    console.warn('Não foi possível obter o IP público:', err);
+  }
+
+  // --- MODAL DE ALERTA DE ERRO ---
+  const exibirModalCustomizado = (mensagem) => {
+
+    
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center;
+      align-items: center; z-index: 99999;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    `;
+
+    const modalBox = document.createElement('div');
+    modalBox.style.cssText = `
+      background: #ffffff; padding: 30px; border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25); max-width: 400px;
+      width: 85%; text-align: center; border-top: 6px solid #dc3545;
+    `;
+
+    const textoMsg = document.createElement('p');
+    textoMsg.innerText = mensagem;
+    textoMsg.style.cssText = `
+      font-size: 16px; color: #333333; line-height: 1.6;
+      margin: 0 0 25px 0; font-weight: 500;
+    `;
+
+    const btnFechar = document.createElement('button');
+    btnFechar.innerText = 'OK';
+    btnFechar.style.cssText = `
+      background: #dc3545; color: #ffffff; border: none;
+      padding: 10px 35px; font-size: 14px; border-radius: 6px;
+      cursor: pointer; font-weight: bold; transition: background 0.2s;
+    `;
+    
+    btnFechar.onmouseover = () => btnFechar.style.background = '#bd2130';
+    btnFechar.onmouseout = () => btnFechar.style.background = '#dc3545';
+    btnFechar.onclick = () => overlay.remove();
+
+    modalBox.appendChild(textoMsg);
+    modalBox.appendChild(btnFechar);
+    overlay.appendChild(modalBox);
+    document.body.appendChild(overlay);
+  };
 
   if (typeof google !== 'undefined' && google.script && google.script.run) {
     google.script.run.withSuccessHandler(res => {
       restaurarBotao();
-      
-      // Verifica se o login foi bem-sucedido e retornou os dados de nome e acesso
+
       if (res && res.success) {
         salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
+
+        google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
+
         google.script.run.withSuccessHandler(licRes => {
           if (licRes && licRes.expirado) {
             ocultarCabecalhosEMenus();
-            if (typeof abrirLink === 'function') abrirLink("LICENÇA");
+            if (typeof abrirLink === 'function') {
+              abrirLink("LICENÇA");
+            } else if (typeof abrirPagina === 'function') {
+              abrirPagina("LICENÇA");
+            }
           } else {
             const dias = licRes ? licRes.diasRestantes : 0;
-            const prosseguirAcesso = () => {
-              const proceed = () => { try { salvarSessao(res.nome, res.acesso, usuario); } catch(e){} };
-              if (OPENING_GIF) showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed);
-              else proceed();
-            };
-            if (autoLogin) prosseguirAcesso();
-            else exibirModalBoasVindasLicenca(`Licença Ativa ( ${dias} dias restantes )`, 1500, prosseguirAcesso);
-          }
-        }).verificarLicenca();
-      } else {
-        // Se houver falha (Matrícula não encontrada ou bloqueada por "NOK_AMBEV")
-        limparSessaoLocal(true);
-        
-        // Exibe a mensagem exata retornada pelo backend (ex: "Acesso Ambev indisponível..." ou "Matrícula não encontrada.")
-        const mensagemErro = res && res.mensagem ? res.mensagem : "Senha incorreta ou acesso não autorizado.";
-        alert(mensagemErro);
-      }
-    }).withFailureHandler(e => { 
-      restaurarBotao(); 
-      alert('Erro de conexão: ' + e); 
-    }).validarLogin(usuario);
+            const msgBoasVindas = `Licença Ativa ( ${dias} dias restantes )`;
 
+            const prosseguirAcesso = () => {
+              const proceed = function(){
+                try { 
+                  salvarSessao(res.nome, res.acesso, usuario); 
+                } catch(e){ 
+                  console.error(e); 
+                }
+              };
+              if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
+                showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
+              } else { 
+                proceed(); 
+              }
+            };
+
+            if (autoLogin) {
+              prosseguirAcesso();
+            } else {
+              exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
+            }
+          }
+        }).withFailureHandler(e => {
+          console.error('Erro ao verificar licença:', e);
+          alert('Erro ao validar licença: ' + e);
+        }).verificarLicenca();
+
+      } else {
+        limparSessaoLocal(true); // Mantém a matrícula salva mesmo se a senha falhar
+        const stringResposta = res ? String(res.status || res.motivo || res.error || res.mensagem || '').toUpperCase() : '';
+        const mensagemLog = `Usuario tentou acesso Ambev | IP: ${userIp}`;
+        google.script.run.registrarLog(mensagemLog, usuario);
+
+        let mensagemFinal = "Senha incorreta";
+        if (stringResposta.includes('NOK') || (res && res.nok)) {
+          mensagemFinal = "Acesso temporariamente indisponível, aguardando permissão oficial para uso do sistema OutLog.";
+        }
+
+        exibirModalCustomizado(mensagemFinal);
+      }
+    }).withFailureHandler(e => {
+      restaurarBotao();
+      alert('Erro de conexão: ' + e);
+    }).validarLogin(usuario);
   } else {
+    // Modo local demo
     setTimeout(() => {
       restaurarBotao();
       salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
-      salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario);
+      
+      const prosseguirDemo = () => {
+        const proceed = function(){
+          try { salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario); } catch(e){}
+        };
+        if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
+          showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
+        } else proceed();
+      };
+
+      if (autoLogin) {
+        prosseguirDemo();
+      } else {
+        exibirModalBoasVindasLicenca("Licença Ativa ( Demo - 30 dias restantes )", 1500, prosseguirDemo);
+      }
     }, 500);
   }
 }
+
+// --- EXECUÇÃO INICIAL AO CARREGAR O DOM ---
+document.addEventListener('DOMContentLoaded', () => {
+  inicializarCampoMatricula();
+
+  // Verifica se há sessão ativa para auto-login
+  const sessao = obterSessaoLocal();
+  if (sessao && sessao.usuario) {
+    fazerLogin(true);
+  }
+});
+
+// Restauração ao minimizar/reabrir
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    inicializarCampoMatricula();
+  }
+});
 
   window.fazerLogin = fazerLogin;
   window.limparSessaoLocal = limparSessaoLocal;
