@@ -2083,7 +2083,6 @@ async function fazerLogin(autoLogin = false) {
       if (res && res.success) {
         salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
 
-        google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
 
         google.script.run.withSuccessHandler(licRes => {
           if (licRes && licRes.expirado) {
@@ -2127,7 +2126,7 @@ async function fazerLogin(autoLogin = false) {
         limparSessaoLocal(true); // Mantém a matrícula salva mesmo se a senha falhar
         const stringResposta = res ? String(res.status || res.motivo || res.error || res.mensagem || '').toUpperCase() : '';
         const mensagemLog = `Usuario tentou acesso Ambev | IP: ${userIp}`;
-        google.script.run.registrarLog(mensagemLog, usuario);
+       
 
         let mensagemFinal = "Senha incorreta";
         if (stringResposta.includes('NOK') || (res && res.nok)) {
@@ -2308,7 +2307,7 @@ function restaurarSessao(matricula) {
       const msg = 'Está ativo novamente restaurando sessão';
       try {
         if(typeof google !== 'undefined' && google.script && google.script.run){
-          google.script.run.registrarLog(msg, nome);
+         
           
           // Garante e força que o status permaneça/mude para 1 na planilha
           google.script.run.confirmarAtualizacaoUsuario(matricula);
@@ -3113,7 +3112,7 @@ function renderNews(res, listEl, err) {
       }
       const operadorNome = sessionStorage.getItem('operadorNome') || 'Não Informado';
       const msg = "O usuário '" + operadorNome + "' acabou de acessar o módulo [" + nomeModulo + "].";
-      google.script.run.registrarLog(msg, operadorNome);
+      
   }
 
   var _badgeInterval = setInterval(updateBadges, 60000);
