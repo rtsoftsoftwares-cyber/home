@@ -1111,8 +1111,8 @@
   (function verifyAdmAccess() {
     const checkPermission = () => {
       const menuAdm = document.getElementById('menuAdm');
-      const operadorNome = localStorage.getItem('operadorNome');
-      if (operadorNome) {sessionStorage.setItem('operadorNome',operadorNome)}
+      const operadorNome = localStorage.getItem('operadorNome') || sessionStorage.getItem('operadorNome');
+     
               
       if (menuAdm && (operadorNome === '[Administrador]' || operadorNome === 'Marcos Barnabe')) {
         menuAdm.style.display = 'block';
@@ -1428,7 +1428,6 @@
 
   function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
     try {
-      sessionStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ usuario, ip, nome, acesso, timestamp: Date.now() }));
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ usuario, ip, nome, acesso, timestamp: Date.now() }));
       localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
     } catch(e){}
