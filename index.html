@@ -1256,7 +1256,8 @@
     var labelSidebar = document.getElementById('sidebarUserName');
 
     if (sideBar && !sideBar.classList.contains('active')) {
-      var operador = sessionStorage.getItem("operadorNome");
+      // Procura primeiro no sessionStorage, se não achar, busca no localStorage
+      var operador = sessionStorage.getItem("operadorNome") || localStorage.getItem("operadorNome");
       if (labelSidebar) labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
       
       var dropdowns = sideBar.querySelectorAll('.menu-dropdown');
@@ -1280,6 +1281,7 @@
       }
     }
   }
+  
   window.toggleSidebar = toggleSidebar;
 
   function closeSidebar() {
@@ -1680,10 +1682,14 @@ document.addEventListener('visibilitychange', () => {
   }
   window.salvarSessao = salvarSessao;
 
-  function restaurarSessao(matricula) {
+
+    function restaurarSessao(matricula) {
     function doRestore(){
       try {
         const nome = localStorage.getItem('operadorNome') || getCookie('operadorNome') || 'Usuário';
+        // Garante que o sessionStorage também receba o nome recuperado
+        if(nome) sessionStorage.setItem('operadorNome', nome);
+
         const acessos = JSON.parse(localStorage.getItem('acesso') || getCookie('acesso') || '[]');
         window.APP_SESSION = { nome, acesso: acessos, matricula };
         setTimeout(updateBadges, 250);
