@@ -926,7 +926,6 @@
   // =========================================================================
   // CONFIGURAÇÃO DA URL DO WEB APP DO GOOGLE APPS SCRIPT
   // =========================================================================
-  // Substitua abaixo pela URL real gerada ao implantar seu projeto no Google Apps Script (Web App)
   const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSGJihV_x_eFA1-yzJisl6naV8deqknfylzwoqWkd_7Cnwry8KS6xYeVxL1glsfXMy/exec';
 
   // --- SHIM UNIVERSAL DE COMPATIBILIDADE (google.script.run via Proxy + Fetch para GitHub Pages) ---
@@ -935,7 +934,6 @@
 
   window.google.script.run = (function() {
     function createRunner(successHandler, failureHandler) {
-      // O Proxy captura dinamicamente QUALQUER nome de função chamado no projeto
       return new Proxy({}, {
         get(target, methodName) {
           return function(...args) {
@@ -1014,7 +1012,7 @@
     try { document.cookie = name + '=; Max-Age=0; path=/'; } catch(e){}
   }
 
-  // --- MONITORAMENTO DE MENSAGENS (H1) ---[cite: 3]
+  // --- MONITORAMENTO DE MENSAGENS (H1) ---
   (function() {
     const INTERVALO_MS = 1 * 60 * 1000;
 
@@ -1102,7 +1100,7 @@
     }
   })();
 
-  // --- VERIFICAÇÃO DE ACESSO ADM ---[cite: 3]
+  // --- VERIFICAÇÃO DE ACESSO ADM ---
   (function verifyAdmAccess() {
     const checkPermission = () => {
       const menuAdm = document.getElementById('menuAdm');
@@ -1118,7 +1116,7 @@
     }
   })();
 
-  // --- MODO CAMPO / GPS ---[cite: 3]
+  // --- MODO CAMPO / GPS ---
   var idWatchGps = null;
   var cronometroEnvio = null;
   var bufferLocalPontos = [];
@@ -1229,7 +1227,7 @@
     }, 7000);
   }
 
-  // --- CONTROLE DE MENUS E SIDEBAR ---[cite: 3]
+  // --- CONTROLE DE MENUS E SIDEBAR ---
   function lidarCliqueMenu(event) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     var dropdown = (this.closest) ? this.closest('.menu-dropdown') : this.parentElement;
@@ -1292,7 +1290,7 @@
   }
   window.toggleMenu = toggleMenu;
 
-  // --- LOGIN E DIGITAÇÃO INTELIGENTE ---[cite: 3]
+  // --- LOGIN E DIGITAÇÃO INTELIGENTE ---
   const OPENING_GIF = 'https://i.imgur.com/v0xrFKm.gif';
   const OPENING_GIF_DURATION = 1800;
 
@@ -1582,7 +1580,7 @@
   }
   window.logout = logout;
 
-  // --- ABRIR LINK / INJETAR HTML SEGURO ---[cite: 3]
+  // --- ABRIR LINK / INJETAR HTML SEGURO ---
   async function abrirLink(nomeArquivo) {
     closeSidebar();
     const contentDiv = qs('loadedContent');
@@ -1666,7 +1664,7 @@
     if (scriptsPendentes === 0) tentarInicializar();
   }
 
-  // --- NOTÍCIAS E MODAL ---[cite: 3]
+  // --- NOTÍCIAS E MODAL ---
   async function showNews() {
     closeSidebar();
     const contentDiv = qs('loadedContent');
@@ -1714,7 +1712,7 @@
     });
   }
 
-  // --- BADGES ---[cite: 3]
+  // --- BADGES ---
   function addOrUpdateBadge(buttonId, count) {
     var btn = qs(buttonId);
     if (!btn) return;
