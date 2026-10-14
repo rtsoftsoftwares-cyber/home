@@ -1426,6 +1426,7 @@
 
   function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
     try {
+      sessionStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ usuario, ip, nome, acesso, timestamp: Date.now() }));
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ usuario, ip, nome, acesso, timestamp: Date.now() }));
       localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
     } catch(e){}
@@ -1446,7 +1447,7 @@
   }
 
   // --- FUNÇÃO PRINCIPAL DE LOGIN ---
-async function fazerLogin(autoLogin = true) {
+async function fazerLogin(autoLogin = false) {
 
   const inputUser = document.getElementById('usuario');
   const boxLoginHide = document.getElementById('loginBox');
