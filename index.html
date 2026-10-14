@@ -1444,59 +1444,70 @@
   }
 
   async function fazerLogin(autoLogin = false) {
-    const inputUser = document.getElementById('usuario');
-    let usuario = inputUser ? inputUser.value.trim() : '';
-    if (!usuario) {
-      usuario = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
-      if (usuario && inputUser) inputUser.value = usuario;
-    }
-    if (!usuario) return alert('Digite a matrícula');
-
-    const btn = qs('btnLogin');
-    const txtOriginal = btn ? btn.innerText : 'Login';
-    if (btn) { btn.innerText = "Validando..."; btn.disabled = true; }
-
-    const restaurarBotao = () => { if (btn) { btn.innerText = txtOriginal; btn.disabled = false; } };
-
-    let userIp = 'IP não identificado';
-    try {
-      const resIp = await fetch('https://api.ipify.org?format=json');
-      if (resIp.ok) { const d = await resIp.json(); userIp = d.ip || userIp; }
-    } catch(e){}
-
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run.withSuccessHandler(res => {
-        restaurarBotao();
-        if (res && res.success) {
-          salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
-          google.script.run.withSuccessHandler(licRes => {
-            if (licRes && licRes.expirado) {
-              ocultarCabecalhosEMenus();
-              if (typeof abrirLink === 'function') abrirLink("LICENÇA");
-            } else {
-              const dias = licRes ? licRes.diasRestantes : 0;
-              const prosseguirAcesso = () => {
-                const proceed = () => { try { salvarSessao(res.nome, res.acesso, usuario); } catch(e){} };
-                if (OPENING_GIF) showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed);
-                else proceed();
-              };
-              if (autoLogin) prosseguirAcesso();
-              else exibirModalBoasVindasLicenca(`Licença Ativa ( ${dias} dias restantes )`, 1500, prosseguirAcesso);
-            }
-          }).verificarLicenca();
-        } else {
-          limparSessaoLocal(true);
-          alert("Senha incorreta ou acesso não autorizado.");
-        }
-      }).withFailureHandler(e => { restaurarBotao(); alert('Erro de conexão: ' + e); }).validarLogin(usuario);
-    } else {
-      setTimeout(() => {
-        restaurarBotao();
-        salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
-        salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario);
-      }, 500);
-    }
+  const inputUser = document.getElementById('usuario');
+  let usuario = inputUser ? inputUser.value.trim() : '';
+  if (!usuario) {
+    usuario = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
+    if (usuario && inputUser) inputUser.value = usuario;
   }
+  if (!usuario) return alert('Digite a matrícula');
+
+  const btn = qs('btnLogin');
+  const txtOriginal = btn ? btn.innerText : 'Login';
+  if (btn) { btn.innerText = "Validando..."; btn.disabled = true; }
+
+  const restaurarBotao = () => { if (btn) { btn.innerText = txtOriginal; btn.disabled = false; } };
+
+  let userIp = 'IP não identificado';
+  try {
+    const resIp = await fetch('https://api.ipify.org?format=json');
+    if (resIp.ok) { const d = await resIp.json(); userIp = d.ip || userIp; }
+  } catch(e){}
+
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run.withSuccessHandler(res => {
+      restaurarBotao();
+      
+      // Verifica se o login foi bem-sucedido e retornou os dados de nome e acesso
+      if (res && res.success) {
+        salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
+        google.script.run.withSuccessHandler(licRes => {
+          if (licRes && licRes.expirado) {
+            ocultarCabecalhosEMenus();
+            if (typeof abrirLink === 'function') abrirLink("LICENÇA");
+          } else {
+            const dias = licRes ? licRes.diasRestantes : 0;
+            const prosseguirAcesso = () => {
+              const proceed = () => { try { salvarSessao(res.nome, res.acesso, usuario); } catch(e){} };
+              if (OPENING_GIF) showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed);
+              else proceed();
+            };
+            if (autoLogin) prosseguirAcesso();
+            else exibirModalBoasVindasLicenca(`Licença Ativa ( ${dias} dias restantes )`, 1500, prosseguirAcesso);
+          }
+        }).verificarLicenca();
+      } else {
+        // Se houver falha (Matrícula não encontrada ou bloqueada por "NOK_AMBEV")
+        limparSessaoLocal(true);
+        
+        // Exibe a mensagem exata retornada pelo backend (ex: "Acesso Ambev indisponível..." ou "Matrícula não encontrada.")
+        const mensagemErro = res && res.mensagem ? res.mensagem : "Senha incorreta ou acesso não autorizado.";
+        alert(mensagemErro);
+      }
+    }).withFailureHandler(e => { 
+      restaurarBotao(); 
+      alert('Erro de conexão: ' + e); 
+    }).validarLogin(usuario);
+
+  } else {
+    setTimeout(() => {
+      restaurarBotao();
+      salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
+      salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario);
+    }, 500);
+  }
+}
+
   window.fazerLogin = fazerLogin;
   window.limparSessaoLocal = limparSessaoLocal;
 
