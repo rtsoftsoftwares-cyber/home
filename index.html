@@ -8,9 +8,6 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-
-          
-
 <style>
   :root {
     --bg: #090d12;
@@ -37,24 +34,12 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
 
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: var(--bg);
-  }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent);
-  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
   html, body {
     height: 100%;
@@ -66,3685 +51,587 @@
   }
 
   header#appHeader {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: var(--header-h);
-    z-index: 1200;
-    background: var(--panel);
-    border-bottom: 1px solid var(--panel-border);
-    display: flex;
-    align-items: center;
-    padding: 0 15px;
+    position: fixed; left: 0; right: 0; top: 0;
+    height: var(--header-h); z-index: 1200;
+    background: var(--panel); border-bottom: 1px solid var(--panel-border);
+    display: flex; align-items: center; padding: 0 15px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   }
 
   .header-inner {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    height: 100%;
-    white-space: nowrap;
+    width: 100%; display: grid; grid-template-columns: 1fr auto 1fr;
+    align-items: center; height: 100%; white-space: nowrap;
   }
 
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: flex-start;
-  }
-
-  .header-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: flex-end;
-  }
+  .header-left { display: flex; align-items: center; gap: 10px; justify-content: flex-start; }
+  .header-center { display: flex; align-items: center; justify-content: center; }
+  .header-right { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
 
   .app-title {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: var(--accent);
-    letter-spacing: 1px;
-    cursor: pointer;
-    user-select: none;
-    display: flex;
-    align-items: center;
-    height: 100%;
-    text-shadow: 0 0 10px var(--accent-glow);
-    transition: opacity 0.2s;
+    font-weight: 700; font-size: 0.95rem; color: var(--accent);
+    letter-spacing: 1px; cursor: pointer; user-select: none;
+    display: flex; align-items: center; height: 100%;
+    text-shadow: 0 0 10px var(--accent-glow); transition: opacity 0.2s;
   }
-  .app-title:active {
-    opacity: 0.7;
-  }
+  .app-title:active { opacity: 0.7; }
 
   .iconBtn {
-    background: transparent;
-    border: none;
-    color: var(--accent);
-    font-size: 18px;
-    cursor: pointer;
-    padding: 6px;
-    border-radius: var(--radius-sm);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: transparent; border: none; color: var(--accent);
+    font-size: 18px; cursor: pointer; padding: 6px;
+    border-radius: var(--radius-sm); transition: all 0.2s ease;
+    display: flex; align-items: center; justify-content: center;
     position: relative !important;
   }
   .iconBtn:hover {
-    background: rgba(0, 191, 255, 0.1);
-    color: #ffffff;
+    background: rgba(0, 191, 255, 0.1); color: #ffffff;
     box-shadow: 0 0 8px var(--accent-glow);
   }
-  .sideBadge {
-  position: absolute !important;
-  top: 6px;
-  right: 12px;
-  background-color: #e74c3c; /* Cor vermelha de alerta (mude se preferir) */
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 10px;
-  font-weight: bold;
-  line-height: 1;
-  min-width: 16px;
-  text-align: center;
-}
 
-  /* ==========================================================================
-     BARRA LATERAL (SIDEBAR)
-     ========================================================================== */
   #sideBar {
-    position: fixed;
-    left: 0;
-    top: var(--header-h);
-    bottom: var(--footer-h);
-    width: 280px;
-    background: var(--panel);
-    border-right: 1px solid var(--panel-border);
-    padding: 14px;
-    overflow-y: auto;
-    transform: translateX(-100%);
+    position: fixed; left: 0; top: var(--header-h); bottom: var(--footer-h);
+    width: 280px; background: var(--panel); border-right: 1px solid var(--panel-border);
+    padding: 14px; overflow-y: auto; transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1100;
-    box-shadow: var(--shadow-card);
-    display: flex;
-    flex-direction: column;
+    z-index: 1100; box-shadow: var(--shadow-card); display: flex; flex-direction: column;
   }
-  #sideBar.active {
-    transform: translateX(0);
-  }
+  #sideBar.active { transform: translateX(0); }
 
   #sidebarOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(3px);
-    z-index: 1090;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(3px); z-index: 1090; display: none; opacity: 0; transition: opacity 0.3s ease;
   }
 
   .sidebar-user-box {
-    padding: 8px 6px 14px 6px;
-    border-bottom: 1px solid var(--panel-border);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 8px 6px 14px 6px; border-bottom: 1px solid var(--panel-border);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
   }
-  .sidebar-user-box i {
-    color: var(--accent);
-    font-size: 14px;
-  }
-  .sidebar-user-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: 0.5px;
-  }
+  .sidebar-user-box i { color: var(--accent); font-size: 14px; }
+  .sidebar-user-name { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
 
-  /* Dropdown e Botoes do Menu */
-  .menu-dropdown {
-    margin-bottom: 8px;
-    width: 100%;
-    display: block;
-  }
+  .menu-dropdown { margin-bottom: 8px; width: 100%; display: block; }
 
   .menu-trigger {
-    width: 100%;
-    padding: 11px 12px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--panel-border);
-    color: var(--text);
-    text-align: left;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: all 0.2s ease;
+    width: 100%; padding: 11px 12px; background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--panel-border); color: var(--text); text-align: left;
+    border-radius: var(--radius-sm); cursor: pointer; font-weight: 700;
+    font-size: 12px; letter-spacing: 0.5px; display: flex;
+    align-items: center; justify-content: space-between; transition: all 0.2s ease;
   }
   .menu-trigger:hover {
-    border-color: var(--accent);
-    background: var(--panel-hover);
+    border-color: var(--accent); background: var(--panel-hover);
     box-shadow: inset 0 0 10px var(--accent-glow);
   }
-  .menu-trigger div {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    pointer-events: none;
-  }
+  .menu-trigger div { display: flex; align-items: center; gap: 8px; pointer-events: none; }
   .menu-trigger i.arrow-icon {
-    font-size: 11px;
-    color: var(--muted);
-    transition: transform 0.2s ease-in-out, color 0.2s;
-    pointer-events: none;
+    font-size: 11px; color: var(--muted);
+    transition: transform 0.2s ease-in-out, color 0.2s; pointer-events: none;
   }
 
-  .menu-dropdown .menu-content {
-    display: none;
-    padding: 6px 0 2px 6px;
-    width: 100%;
-  }
-  .menu-dropdown.open > .menu-content {
-    display: block !important;
-  }
-  .menu-dropdown.open .menu-trigger i.arrow-icon {
-    transform: rotate(180deg);
-    color: var(--accent);
-  }
+  .menu-dropdown .menu-content { display: none; padding: 6px 0 2px 6px; width: 100%; }
+  .menu-dropdown.open > .menu-content { display: block !important; }
+  .menu-dropdown.open .menu-trigger i.arrow-icon { transform: rotate(180deg); color: var(--accent); }
 
   .sideButtons .botao {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--panel-border);
-    color: var(--text);
-    text-align: left;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.2s ease;
+    width: 100%; padding: 10px 12px; margin-bottom: 6px;
+    background: rgba(0, 0, 0, 0.4); border: 1px solid var(--panel-border);
+    color: var(--text); text-align: left; border-radius: var(--radius-sm);
+    cursor: pointer; font-weight: 600; font-size: 12px;
+    display: flex; align-items: center; gap: 10px; transition: all 0.2s ease;
     position: relative;
   }
   .sideButtons .botao:hover {
-    border-color: var(--accent);
-    background: var(--primary-hover);
+    border-color: var(--accent); background: var(--primary-hover);
     box-shadow: 0 0 10px var(--primary-glow);
   }
-  .sideButtons .botao:active {
-    transform: scale(0.98);
-  }
-  .sideButtons .botao i {
-    width: 20px;
-    text-align: center;
-    color: var(--accent);
-    font-size: 14px;
-  }
+  .sideButtons .botao:active { transform: scale(0.98); }
+  .sideButtons .botao i { width: 20px; text-align: center; color: var(--accent); font-size: 14px; }
 
-  .sidebar-footer {
-    margin-top: auto;
-    padding-top: 14px;
-    border-top: 1px solid var(--panel-border);
-  }
+  .sidebar-footer { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--panel-border); }
 
-  .botao.btn-logout {
-    background: var(--danger-bg);
-    border: 1px solid var(--danger-border);
-    color: #ffc0c0;
-  }
-  .botao.btn-logout:hover {
-    border-color: var(--danger);
-    background: rgba(239, 68, 68, 0.25);
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
-  }
-  .botao.btn-logout i {
-    color: var(--danger);
-  }
+  .botao.btn-logout { background: var(--danger-bg); border: 1px solid var(--danger-border); color: #ffc0c0; }
+  .botao.btn-logout:hover { border-color: var(--danger); background: rgba(239, 68, 68, 0.25); box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+  .botao.btn-logout i { color: var(--danger); }
 
   .sideBadge {
-    position: absolute;
-    top: 6px;
-    right: 10px;
-    min-width: 18px;
-    height: 18px;
-    line-height: 18px;
-    padding: 0 5px;
-    border-radius: 9px;
-    background: var(--danger);
-    color: #fff;
-    font-size: 10px;
-    font-weight: 800;
-    text-align: center;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-    display: inline-block;
-    pointer-events: none;
+    position: absolute; top: 6px; right: 10px; min-width: 18px; height: 18px;
+    line-height: 18px; padding: 0 5px; border-radius: 9px; background: var(--danger);
+    color: #fff; font-size: 10px; font-weight: 800; text-align: center;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); display: inline-block; pointer-events: none;
   }
 
-  /* ==========================================================================
-     CONTEÚDO PRINCIPAL (CONTENT)
-     ========================================================================== */
   #appContent {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: var(--header-h);
-    bottom: var(--footer-h);
-    overflow: hidden;
-    display: flex;
+    position: fixed; left: 0; right: 0; top: var(--header-h); bottom: var(--footer-h);
+    overflow: hidden; display: flex;
   }
 
   #contentContainer {
-    flex: 1;
-    padding: 0;
-    overflow: hidden;
-    position: relative;
-    width: 100%;
-    height: 100%;
-    margin-left: 0;
+    flex: 1; padding: 0; overflow: hidden; position: relative;
+    width: 100%; height: 100%; margin-left: 0;
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   #loadedContent {
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 18px;
+    width: 100%; height: 100%; overflow-y: auto;
+    -webkit-overflow-scrolling: touch; padding: 18px;
   }
 
-  /* Seção de Notícias */
-  .news-wrap {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 14px;
-    color: var(--text);
-  }
-  .news-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .news-header h2 {
-    margin: 0;
-    color: var(--accent);
-    font-size: 1.1rem;
-    letter-spacing: 1px;
-    text-shadow: 0 0 8px var(--accent-glow);
-  }
-
-  .news-list {
-    column-count: 2;
-    column-gap: 20px;
-  }
+  .news-wrap { max-width: 1100px; margin: 0 auto; padding: 14px; color: var(--text); }
+  .news-list { column-count: 2; column-gap: 20px; }
   .news-card {
-    display: inline-block;
-    width: 100%;
-    margin: 0 0 18px;
-    vertical-align: top;
-    border-radius: var(--radius);
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    box-shadow: var(--shadow-card);
-    padding: 14px;
-    -webkit-column-break-inside: avoid;
-    page-break-inside: avoid;
-    break-inside: avoid;
-    transition: border-color 0.2s, transform 0.2s;
+    display: inline-block; width: 100%; margin: 0 0 18px; vertical-align: top;
+    border-radius: var(--radius); background: var(--panel); border: 1px solid var(--panel-border);
+    box-shadow: var(--shadow-card); padding: 14px; break-inside: avoid; transition: border-color 0.2s, transform 0.2s;
   }
-  .news-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-  }
-
-  .news-media {
-    width: 100%;
-    height: auto;
-    display: block;
-    overflow: hidden;
-    border-radius: var(--radius-sm);
-    background: #000;
-    margin-bottom: 12px;
-  }
-  .news-media img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    display: block;
-    border-radius: var(--radius-sm);
-  }
-
-  .news-title {
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--accent);
-    margin-bottom: 6px;
-  }
-  .news-meta {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 8px;
-  }
-  .news-body {
-    font-size: 14px;
-    color: var(--text);
-    line-height: 1.5;
-    white-space: pre-wrap;
-  }
-  .news-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 12px;
-  }
+  .news-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .news-media { width: 100%; height: auto; display: block; overflow: hidden; border-radius: var(--radius-sm); background: #000; margin-bottom: 12px; }
+  .news-media img { width: 100%; height: auto; object-fit: cover; display: block; border-radius: var(--radius-sm); }
+  .news-title { font-size: 1.05rem; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
+  .news-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .news-body { font-size: 14px; color: var(--text); line-height: 1.5; white-space: pre-wrap; }
+  .news-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
 
   .btn-small {
-    padding: 6px 12px;
-    border-radius: var(--radius-sm);
-    background: transparent;
-    border: 1px solid var(--panel-border);
-    color: var(--muted);
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s ease;
+    padding: 6px 12px; border-radius: var(--radius-sm); background: transparent;
+    border: 1px solid var(--panel-border); color: var(--muted); cursor: pointer;
+    font-family: inherit; transition: all 0.2s ease;
   }
-  .btn-small:hover {
-    color: var(--text);
-    border-color: var(--accent);
-    background: var(--panel-hover);
-  }
+  .btn-small:hover { color: var(--text); border-color: var(--accent); background: var(--panel-hover); }
 
-  @media (max-width: 960px) {
-    .news-list {
-      column-count: 1;
-    }
-  }
+  @media (max-width: 960px) { .news-list { column-count: 1; } }
 
-  /* ==========================================================================
-     MODAIS E OVERLAYS
-     ========================================================================== */
   #newsModalOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(5px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 4000;
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 4000;
   }
-  #newsModalOverlay[aria-hidden="false"] {
-    display: flex;
-  }
-
-  .news-modal-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 20px;
-    width: 100%;
-  }
-
-  #newsModalMedia {
-    flex: 0 0 40%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  #newsModalMedia img {
-    max-width: 100%;
-    height: auto;
-    border-radius: var(--radius-sm);
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-  }
-
-  .news-modal-text-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    justify-content: center;
-  }
-
-  @media (max-width: 600px) {
-    .news-modal-container {
-      flex-direction: column;
-    }
-    #newsModalMedia {
-      flex: 100%;
-      width: 100%;
-    }
-  }
+  #newsModalOverlay[aria-hidden="false"] { display: flex; }
+  .news-modal-container { display: flex; flex-direction: row; align-items: center; gap: 20px; width: 100%; }
+  #newsModalMedia { flex: 0 0 40%; display: flex; justify-content: center; align-items: center; }
+  #newsModalMedia img { max-width: 100%; height: auto; border-radius: var(--radius-sm); box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+  .news-modal-text-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; }
 
   .news-modal {
-    width: 90%;
-    max-width: 720px;
-    max-height: 85vh;
-    overflow-y: auto;
-    background: var(--panel);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    border: 1px solid var(--panel-border);
-    box-shadow: var(--shadow-card), 0 0 20px var(--accent-glow);
-    position: relative;
-    outline: none;
+    width: 90%; max-width: 720px; max-height: 85vh; overflow-y: auto;
+    background: var(--panel); border-radius: var(--radius-lg); padding: 24px;
+    border: 1px solid var(--panel-border); box-shadow: var(--shadow-card), 0 0 20px var(--accent-glow);
+    position: relative; outline: none;
   }
-  .news-modal h3 {
-    margin-top: 0;
-    color: var(--accent);
-    font-size: 1.2rem;
-    letter-spacing: 0.5px;
-  }
-
+  .news-modal h3 { margin-top: 0; color: var(--accent); font-size: 1.2rem; letter-spacing: 0.5px; }
   #newsModalClose {
-    position: absolute;
-    top: 12px;
-    right: 14px;
-    background: transparent;
-    border: none;
-    color: var(--accent);
-    font-size: 22px;
-    cursor: pointer;
-    transition: transform 0.2s, opacity 0.2s;
-  }
-  #newsModalClose:hover {
-    opacity: 0.8;
-    transform: scale(1.1);
+    position: absolute; top: 12px; right: 14px; background: transparent;
+    border: none; color: var(--accent); font-size: 22px; cursor: pointer; transition: transform 0.2s, opacity 0.2s;
   }
 
-  /* ==========================================================================
-     RODAPÉ (FOOTER)
-     ========================================================================== */
   footer#appFooter {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: var(--footer-h);
-    background: var(--panel);
-    border-top: 1px solid var(--panel-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-    z-index: 1200;
+    position: fixed; left: 0; right: 0; bottom: 0; height: var(--footer-h);
+    background: var(--panel); border-top: 1px solid var(--panel-border);
+    display: flex; align-items: center; justify-content: center; font-size: 11px;
+    color: var(--muted); letter-spacing: 0.5px; z-index: 1200;
   }
 
-  /* ==========================================================================
-     TELA DE LOGIN
-     ========================================================================== */
   #loginOverlay {
-    position: fixed;
-    inset: 0;
-    background: var(--bg);
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: fixed; inset: 0; background: var(--bg); z-index: 2000;
+    display: flex; align-items: center; justify-content: center;
   }
-
   #loginBox {
-    width: 100%;
-    max-width: 350px;
-    padding: 30px 25px;
-    background: var(--panel);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--panel-border);
-    text-align: center;
-    box-shadow: var(--shadow-card), 0 0 25px var(--accent-glow);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    width: 100%; max-width: 350px; padding: 30px 25px; background: var(--panel);
+    border-radius: var(--radius-lg); border: 1px solid var(--panel-border); text-align: center;
+    box-shadow: var(--shadow-card), 0 0 25px var(--accent-glow); display: flex; flex-direction: column; align-items: center;
   }
-
-  #loginBrand img {
-    width: 110px;
-    height: 110px;
-    object-fit: contain;
-    margin-bottom: 15px;
-    filter: drop-shadow(0 0 12px var(--accent-glow));
-  }
-  #loginBrand .phrase {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 20px;
-    line-height: 1.4;
-  }
-
+  #loginBrand img { width: 110px; height: 110px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 0 12px var(--accent-glow)); }
   #loginBox input {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 12px;
-    background: var(--bg);
-    border: 1px solid var(--panel-border);
-    border-radius: var(--radius-sm);
-    color: #fff;
-    outline: none;
-    text-align: center;
-    font-size: 16px;
-    font-family: inherit;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%; padding: 12px; margin-bottom: 12px; background: var(--bg);
+    border: 1px solid var(--panel-border); border-radius: var(--radius-sm); color: #fff;
+    outline: none; text-align: center; font-size: 16px; font-family: inherit;
   }
-  #loginBox input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 10px var(--accent-glow);
-  }
-
   #loginBox button {
-    width: 100%;
-    padding: 12px;
-    background: linear-gradient(90deg, var(--primary), var(--primary-hover));
-    border: none;
-    border-radius: var(--radius-sm);
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 15px;
-    font-family: inherit;
-    letter-spacing: 0.5px;
-    transition: all 0.2s ease;
-    box-shadow: 0 0 12px var(--primary-glow);
-  }
-  #loginBox button:hover {
-    filter: brightness(1.15);
-    box-shadow: 0 0 18px var(--primary-glow);
+    width: 100%; padding: 12px; background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+    border: none; border-radius: var(--radius-sm); color: #fff; font-weight: 700; cursor: pointer; font-size: 15px;
   }
 
   #loader {
-    position: absolute;
-    inset: 0;
-    background: rgba(9, 13, 18, 0.95);
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent);
-    font-size: 14px;
-    z-index: 1500;
+    position: absolute; inset: 0; background: rgba(9, 13, 18, 0.95);
+    display: none; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--accent); font-size: 14px; z-index: 1500;
   }
-  #loader i {
-    font-size: 32px;
-    margin-bottom: 15px;
-    text-shadow: 0 0 10px var(--accent-glow);
-  }
+  #loader i { font-size: 32px; margin-bottom: 15px; text-shadow: 0 0 10px var(--accent-glow); }
 
-  .stayLoggedContainer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 12px 0;
-    width: 60%;
-  }
-  .stayLoggedContainer input[type="checkbox"] {
-    margin: 0;
-    cursor: pointer;
-    accent-color: var(--accent);
-  }
-  .stayLoggedContainer label {
-    margin: 0;
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    white-space: nowrap;
-  }
+  .stayLoggedContainer { display: flex; align-items: center; justify-content: center; margin: 12px 0; width: 60%; }
+  .stayLoggedContainer input[type="checkbox"] { margin: 0; cursor: pointer; accent-color: var(--accent); }
+  .stayLoggedContainer label { margin: 0; font-size: 13px; color: var(--muted); cursor: pointer; white-space: nowrap; }
 
-  #tituloDesc {
-    font-family: 'Inter', sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--text);
-  }
+  #tituloDesc { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 2px; color: var(--text); }
 
-  /* Suporte a Telas Grandes */
   @media (min-width: 900px) {
-    #sideBar {
-      transform: translateX(-100%);
-    }
-    #sideBar.active {
-      transform: translateX(0);
-    }
-    #contentContainer {
-      margin-left: 0;
-    }
-    #sideBar.active ~ #contentContainer {
-      margin-left: 280px;
-    }
-    #menuToggle {
-      display: block;
-    }
-    #sidebarOverlay {
-      display: none !important;
-    }
+    #sideBar { transform: translateX(-100%); }
+    #sideBar.active { transform: translateX(0); }
+    #contentContainer { margin-left: 0; }
+    #sideBar.active ~ #contentContainer { margin-left: 280px; }
   }
 </style>
-
-
 </head>
 <body>
 
-
-
-
-
 <div id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-<body>
 
 <header id="appHeader">
   <div class="header-inner">
     <div class="header-left">
       <button class="iconBtn" id="menuToggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
     </div>
-    
-    <!-- Título posicionado no centro absoluto do cabeçalho -->
     <div class="header-center">
       <div id="tituloDesc" style="color:#36b8f2;" class="app-title" onclick="showNews()">OUTLOG</div>
     </div>
-    
     <div class="header-right">
-      <!-- Opcional: mantido para sincronizar se necessário, mas o nome agora fica na barra lateral -->
       <span id="headerUser" style="font-size:13px; color:var(--muted); margin-right:10px; display:none;"></span>
     </div>
   </div>
 </header>
 
-
-
 <div id="appContent">
   <aside id="sideBar">
-    
-    <!-- Nome do usuário inserido no topo da Sidebar -->
     <div class="sidebar-user-box">
       <i class="fa-solid fa-circle-user"></i>
       <span id="sidebarUserName" class="sidebar-user-name">Carregando usuário...</span>
     </div>
 
     <nav class="sideButtons" style="flex: 1;">
-
-      <!-- MENU 1: OPERADORES -->
       <div class="menu-dropdown">
         <button class="menu-trigger" onclick="toggleMenu(this)">
           <div><i class="fa-solid fa-helmet-safety"></i>MACROMAQ| OPERADORES</div>
           <i class="fa-solid fa-chevron-down arrow-icon"></i>
         </button>
-
         <div class="menu-content">
-
-          <button id="btncarregamentoOp" class="botao" onclick="abrirLink('SEPARACAO.html')">
-            <img src="https://images.icon-icons.com/2248/PNG/512/forklift_icon_135595.png" style="width: 20px; height: 21px;  filter: invert(31%) sepia(94%) saturate(3135%) hue-rotate(201deg) brightness(101%) contrast(105%);">CARREGAMENTO
-          </button>
-
-          <button id="btndescargaOp" class="botao" onclick="abrirLink('DescV2.html')"><img src="https://i.imgur.com/3I75QTh.png" style="width: 20px; height: 21px;  filter: invert(31%) sepia(94%) saturate(3135%) hue-rotate(201deg) brightness(101%) contrast(105%);"> DESCARGA</button>
-
+          <button id="btncarregamentoOp" class="botao" onclick="abrirLink('SEPARACAO.html')">CARREGAMENTO</button>
+          <button id="btndescargaOp" class="botao" onclick="abrirLink('DescV2.html')">DESCARGA</button>
           <button id="btnptlLinha" class="botao" onclick="abrirLink('PTL Operadores.html')"><i class="fa-solid fa-list-check"></i> PTL DE LINHA</button>
-
           <button id="btnSepManual" class="botao" onclick="abrirLink('SEP_MANUAL.html')"><i class="fa-solid fa-pen"></i> SEP.MANUAL</button>
-
           <button id="btnMoviApp" class="botao" onclick="abrirLink('MoviOp.html')"><i class="fa-solid fa-arrows-turn-to-dots"></i> MOVIMENTAÇÕES</button>
-
           <button id="btnbuscarProduto" class="botao" onclick="abrirLink('FeFoBox.html')"><i class="fa-solid fa-magnifying-glass"></i> FEFOBOX</button>
-
           <button id="btnPitStop" class="botao" onclick="abrirLink('Pitstop.html')"><i class="fa-solid fa-gas-pump"></i> PIT-STOP</button>
-
           <button id="btnSimulator3D" class="botao" onclick="abrirLink('simulador3D.html')"><i class="fa-solid fa-rotate"></i> 3D Out-SIMULATOR</button>
-
         </div>
       </div>
 
-      <!-- MENU 2: CONFERENTES -->
       <div class="menu-dropdown">
         <button class="menu-trigger" onclick="toggleMenu(this)">
           <div><i class="fa-solid fa-clipboard-check"></i>AMBEV| CONFERENTES</div>
           <i class="fa-solid fa-chevron-down arrow-icon"></i>
         </button>
         <div class="menu-content">
-          
-          <button id="btnRecebidosP1"  class="botao" onclick="abrirLink('RecebimentoP1.html')"><i class="fa-solid fa-rotate"></i>P1-RECEBIMENTO</button>
-
+          <button id="btnRecebidosP1" class="botao" onclick="abrirLink('RecebimentoP1.html')"><i class="fa-solid fa-rotate"></i>P1-RECEBIMENTO</button>
           <button id="btnAtendimento" class="botao" onclick="abrirLink('Atendimento - OUTLOG.html')"><i class="fa-solid fa-boxes-packing"></i>ATENDIMENTO</button>
-          
-          <button id="btnMoviCONF" class="botao" onclick="abrirLink('Movimentações.html')">
-           <i class="fa-solid fa-arrows-turn-to-dots"></i>NOVA MOVIMENTAÇÃO
-          </button>
-
-          <button style="color:orange;" id="btnAlocarSelo"  class="botao" onclick="abrirLink('ArmazenamentoSelo.html')"><i class="fa-solid fa-arrows-spin"></i>ALOCAR SELO</button>
-
-          
-
-        <!-- <button id="btnFeFoCompat" style="color:white;background:#000000;" class="botao" onclick="window.open('https://script.google.com/macros/s/AKfycbxVPDjHDOjfJaLWDkcs0Mf7ZJWQVHYP6DLxIstPND-j8xRbmFP4mPFtlKSs9OY5wmvXbQ/exec', '_blank')">
-        <i class="fa-solid fa-arrow-up-right-from-square"></i>FEFOBOX x Contagem
-        </button>
-
-        <button id="btnRelatorio" style="color:white;background:#000000;" class="botao" onclick="window.open('https://script.google.com/macros/s/AKfycbwSUsHpaQswYCDUsGsmTuvSP-cDVThg2FHZn4DBvNLl5gKuRJ-DbXbkcHeJbWOowASAkg/exec', '_blank')">
-        <i class="fa-solid fa-arrow-up-right-from-square"></i>HISTORICO CARREGAMENTO | PTL</button>
-          -->
-          </div>
-      </div>
-
-      <!-- MENU 3: ADM -->
-      <div id="menuAdm" class="menu-dropdown" style="display: none;">
-        <button class="menu-trigger" onclick="toggleMenu(this)">
-
-          <div><i class="fa-solid fa-unlock-keyhole"></i> ADM</div>
-
-          <i class="fa-solid fa-chevron-down arrow-icon"></i>
-        </button>
-
-        <div class="menu-content">
-          <button id="btnadmin" class="botao" onclick="abrirLink('ADM.html')"><i class="fa-solid fa-users-gear"></i>ADMIN</button>
-
-          <button id="btnptlControle" class="botao" onclick="abrirLink('PTL_CONTROL.html')"><i class="fa-solid fa-chart-pie"></i>FAROL DE PTL</button>
-
-          <button id="btnRanking" class="botao" onclick="abrirLink('RANKING.html')"><i class="fa-solid fa-chart-line"></i>PRODUTIVIDADES</button>
-
-          <button id="btnContagem" class="botao" onclick="abrirLink('NovaContagem.html')"><i class="fa-solid fa-rotate"></i>CONTAGEM</button>
-
-            <!-- NOVO BOTÃO ADICIONADO ABAIXO -->
-        <button id="btnSeloAcess" class="botao" style="color:white;background:#000000;"  onclick="abrirLink('SELO.html')"><i class="fa-solid fa-hammer"></i>SELO
-        </button>
+          <button id="btnMoviCONF" class="botao" onclick="abrirLink('Movimentações.html')"><i class="fa-solid fa-arrows-turn-to-dots"></i>NOVA MOVIMENTAÇÃO</button>
+          <button style="color:orange;" id="btnAlocarSelo" class="botao" onclick="abrirLink('ArmazenamentoSelo.html')"><i class="fa-solid fa-arrows-spin"></i>ALOCAR SELO</button>
         </div>
       </div>
-      </nav>
 
-        <!-- Botão Logout fixado na parte inferior dos botões -->
+      <div id="menuAdm" class="menu-dropdown" style="display: none;">
+        <button class="menu-trigger" onclick="toggleMenu(this)">
+          <div><i class="fa-solid fa-unlock-keyhole"></i> ADM</div>
+          <i class="fa-solid fa-chevron-down arrow-icon"></i>
+        </button>
+        <div class="menu-content">
+          <button id="btnadmin" class="botao" onclick="abrirLink('ADM.html')"><i class="fa-solid fa-users-gear"></i>ADMIN</button>
+          <button id="btnptlControle" class="botao" onclick="abrirLink('PTL_CONTROL.html')"><i class="fa-solid fa-chart-pie"></i>FAROL DE PTL</button>
+          <button id="btnRanking" class="botao" onclick="abrirLink('RANKING.html')"><i class="fa-solid fa-chart-line"></i>PRODUTIVIDADES</button>
+          <button id="btnContagem" class="botao" onclick="abrirLink('NovaContagem.html')"><i class="fa-solid fa-rotate"></i>CONTAGEM</button>
+          <button id="btnSeloAcess" class="botao" style="color:white;background:#000000;" onclick="abrirLink('SELO.html')"><i class="fa-solid fa-hammer"></i>SELO</button>
+        </div>
+      </div>
+    </nav>
+
     <div class="sidebar-footer">
       <button class="botao btn-logout" onclick="logout()" title="Sair do Sistema">
         <i class="fa-solid fa-right-from-bracket"></i> Sair da Conta
       </button>
     </div>
-
-    
-
   </aside>
 
-  <div id="sidebarOverlay" onclick="closeSidebar()"></div>
-
   <section id="contentContainer">
-
     <div id="loader">
         <i class="fa-solid fa-circle-notch fa-spin"></i>
-        
         <span>Carregando módulo...</span>
     </div>
-  
     <div id="loadedContent"></div>
   </section>
-
 </div>
 
-
-<!-- Importação da fonte (insira no <head> ou antes do footer) -->
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
-<!-- Elemento atualizado -->
 <footer style="color:#36b8f2;font-size:22px;font-family:'Great Vibes', cursive;" id="appFooter">Richard Ferreira</footer>
 
 <div id="loginOverlay" aria-hidden="false">
   <div id="loginBox" style="margin-bottom:200px;height:300px;" role="dialog" aria-modal="true" aria-label="Login">
     <div id="loginBrand">
        <img style="width:100%;height:120px" src="https://i.imgur.com/Mcgrop4.png" alt="Logo OUTLOG">
-       <div style="display: none;" class="phrase">..:: Bem-vindo ao OUTLOG ::.. </div>
     </div>
-
-    <input type="password" id="usuario" placeholder="MATRÍCULA / ID" inputmode="numeric" aria-label="Campo matrícula (use o teclado na tela)" />
-
-     <button id="btnLogin" onclick="fazerLogin()" style="font-size:12px;height:35px;width:120px" >Login</button>
-
+    <input type="password" id="usuario" placeholder="MATRÍCULA / ID" inputmode="numeric" aria-label="Campo matrícula" />
+    <button id="btnLogin" onclick="fazerLogin()" style="font-size:12px;height:35px;width:120px">Login</button>
     <div class="stayLoggedContainer">
       <input style="display: none;" type="checkbox" id="stayLogged">
-      <label for="stayLogged" onclick="receberDadoDoApp(valorSalvo);">Manter Login [Beta]</label>
-    </div> 
-
-   
-    
+      <label for="stayLogged">Manter Login [Beta]</label>
+    </div>
   </div>
-  
 </div>
-
-
-
 
 <script>
-
-  // --- MONITORAMENTO DE MENSAGENS (3 MINUTOS) ---
-(function() {
-  const INTERVALO_MS = 1 * 60 * 1000; // 3 minutos
-
-  function iniciarMonitoramento() {
-    checarMensagemH1();
-    setInterval(checarMensagemH1, INTERVALO_MS);
-  }
-
-  function checarMensagemH1() {
-    if (typeof google === 'undefined' || !google.script || !google.script.run) return;
-
-    google.script.run
-      .withSuccessHandler(function(mensagem) {
-        if (!mensagem) return;
-
-        // Verifica se a mensagem já foi visualizada no localStorage
-        const msgSalva = localStorage.getItem('h1_msg_lida');
-        if (msgSalva === mensagem) return;
-
-        // Exibe o botão de notificação no rodapé
-        exibirBotaoNotificacao(mensagem);
-      })
-      .verificarMensagemH1();
-  }
-
-  function exibirBotaoNotificacao(mensagem) {
-    const footer = document.getElementById('appFooter');
-    if (!footer) return;
-
-    // Substitui o texto pelo botão com envelope e badge vermelho
-    footer.innerHTML = `
-      <button id="btnNotifMsg" style="
-        background: rgba(239, 68, 68, 0.15);
-        border: 1px solid #ef4444;
-        color: #ffffff;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-family: 'Inter', sans-serif;
-        font-size: 13px;
-        font-weight: bold;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-        transition: transform 0.2s, background-color 0.2s;
-      ">
-        <i class="fa-solid fa-envelope" style="color: #ef4444;"></i> Nova Mensagem
-        <span style="
-          background: #ef4444;
-          color: #ffffff;
-          border-radius: 10px;
-          padding: 1px 6px;
-          font-size: 11px;
-          font-weight: 800;
-          line-height: 1;
-        ">1</span>
-      </button>
-    `;
-
-    // Evento de clique para abrir o toast
-    const btn = document.getElementById('btnNotifMsg');
-    if (btn) {
-      btn.onclick = function() {
-        exibirToastCentral(mensagem);
-
-        // Salva a mensagem lida no localStorage
-        localStorage.setItem('h1_msg_lida', mensagem);
-
-        // Retorna ao nome original
-        footer.textContent = 'Richard Ferreira';
-      };
-    }
-  }
-
-  function exibirToastCentral(mensagem) {
-    const toastExistente = document.getElementById('toast-central-h1');
-    if (toastExistente) toastExistente.remove();
-
-    // Cria o Modal/Toast centralizado
-    const overlay = document.createElement('div');
-    overlay.id = 'toast-central-h1';
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(3px);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 10000;
-      animation: fadeIn 0.2s ease-out;
-    `;
-
-    overlay.innerHTML = `
-      <div style="
-        background: var(--panel, #1e293b);
-        border: 1px solid var(--accent, #36b8f2);
-        color: var(--white, #ffffff);
-        padding: 20px 24px;
-        border-radius: 12px;
-        max-width: 420px;
-        width: 85%;
-        box-shadow: 0 0 20px rgba(54, 184, 242, 0.3);
-        text-align: center;
-        font-family: 'Inter', sans-serif;
-      ">
-        <div style="font-size: 24px; color: #36b8f2; margin-bottom: 8px;">
-          <i class="fa-solid fa-bell"></i>
-        </div>
-        <h4 style="margin: 0 0 10px 0; color: #36b8f2; font-size: 16px;">Comunicado</h4>
-        <p style="font-size: 14px; line-height: 1.5; color: #e2e8f0; margin-bottom: 20px; font-family: sans-serif;">
-          ${mensagem}
-        </p>
-        <button id="btnCloseToastH1" style="
-          background: #36b8f2;
-          color: #0f172a;
-          border: none;
-          padding: 8px 22px;
-          border-radius: 6px;
-          font-weight: bold;
-          font-family: 'Inter', sans-serif;
-          cursor: pointer;
-          transition: 0.2s;
-        ">Entendido</button>
-      </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    document.getElementById('btnCloseToastH1').onclick = function() {
-      overlay.remove();
-    };
-  }
-
-  // Inicializa quando o DOM estiver pronto
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', iniciarMonitoramento);
-  } else {
-    iniciarMonitoramento();
-  }
-})();
-
-// Função IIFE auto-executável para validação de acesso do Menu ADM
-(function verifyAdmAccess() {
-  const checkPermission = () => {
-    const menuAdm = document.getElementById('menuAdm');
-    const operadorNome = sessionStorage.getItem('operadorNome');
-
-    if (menuAdm && operadorNome === '[Administrador]' || 'Marcos Barnabe') {
-      menuAdm.style.display = 'block'; // Altere para 'inline-block' ou 'flex' caso o layout exija
-    }
-  };
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', checkPermission);
-  } else {
-    checkPermission();
-  }
-})();
-// Variáveis globais de controle de estado do GPS
-var idWatchGps = null;
-var cronometroEnvio = null;
-var bufferLocalPontos = [];
-var ultimoPontoValido = null;
-
-function executarModoCampo() {
-
-  // 1. Resgata o operador ativo do sessionStorage
-  const nomeUsuario = sessionStorage.getItem('operadorNome');
-
-  // Limpa processos residuais pré-existentes (assumindo que as variáveis são globais)
-  if (typeof idWatchGps !== 'undefined' && idWatchGps !== null) navigator.geolocation.clearWatch(idWatchGps);
-  if (typeof cronometroEnvio !== 'undefined' && cronometroEnvio !== null) clearInterval(cronometroEnvio);
-
-  // 2. Estilos CSS do mini painel flutuante
-  if (!document.getElementById("estilosModoCampoGps")) {
-    var estilo = document.createElement("style");
-    estilo.id = "estilosModoCampoGps";
-    estilo.innerHTML = `
-      .mini-botao-gps {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        height: 32px; max-height: 32px;
-        background-color: #121214; color: #ffffff; 
-        border: 1px solid #29292e; border-radius: 6px; 
-        z-index: 999999; font-family: system-ui, -apple-system, sans-serif;
-        display: inline-flex; align-items: center; justify-content: center;
-        padding: 0 12px; box-sizing: border-box; font-size: 13px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); letter-spacing: 0.3px;
-      }
-      .status-satelite { display: flex; align-items: center; font-weight: 500; }
-    `;
-    document.head.appendChild(estilo);
-  }
-
-  // 3. Estrutura do painel (apenas o status agora)
-  var footerApp = document.getElementById("appFooter");
-  var containerPai = footerApp || document.body;
-
-  if (footerApp) {
-    footerApp.style.textAlign = "center";
-    if (window.getComputedStyle(footerApp).position === "static") {
-      footerApp.style.position = "relative";
-    }
-  }
-
-  var barraGps = document.getElementById("painelModoCampoGps");
-  var bolinhaAntiga = document.getElementById("bolinhaModoCampoGps");
-  if (bolinhaAntiga) bolinhaAntiga.remove();
-
-  if (!barraGps) {
-    barraGps = document.createElement("div");
-    barraGps.id = "painelModoCampoGps";
-    barraGps.className = "mini-botao-gps";
-    containerPai.appendChild(barraGps);
-  } else if (barraGps.parentElement !== containerPai) {
-    containerPai.appendChild(barraGps);
-  }
-
-  // HTML inicializado com status neutro
-  barraGps.innerHTML = `
-    <div class="status-satelite">
-      <span id="txtGpsStatus">⚪ Buscando sinal...</span>
-    </div>
-  `;
-
-  // 4. Processamento do ponto do GPS
-  function analisarEProcessarPonto(p) {
-    var latAtual = p.coords.latitude;
-    var lngAtual = p.coords.longitude;
-    var precisao = p.coords.accuracy ? p.coords.accuracy : 999;
-    var agora = new Date();
-    var tsAtual = p.timestamp || agora.getTime();
-
-    var textoStatus = "";
-    var tipoLocalizacao = "";
-
-    // 5. Regras de raio e exibição visual do usuário
-    if (precisao <= 16.0) {
-      textoStatus = "🟢 Local: Exato";
-      tipoLocalizacao = "Exata";
-    } else if (precisao > 16.0 && precisao <= 35.0) {
-      textoStatus = "🟡 Local: Deslocando";
-      tipoLocalizacao = "Deslocando";
-    } else if (precisao > 35.0 && precisao <= 45.0) {
-      textoStatus = "🟠 Local: Registrando perímetro";
-      tipoLocalizacao = "Perímetro";
-    } else {
-      textoStatus = "🔴 Local: Oscilando";
-      tipoLocalizacao = "Oscilando";
-    }
-
-    // Atualiza a interface
-    document.getElementById("txtGpsStatus").innerHTML = textoStatus;
-
-    // Se o sinal for extremamente impreciso (ex: maior que 80m), descarta o ponto para não poluir a base
-    if (precisao > 80.0) {
-      console.warn(`Sinal ignorado (precisão muito ruim): ${precisao.toFixed(1)}m`);
-      return;
-    }
-
-    // Formatação da data/hora
-    var dia = String(agora.getDate()).padStart(2, '0');
-    var mes = String(agora.getMonth() + 1).padStart(2, '0');
-    var ano = agora.getFullYear();
-    var h = String(agora.getHours()).padStart(2, '0');
-    var m = String(agora.getMinutes()).padStart(2, '0');
-    var s = String(agora.getSeconds()).padStart(2, '0');
-    
-    var dataString = dia + "/" + mes + "/" + ano;
-    var horaString = h + ":" + m + ":" + s;
-    var dataHoraString = dataString + " " + horaString;
-
-    // Inicializa o array global de buffer caso não exista
-    if (typeof bufferLocalPontos === 'undefined') {
-      window.bufferLocalPontos = [];
-    }
-
-    // Adiciona ao buffer para envio em lote
-    bufferLocalPontos.push({
-      lat: latAtual.toString(),
-      lng: lngAtual.toString(),
-      precisao: precisao.toFixed(1) + "m",
-      tipo: tipoLocalizacao,
-      timestamp: tsAtual.toString(),
-      data: dataString,
-      hora: horaString,
-      dataHora: dataHoraString
-    });
-  }
-
-  // 6. Sensor GPS
-  if (!navigator.geolocation) {
-    document.getElementById("txtGpsStatus").innerHTML = "🔴 Sem GPS";
-    return;
-  }
-
-  var geoOptions = {
-    enableHighAccuracy: true,
-    timeout: 8000,            
-    maximumAge: 0             
-  };
-
-  navigator.geolocation.getCurrentPosition(
-    function(posicaoInicial) {
-      analisarEProcessarPonto(posicaoInicial);
-      
-      idWatchGps = navigator.geolocation.watchPosition(
-        analisarEProcessarPonto,
-        function(err) { console.warn("Aviso do sensor: " + err.message); },
-        geoOptions
-      );
-    },
-    function(errInicial) {
-      document.getElementById("txtGpsStatus").innerHTML = "🔴 Erro no Sinal";
-    },
-    geoOptions
-  );
-
-  // 7. Sincronização em Lote a cada 7s
-  cronometroEnvio = setInterval(function() {
-    if (typeof bufferLocalPontos === 'undefined' || bufferLocalPontos.length === 0) return;
-
-    var pacoteParaEnviar = [];
-    for (var i = 0; i < bufferLocalPontos.length; i++) {
-      pacoteParaEnviar.push(bufferLocalPontos[i]);
-    }
-    bufferLocalPontos = []; // limpa após preparar o envio
-
-    google.script.run
-      .withSuccessHandler(function(res) {})
-      .withFailureHandler(function(e) {
-        console.error("Falha no envio batch do GPS:", e);
-        // Devolve os dados para o buffer em caso de falha de conexão
-        bufferLocalPontos = pacoteParaEnviar.concat(bufferLocalPontos);
-      })
-      .salvarLocalizacaoBatch(nomeUsuario, JSON.stringify(pacoteParaEnviar));
-  }, 7000);
-}
-
-
-function lidarCliqueMenu(event) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation(); // Evita que o clique interfira na barra lateral
-  }
-  
-  // 'this' aponta diretamente para o botão '.menu-trigger' clicado
-  var dropdown = (typeof this.closest === 'function') 
-    ? this.closest('.menu-dropdown') 
-    : this.parentElement;
-
-  if (dropdown && dropdown.classList) {
-    // Verifica se o menu clicado está prestes a ser ABERTO
-    var vaiAbrir = !dropdown.classList.contains('open');
-
-    if (vaiAbrir) {
-      // Localiza a sidebar para fechar apenas os menus internos dela
-      var sideBar = document.getElementById('sideBar');
-      var todosDropdowns = sideBar ? sideBar.querySelectorAll('.menu-dropdown') : document.querySelectorAll('.menu-dropdown');
-      
-      // Remove a classe 'open' de TODOS os menus antes de abrir o atual
-      todosDropdowns.forEach(function(item) {
-        item.classList.remove('open');
-      });
-    }
-
-    // Abre o menu atual (ou fecha, caso ele já estivesse aberto e o usuário clicou de novo)
-    dropdown.classList.toggle('open');
-  }
-}
-/**
- * Controla a abertura/fechamento da Sidebar.
- * Executa a higienização dos cliques, define o usuário e abre tudo automaticamente.
- */
-function toggleSidebar() {
-
-  const checkPermission = () => {
-    const menuAdm = document.getElementById('menuAdm');
-    const operadorNome = sessionStorage.getItem('operadorNome');
-
-    if (operadorNome === '[Administrador]') {
-      menuAdm.style.display = 'block'; // Altere para 'inline-block' ou 'flex' caso o layout exija
-    }
-  };
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', checkPermission);
-  } else {
-    checkPermission();
-  };
-
-  updateBadges();
-
-  var sideBar = document.getElementById('sideBar');
-  //var overlay = document.getElementById('sidebarOverlay');
-  var labelSidebar = document.getElementById('sidebarUserName');
-
-  // Intercepta apenas o momento exato da ABERTURA da barra lateral
-  if (sideBar && !sideBar.classList.contains('active')) {
-    
-    // 1. Carrega e valida o nome do operador vindo do sessionStorage
-    var operador = sessionStorage.getItem("operadorNome");
-    if (labelSidebar) {
-      labelSidebar.innerText = operador ? operador.trim() : 'USUÁRIO NÃO IDENTIFICADO';
-    }
-
-    // 2. Configura e higieniza os menus dropdown
-    var dropdowns = sideBar.querySelectorAll('.menu-dropdown');
-    dropdowns.forEach(function(menu) {
-      // Garante sua regra: Força todos os menus a abrirem automaticamente ao iniciar
-      //menu.classList.add('open');
-      
-      var trigger = menu.querySelector('.menu-trigger');
-      if (trigger) {
-        // CORREÇÃO CRUCIAL: Remove o atributo inline do HTML para impedir o clique duplo conflituoso
-        trigger.removeAttribute('onclick');
-        trigger.onclick = null;
-        
-        // Vincula a escuta nativa e limpa para alternar perfeitamente ao clicar
-        trigger.removeEventListener('click', lidarCliqueMenu);
-        trigger.addEventListener('click', lidarCliqueMenu);
-      }
-    });
-  }
-
-  // Executa o deslizamento físico da barra lateral na tela
-  if (sideBar) {
-    sideBar.classList.toggle('active');
-    
-    if (overlay) {
-      var isOpened = sideBar.classList.contains('active');
-      if (isOpened) {
-        overlay.style.display = 'block';
-        setTimeout(function() { overlay.style.opacity = '1'; }, 10);
-      } else {
-        overlay.style.opacity = '0';
-        setTimeout(function() { overlay.style.display = 'none'; }, 300);
-      }
-    }
-  }
-}
-// Garante o mapeamento global da função de controle da barra
-window.toggleSidebar = toggleSidebar;
-
-/**
- * Fecha a barra lateral de forma segura
- */
-function closeSidebar() {
-  var sideBar = document.getElementById('sideBar');
-  var overlay = document.getElementById('sidebarOverlay');
-  
-  if (sideBar) sideBar.classList.remove('active');
-  if (overlay) {
-    overlay.style.opacity = '0';
-    setTimeout(function() { overlay.style.display = 'none'; }, 300);
-  }
-}
-window.closeSidebar = closeSidebar;
-
-
-(function(){
-
-
-
-function inicializarEventosMenu() {
-  const triggers = document.querySelectorAll('.menu-trigger');
-  triggers.forEach(button => {
-    // Remove qualquer listener anterior para evitar duplicidade
-    button.removeEventListener('click', lidarCliqueMenu);
-    button.addEventListener('click', lidarCliqueMenu);
-  });
-}
-
-
-// Executa a vinculação segura dos elementos assim que o script carregar
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', inicializarEventosMenu);
-} else {
-  inicializarEventosMenu();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const inputUsuario = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
-  let typingTimeout;
-
   // =========================================================================
-  // 1. INTERCEPTADOR SEGURO CONTRA RESPOSTAS ATRASADAS (RACE CONDITIONS)
+  // CONFIGURAÇÃO DA URL DO WEB APP DO GOOGLE APPS SCRIPT
   // =========================================================================
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    const originalWithSuccess = google.script.run.withSuccessHandler;
-
-    google.script.run.withSuccessHandler = function(originalSuccessCallback) {
-      const inputUser = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
-      // Armazena exatamente o que estava escrito no input no momento em que esta requisição disparou
-      const valorEnviado = inputUser ? inputUser.value.trim() : '';
-
-      const customSuccessCallback = function(res) {
-        const currentInput = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
-        const valorAtual = currentInput ? currentInput.value.trim() : '';
-
-        // SE O VALOR DO CAMPO MUDOU (o usuário continuou digitando), IGNORA A RESPOSTA DE ERRO ANTIGA!
-        if (valorAtual !== valorEnviado) {
-          //alert(`[OutLog] Ignorando resposta de "${valorEnviado}" porque o campo agora contém "${valorAtual}".`);
-          return; // Aborta aqui e não limpa o campo, nem mostra erro
-        }
-
-        const loginFailed = !res || !res.success;
-
-        if (loginFailed) {
-          // Se realmente falhou e o usuário parou de digitar (o valor do campo continua igual ao enviado)
-          if (currentInput) {
-            //currentInput.value = ''; // Limpa o campo
-            //currentInput.dispatchEvent(new Event('input'));
-          }
-          // Mostra o modal de erro "Senha incorreta" original
-          originalSuccessCallback(res);
-        } else {
-          // Sucesso! Prossegue com o login
-          currentInput.value = ''; // Limpa o campo
-          originalSuccessCallback(res);
-        }
-      };
-
-      return originalWithSuccess.call(this, customSuccessCallback);
-    };
-  }
-
-  // =========================================================================
-  // 2. MONITOR DE DIGITAÇÃO INTELIGENTE (TENTA 6, SE SEGUIR DIGITANDO, TENTA 8)
-  // =========================================================================
-  if (inputUsuario) {
-    inputUsuario.addEventListener('input', function() {
-      const valor = this.value.trim();
-      clearTimeout(typingTimeout);
-
-      // Se o botão já estiver em estado de "Validando...", ignora novas digitações para evitar spam
-      const btn = document.getElementById('btnLogin') || (typeof qs === 'function' ? qs('btnLogin') : null);
-      if (btn && btn.disabled) return;
-
-      // Se o usuário digitar 8 dígitos, valida NA HORA (tentativa final)
-      if (valor.length === 8) {
-        fazerLogin();
-      } 
-      // Se ele digitar de 6 a 7 dígitos, aguarda uma pausa de 600ms para ver se ele parou por ali
-      else if (valor.length >= 6 && valor.length < 8) {
-        typingTimeout = setTimeout(() => {
-          // Só dispara se o campo ainda não estiver ocupado validando
-          const btnCheck = document.getElementById('btnLogin') || (typeof qs === 'function' ? qs('btnLogin') : null);
-          if (btnCheck && !btnCheck.disabled) {
-            fazerLogin();
-            
-          }
-        }, 900); // Meio segundo de tolerância para digitação
-      }
-    });
-  }
-});
-
-
-
-  /**************************************************
-   * CONFIG
-   * - Coloque aqui a URL do GIF que será mostrado
-   * - Duração padrão em ms (caso queira alterar)
-   **************************************************/
-  //const OPENING_GIF = 'https://i.imgur.com/Mcgrop4.png'; // <-- coloque aqui seu link, ex: ''
-  const OPENING_GIF = 'https://i.imgur.com/v0xrFKm.gif';
-  const OPENING_GIF_DURATION = 2000; // ms
-
-  // -----------------------
-  // Helpers pequenos
-  // -----------------------
-  function qs(id){ try { return document.getElementById(id); } catch(e){ return null; } }
-  function setAttr(el, name, value){ if(!el) return; el.setAttribute(name, value); }
-  function show(el){ if(!el) return; el.style.display = ''; setAttr(el,'aria-hidden','false'); }
-  function hide(el){ if(!el) return; el.style.display = 'none'; setAttr(el,'aria-hidden','true'); }
-
-  // Cookie helpers (fallback quando storage bloqueado)
-  function setCookie(name, value, days){
-    try {
-      let expires = '';
-      if (typeof days === 'number') {
-        const d = new Date();
-        d.setTime(d.getTime() + (days*24*60*60*1000));
-        expires = '; expires=' + d.toUTCString();
-      }
-      document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/';
-      return true;
-    } catch(e){ return false; }
-  }
-  function getCookie(name){
-    try {
-      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-      return v ? decodeURIComponent(v.pop()) : '';
-    } catch(e){ return ''; }
-  }
-  function delCookie(name){
-    try { document.cookie = name + '=; Max-Age=0; path=/'; } catch(e){}
-  }
-
-  // -----------------------
-  // Opening GIF overlay
-  // -----------------------
-  function showOpeningGifOverlay(url, duration, onDone){
-    if(!url){
-      if(typeof onDone === 'function') onDone();
-      return;
-    }
-    // previne múltiplas instâncias
-    let overlay = qs('openingGifOverlay');
-    if(!overlay){
-      overlay = document.createElement('div');
-      overlay.id = 'openingGifOverlay';
-      Object.assign(overlay.style, {
-        position: 'fixed', left:'0', top:'0', right:'0', bottom:'0',
-        display: 'flex', alignItems:'center', justifyContent:'center',
-        background:'#000', zIndex:999999, cursor:'pointer'
-      });
-      overlay.setAttribute('role','dialog');
-      overlay.setAttribute('aria-modal','true');
-      overlay.setAttribute('aria-label','Abertura');
-      document.body.appendChild(overlay);
-    } else {
-      overlay.innerHTML = '';
-      overlay.style.display = 'flex';
-      overlay.style.opacity = '1';
-    }
-
-    const img = document.createElement('img');
-    img.src = url;
-    img.alt = 'Abertura';
-    Object.assign(img.style, { maxWidth:'100%', maxHeight:'100%', objectFit:'contain', display:'block' });
-    overlay.appendChild(img);
-
-    let finished = false;
-    function finish(){
-      if(finished) return;
-      finished = true;
-      try {
-        overlay.style.transition = 'opacity .28s';
-        overlay.style.opacity = '0';
-        setTimeout(()=> {
-          overlay.style.display = 'none';
-          overlay.innerHTML = '';
-          if(typeof onDone === 'function') onDone();
-        }, 300);
-      } catch(e){
-        overlay.style.display = 'none';
-        overlay.innerHTML = '';
-        if(typeof onDone === 'function') onDone();
-      }
-    }
-
-    overlay.addEventListener('click', finish, { once:true, passive:true });
-
-    // ESC fecha
-    function escHandler(ev){ if(ev.key === 'Escape') finish(); }
-    window.addEventListener('keydown', escHandler);
-    // limpar listeners depois
-    const cleanupWrap = function(){
-      window.removeEventListener('keydown', escHandler);
-    };
-
-    // start timeout após load ou imediatamente se já carregado
-    let to;
-    if(img.complete){
-      to = setTimeout(()=>{ cleanupWrap(); finish(); }, Math.max(300, duration || OPENING_GIF_DURATION));
-    } else {
-      img.addEventListener('load', function(){ to = setTimeout(()=>{ cleanupWrap(); finish(); }, Math.max(300, duration || OPENING_GIF_DURATION)); }, { once:true });
-      img.addEventListener('error', function(){ to = setTimeout(()=>{ cleanupWrap(); finish(); }, 300); }, { once:true });
-    }
-  }
-
-  // -----------------------
-  // Logging client
-  // -----------------------
-  function logActionClient(msg,operadorNome){
-    const operador = sessionStorage.getItem('operadorNome') || localStorage.getItem('operadorNome') || 'Não identificado';
-    try {
-      if(window.google && google && google.script && google.script.run){
-        google.script.run.withFailureHandler(function(err){
-          console.error('registrarLog falhou (client):', err);
-        }).registrarLog(msg, operador);
-      } else {
-        console.log('LOG (client):', msg);
-      }
-    } catch(e){
-      console.error('Erro ao chamar registrarLog (client):', e);
-    }
-  }
-
-  // -----------------------
-  // Estado inicial
-  // -----------------------
-  
-window.APP_SESSION = window.APP_SESSION || { nome: 'Visitante', acesso: [], matricula: '' }; // VERIFICAR AQUI
-
-function ensureStayLoggedCheckbox(){
-  try {
-    const usuario = qs('usuario');
-    if(!usuario) return;
-
-    if(qs('stayLogged') || qs('stayLoggedContainer')) return;
-
-    const container = document.createElement('div');
-    container.id = 'stayLoggedContainer';
-
-    /* CENTRALIZAÇÃO LIMPA */
-    container.style.display = 'flex';
-    container.style.alignItems = 'center';
-    container.style.justifyContent = 'center';
-    container.style.margin = '12px 0';   // mesmo respiro vertical que botão
-    container.style.width = '100%';
-
-    container.innerHTML = `
-      <input type="checkbox" 
-             id="stayLogged" 
-             style="margin:0 4px 0 0; cursor:pointer;">Manter-se Logado
-      </label>
-    `;
-
-    if(usuario.parentNode){
-      usuario.parentNode.insertBefore(container, usuario.nextSibling);
-    }
-
-    try {
-      const persisted = localStorage.getItem('ptl_stay') || getCookie('ptl_stay');
-      if(persisted === '1'){
-        const cb = qs('stayLogged');
-        if(cb) cb.checked = true;
-      }
-    } catch(e){}
-
-  } catch(e){
-    console.warn('Não foi possível inserir checkbox stayLogged', e);
-  }
-}
-
-// -----------------------
-// Preservar sessão (persistência)
-// -----------------------
-function persistSession(nome, acessos, matricula){
-  const stay = (qs('stayLogged') && qs('stayLogged').checked) ? true : false;
-  const data = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
-  window.APP_SESSION = data;
-  let stored = false;
-  try {
-    if(stay){
-      // prefer localStorage
-      if(typeof sessionStorage !== 'undefined'){
-        sessionStorage.setItem('operadorNome', nome);
-        sessionStorage.setItem('acesso', JSON.stringify(data.acesso));
-        sessionStorage.setItem('outlog_matricula', matricula);
-        sessionStorage.setItem('ptl_stay', '1');
-        stored = true;
-      } else {
-        stored = setCookie('operadorNome', nome, 7) && setCookie('acesso', JSON.stringify(data.acesso), 7) && setCookie('outlog_matricula', matricula, 7) && setCookie('ptl_stay','1',7);
-      }
-    } else {
-      // session only
-      if(typeof localStorage !== 'undefined'){
-        localStorage.setItem('operadorNome', nome);
-        localStorage.setItem('acesso', JSON.stringify(data.acesso));
-        localStorage.setItem('outlog_matricula', matricula);
-        localStorage.setItem('ptl_stay', '1');
-        stored = true;
-      } else {
-        // fallback to window.APP_SESSION only
-        stored = false;
-      }
-      // ensure no persistent cookie left
-      try { sessionStorage.removeItem && sessionStorage.removeItem('ptl_stay'); } catch(e){}
-      delCookie('ptl_stay');
-    }
-  } catch(e){
-    // storage may be blocked; attempt cookie fallback
-    try {
-      if(stay){
-        setCookie('operadorNome', nome, 7);
-        setCookie('acesso', JSON.stringify(data.acesso), 7);
-        setCookie('outlog_matricula', matricula, 7);
-        setCookie('ptl_stay','1',7);
-        stored = true;
-      } else {
-        // remove cookie if existed
-        delCookie('operadorNome'); delCookie('acesso'); delCookie('outlog_matricula'); delCookie('ptl_stay');
-        stored = false;
-      }
-    } catch(e2){}
-  }
-  // also set sessionStorage if possible to make rest of app work
-  try { localStorage.setItem('acesso', JSON.stringify(data.acesso)); } catch(e){}
-  try { localStorage.setItem('operadorNome', nome); } catch(e){}
-  try { localStorage.setItem('outlog_matricula', matricula); } catch(e){}
-
-  try { sessionStorage.setItem('acesso', JSON.stringify(data.acesso)); } catch(e){}
-  try { sessionStorage.setItem('operadorNome', nome); } catch(e){}
-  try { sessionStorage.setItem('outlog_matricula', matricula); } catch(e){}
-
-  return stored;
-}
-
-// -----------------------
-// Recuperar persistência (used on load)
-// -----------------------
-function loadPersistedSession(){
-  try {
-    // check cookie or localStorage
-    let matricula = '';
-    try {
-      matricula = sessionStorage.getItem('outlog_matricula') || getCookie('outlog_matricula') || '';
-    } catch(e){ matricula = getCookie('outlog_matricula') || ''; }
-    return matricula;
-  } catch(e){
-    return '';
-  }
-}
-
-// -----------------------
-// DOMContentLoaded: inicial
-// -----------------------
-document.addEventListener('DOMContentLoaded', () => {
-  ensureStayLoggedCheckbox();
-  try {
-    const user = loadPersistedSession();
-    if (user) {
-      // se existir matricula persistida, vamos restaurar sessão — exibir GIF antes de abrir interface
-      restaurarSessao(user);
-    } else {
-      const lo = qs('loginOverlay');
-      if (lo) lo.style.display = 'flex';
-    }
-  } catch(e) {
-    console.warn("Storage inacessível. Usando modo RAM volátil.");
-    const lo = qs('loginOverlay'); if (lo) lo.style.display = 'flex';
-  }
-
-  setTimeout(updateBadges, 400);
-});
-
-/**
- * Alterna a visibilidade de um menu específico quando clicado.
- * Declarado diretamente no escopo global para funcionar dentro do contêiner.
- */
-function toggleMenu(element) {
-  if (!element) return;
-  
-  // Busca o contêiner do menu de forma compatível com ambientes contêinerizados
-  var dropdown = (typeof element.closest === 'function') 
-    ? element.closest('.menu-dropdown') 
-    : element.parentElement;
-
-  if (dropdown && dropdown.classList) {
-    dropdown.classList.toggle('open');
-  }
-}
-// Garante o vínculo global absoluto para o atributo onclick do HTML
-window.toggleMenu = toggleMenu;
-
-
-// --- FUNÇÃO AUXILIAR PARA OCULTAR CABEÇALHOS E MENUS NATIVOS ---
-function ocultarCabecalhosEMenus() {
-  const seletores = [
-    'header', 'nav', '.header', '.navbar', '.sidebar', 
-    '#header', '#sidebar', '#menu', '.menu', '#headerUser', '.main-header'
-  ];
-  
-  seletores.forEach(seletor => {
-    document.querySelectorAll(seletor).forEach(el => {
-      el.style.display = 'none';
-    });
-  });
-
-  // Ocultar login overlay se estiver visível
-  const lo = document.getElementById('loginOverlay');
-  if (lo) lo.style.display = 'none';
-}
-
-// --- FUNÇÃO AUXILIAR PARA EXIBIR MODAL TEMPORÁRIO DE LICENÇA ATIVA ---
-function exibirModalBoasVindasLicenca(mensagem, tempoMs, callback) {
-  const overlay = document.createElement('div');
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.65);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 999999;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  `;
-
-  const modalBox = document.createElement('div');
-  modalBox.style.cssText = `
-    background: #28a745;
-    color: #ffffff;
-    padding: 20px 35px;
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    animation: fadeIn 0.3s ease;
-  `;
-  modalBox.innerText = mensagem;
-
-  overlay.appendChild(modalBox);
-  document.body.appendChild(overlay);
-
-  setTimeout(() => {
-    overlay.remove();
-    if (typeof callback === 'function') callback();
-  }, tempoMs || 1500);
-}
-
-// --- CHAVES UTILIZADAS NO LOCAL STORAGE ---
-const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
-const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
-
-// --- GERENCIADOR DO CAMPO DE MATRÍCULA ---
-function inicializarCampoMatricula() {
-  const inputUser = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
-  if (!inputUser) return;
-
-  // 1. Restaura a matrícula salva (se existir) ao recarregar
-  const matriculaSalva = localStorage.getItem(LOCAL_STORAGE_MATRICULA);
-  if (matriculaSalva) {
-    inputUser.value = matriculaSalva;
-  }
-
-  // 2. Monitora mudanças: se o usuário digitar, salva. Se apagar tudo, remove.
-  inputUser.addEventListener('input', () => {
-    const valor = inputUser.value.trim();
-    if (valor === '') {
-      localStorage.removeItem(LOCAL_STORAGE_MATRICULA);
-    } else {
-      localStorage.setItem(LOCAL_STORAGE_MATRICULA, valor);
-    }
-  });
-}
-
-// --- FUNÇÃO PARA SALVAR A SESSÃO LOCALMENTE ---
-function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
-  try {
-    const dadosSessao = {
-      usuario: usuario,
-      ip: ip,
-      nome: nome,
-      acesso: acesso,
-      timestamp: Date.now()
-    };
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dadosSessao));
-    localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario); // Garante a fixação da matrícula
-  } catch (e) {
-    console.error('Erro ao guardar sessão localmente:', e);
-  }
-}
-
-// --- FUNÇÃO PARA OBTER A SESSÃO GUARDADA LOCALMENTE ---
-function obterSessaoLocal() {
-  try {
-    const sessao = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return sessao ? JSON.parse(sessao) : null;
-  } catch (e) {
-    console.error('Erro ao ler sessão local:', e);
-    return null;
-  }
-}
-
-// --- FUNÇÃO PARA LIMPAR A SESSÃO (LOGOUT) ---
-function limparSessaoLocal(manterMatricula = true) {
-  try {
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
-    if (!manterMatricula) {
-      localStorage.removeItem(LOCAL_STORAGE_MATRICULA);
-    }
-  } catch (e) {
-    console.error('Erro ao remover sessão local:', e);
-  }
-}
-
-// INSIRA AQUI A URL DO SEU WEB APP DO GOOGLE APPS SCRIPT (Gerada após publicar como Web App)
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSGJihV_x_eFA1-yzJisl6naV8deqknfylzwoqWkd_7Cnwry8KS6xYeVxL1glsfXMy/exec';
-
-
-window.google = window.google || {};
-window.google.script = window.google.script || {};
-
-window.google.script.run = (function() {
-  function createRunner(successHandler, failureHandler) {
-    const proxy = {};
-    const methods = [
-      'verificarMensagemH1', 'validarLogin', 'verificarLicenca', 
-      'verificarStatusNoAcess', 'registrarLog', 'getNews', 
-      'getPendingCounts', 'carregarConteudo', 'saveLastOpenedPage', 
-      'getLastOpenedPage', 'salvarLocalizacaoBatch', 'confirmarAtualizacaoUsuario', 
-      'addNewsRow', 'uploadNewsImage'
-    ];
-
-    methods.forEach(methodName => {
-      proxy[methodName] = function(...args) {
-        // Mapeia os argumentos para parâmetros nomeados compatíveis com o doPost
-        let payload = {};
-        if (methodName === 'validarLogin') payload = { usuario: args[0] };
-        else if (methodName === 'verificarStatusNoAcess' || methodName === 'confirmarAtualizacaoUsuario' || methodName === 'getLastOpenedPage') payload = { matricula: args[0] };
-        else if (methodName === 'registrarLog') payload = { msg: args[0], operador: args[1] };
-        else if (methodName === 'carregarConteudo' || methodName === 'saveLastOpenedPage') payload = { nomeArquivo: args[0], matricula: args[1] };
-        else if (methodName === 'salvarLocalizacaoBatch') payload = { nomeUsuario: args[0], pacote: args[1] };
-        else if (methodName === 'addNewsRow') payload = { title: args[0], body: args[1] };
-        else if (methodName === 'uploadNewsImage') payload = { dataUrl: args[0], filename: args[1] };
-
-        fetch(GAS_WEB_APP_URL, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ acao: methodName, payload: payload })
-        })
-        .then(response => response.json())
-        .then(res => {
-          if (res.error) {
-            if (typeof failureHandler === 'function') failureHandler(res.error);
-          } else {
-            // Retorna o dado correto dependendo da resposta do backend
-            let dataRetorno = res.hasOwnProperty('success') && res.hasOwnProperty('data') ? res.data : (res.hasOwnProperty('success') ? res : (res.page !== undefined ? res.page : (res.mensagem !== undefined ? res.mensagem : res)));
-            if (typeof successHandler === 'function') successHandler(dataRetorno);
-          }
-        })
-        .catch(err => {
-          if (typeof failureHandler === 'function') failureHandler(err);
-        });
-      };
-    });
-
-    return proxy;
-  }
-
-  return {
-    withSuccessHandler: function(callback) {
-      return {
-        withFailureHandler: function(errCallback) {
-          return createRunner(callback, errCallback);
-        }
-      };
-    },
-    withFailureHandler: function(callback) {
-      return {
-        withSuccessHandler: function(succCallback) {
-          return createRunner(succCallback, callback);
-        }
-      };
-    }
-  };
-})();
-          
-async function fazerLogin(autoLogin = false) {
-
-  const inputUser = document.getElementById('usuario');
-  const boxLoginHide = document.getElementById('loginBox');
-  
-  // Tenta obter do input ou recupera do localStorage
-  let usuario = inputUser ? inputUser.value.trim() : '';
-  if (!usuario) {
-    usuario = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
-    if (usuario && inputUser) inputUser.value = usuario;
-  }
-
-  if (!usuario) return alert('Digite a matrícula');
-
-  const btn = typeof qs === 'function' ? qs('btnLogin') : document.getElementById('btnLogin');
-  const txtOriginal = btn && (btn.innerText || 'Login');
-
-  const restaurarBotao = () => {
-    if (btn) {
-      btn.innerText = txtOriginal;
-      btn.disabled = false;
-    }
-  };
-
-  if (btn) { btn.innerText = "Validando..."; btn.disabled = true; }
-  
-
-  // --- CAPTURA DO IP DO USUÁRIO ---
-  const sessaoExistente = obterSessaoLocal();
-  let userIp = sessaoExistente ? (sessaoExistente.ip || 'IP não identificado') : 'IP não identificado';
-  try {
-    const responseIp = await fetch('https://api.ipify.org?format=json');
-    if (responseIp.ok) {
-      const dataIp = await responseIp.json();
-      userIp = dataIp.ip || userIp;
-    }
-  } catch (err) {
-    console.warn('Não foi possível obter o IP público:', err);
-  }
-
-  // --- MODAL DE ALERTA DE ERRO ---
-  const exibirModalCustomizado = (mensagem) => {
-
-    
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center;
-      align-items: center; z-index: 99999;
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    `;
-
-    const modalBox = document.createElement('div');
-    modalBox.style.cssText = `
-      background: #ffffff; padding: 30px; border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25); max-width: 400px;
-      width: 85%; text-align: center; border-top: 6px solid #dc3545;
-    `;
-
-    const textoMsg = document.createElement('p');
-    textoMsg.innerText = mensagem;
-    textoMsg.style.cssText = `
-      font-size: 16px; color: #333333; line-height: 1.6;
-      margin: 0 0 25px 0; font-weight: 500;
-    `;
-
-    const btnFechar = document.createElement('button');
-    btnFechar.innerText = 'OK';
-    btnFechar.style.cssText = `
-      background: #dc3545; color: #ffffff; border: none;
-      padding: 10px 35px; font-size: 14px; border-radius: 6px;
-      cursor: pointer; font-weight: bold; transition: background 0.2s;
-    `;
-    
-    btnFechar.onmouseover = () => btnFechar.style.background = '#bd2130';
-    btnFechar.onmouseout = () => btnFechar.style.background = '#dc3545';
-    btnFechar.onclick = () => overlay.remove();
-
-    modalBox.appendChild(textoMsg);
-    modalBox.appendChild(btnFechar);
-    overlay.appendChild(modalBox);
-    document.body.appendChild(overlay);
-  };
-
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    google.script.run.withSuccessHandler(res => {
-      restaurarBotao();
-
-      if (res && res.success) {
-        salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
-
-
-        google.script.run.withSuccessHandler(licRes => {
-          if (licRes && licRes.expirado) {
-            ocultarCabecalhosEMenus();
-            if (typeof abrirLink === 'function') {
-              abrirLink("LICENÇA");
-            } else if (typeof abrirPagina === 'function') {
-              abrirPagina("LICENÇA");
-            }
-          } else {
-            const dias = licRes ? licRes.diasRestantes : 0;
-            const msgBoasVindas = `Licença Ativa ( ${dias} dias restantes )`;
-
-            const prosseguirAcesso = () => {
-              const proceed = function(){
-                try { 
-                  salvarSessao(res.nome, res.acesso, usuario); 
-                } catch(e){ 
-                  console.error(e); 
-                }
-              };
-              if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
-                showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
-              } else { 
-                proceed(); 
-              }
-            };
-
-            if (autoLogin) {
-              prosseguirAcesso();
+  const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSGJihV_x_eFA1-yzJisl6naV8deqknfylzwoqWkd_7Cnwry8KS6xYeVxL1glsfXMy/exec';
+
+  // Shim Global para google.script.run compatível com GitHub Pages (CORS via Fetch)
+  window.google = window.google || {};
+  window.google.script = window.google.script || {};
+
+  window.google.script.run = (function() {
+    function createRunner(successHandler, failureHandler) {
+      const proxy = {};
+      const methods = [
+        'verificarMensagemH1', 'validarLogin', 'verificarLicenca', 
+        'verificarStatusNoAcess', 'registrarLog', 'getNews', 
+        'getPendingCounts', 'carregarConteudo', 'saveLastOpenedPage', 
+        'getLastOpenedPage', 'salvarLocalizacaoBatch', 'confirmarAtualizacaoUsuario', 
+        'addNewsRow', 'uploadNewsImage'
+      ];
+
+      methods.forEach(methodName => {
+        proxy[methodName] = function(...args) {
+          let payload = {};
+          if (methodName === 'validarLogin') payload = { usuario: args[0] };
+          else if (methodName === 'verificarStatusNoAcess' || methodName === 'confirmarAtualizacaoUsuario' || methodName === 'getLastOpenedPage') payload = { matricula: args[0] };
+          else if (methodName === 'registrarLog') payload = { msg: args[0], operador: args[1] };
+          else if (methodName === 'carregarConteudo' || methodName === 'saveLastOpenedPage') payload = { nomeArquivo: args[0], matricula: args[1] };
+          else if (methodName === 'salvarLocalizacaoBatch') payload = { nomeUsuario: args[0], pacote: args[1] };
+          else if (methodName === 'addNewsRow') payload = { title: args[0], body: args[1] };
+          else if (methodName === 'uploadNewsImage') payload = { dataUrl: args[0], filename: args[1] };
+
+          fetch(GAS_WEB_APP_URL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ acao: methodName, payload: payload })
+          })
+          .then(response => response.json())
+          .then(res => {
+            if (res.error) {
+              if (typeof failureHandler === 'function') failureHandler(res.error);
             } else {
-              exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
-            }
-          }
-        }).withFailureHandler(e => {
-          console.error('Erro ao verificar licença:', e);
-          alert('Erro ao validar licença: ' + e);
-        }).verificarLicenca();
-
-      } else {
-        limparSessaoLocal(true); // Mantém a matrícula salva mesmo se a senha falhar
-        const stringResposta = res ? String(res.status || res.motivo || res.error || res.mensagem || '').toUpperCase() : '';
-        const mensagemLog = `Usuario tentou acesso Ambev | IP: ${userIp}`;
-       
-
-        let mensagemFinal = "Senha incorreta";
-        if (stringResposta.includes('NOK') || (res && res.nok)) {
-          mensagemFinal = "Acesso temporariamente indisponível, aguardando permissão oficial para uso do sistema OutLog.";
-        }
-
-        exibirModalCustomizado(mensagemFinal);
-      }
-    }).withFailureHandler(e => {
-      restaurarBotao();
-      alert('Erro de conexão: ' + e);
-    }).validarLogin(usuario);
-  } else {
-    // Modo local demo
-    setTimeout(() => {
-      restaurarBotao();
-      salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
-      
-      const prosseguirDemo = () => {
-        const proceed = function(){
-          try { salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario); } catch(e){}
-        };
-        if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
-          showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
-        } else proceed();
-      };
-
-      if (autoLogin) {
-        prosseguirDemo();
-      } else {
-        exibirModalBoasVindasLicenca("Licença Ativa ( Demo - 30 dias restantes )", 1500, prosseguirDemo);
-      }
-    }, 500);
-  }
-}
-
-// --- EXECUÇÃO INICIAL AO CARREGAR O DOM ---
-document.addEventListener('DOMContentLoaded', () => {
-  inicializarCampoMatricula();
-
-  const sessao = obterSessaoLocal();
-  if (sessao && sessao.usuario) {
-    fazerLogin(true);
-  }
-});
-
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    inicializarCampoMatricula();
-  }
-});
-
-window.fazerLogin = fazerLogin;
-window.limparSessaoLocal = limparSessaoLocal;
-// -----------------------
-// Salvar sessão (login) - mantém nome e funções originais, com persistência ajustada
-// -----------------------
-function salvarSessao(nome, acessos, matricula) {
-  // persist de acordo com checkbox
-  try { persistSession(nome, acessos, matricula); } catch(e){ console.warn('persistSession fail', e); }
-
-  // manter a estrutura original do objeto APP_SESSION
-  window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
-
-  try {
-    const lo = qs('loginOverlay'); if (lo) lo.style.display = 'none';
-    const hu = qs('headerUser'); if (hu) hu.textContent = (nome||'').split(' ')[0] || '';
-  } catch(e){}
-
-  // map de botões -> nível (mantive IDs originais)
-  const botoes = {
-    'btncarregamentoOp': '0', //
-    'btndescargaOp': '1', 
-    'btnAcessoSeparação': '2',
-    'btnPitStop': '3', 
-    'btnadmin': '4', 
-    'btnptlControle': '5',
-    'btnptlLinha': '6', 
-    'btnbuscarProduto': '7', 
-    'btnRanking': '8',
-    'btnMoviCONF': '9', 
-    'btnAtendimento': '10', 
-    'btnMoviApp': '11', //MOVI OPERADOR
-    'btnAlocarSelo': '12', // descarga antigo
-    'btnRelatorio':'13',
-    'btnFeFoCompat':'14',
-    'btnSeloAcess':'15',
-    'btnRecebidosP1':'16', //descarga novo
-    'btnContagem':'17',
-    'btnSepManual':'18'
-  };
-
-  for (const [id, nivel] of Object.entries(botoes)) {
-    const btn = qs(id);
-    if (btn) {
-      try {
-        if (window.APP_SESSION.acesso && window.APP_SESSION.acesso.includes(String(nivel))) {
-          btn.style.display = 'flex';
-          btn.style.background = '#000000';
-          btn.disabled = false;
-          btn.style.opacity = 1;
-        } else {
-          btn.disabled = true;
-          btn.style.background = 'gray';
-          btn.style.opacity = 0.3;
-        }
-      } catch(e){}
-    }
-  }
-
-  
-
-  // registra atividade
-  try { registrarAtividadeModulo && registrarAtividadeModulo('Página Inicial - Home'); } catch(e){}
-
-  // Atualizar badges ao logar
-  setTimeout(updateBadges, 250);
-
-  // Depois de logar, abrir a última página visitada (prioriza localStorage, fallback para servidor)
-  (function openLastPageAfterLogin() {
-    try { 
-      // se não houver no local, pedir ao servidor (se houver matrícula e integração)
-      if (matricula && typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run.withSuccessHandler(function(serverSalvo){
-          if (serverSalvo && String(serverSalvo).trim() !== '') {
-            abrirLink(serverSalvo);
-          } else {
-            showNews();
-            toggleSidebar();
-          }
-        }).withFailureHandler(function(err){
-          console.error('Erro ao buscar última página (login):', err);
-          //showNews();
-        }).getLastOpenedPage(matricula);
-      } else {
-        showNews();
-        toggleSidebar();
-      }
-    } catch(e){
-      console.error('Erro ao abrir última página after login:', e);
-      try { showNews(); } catch(_) {}
-    }
-  })();
-
-  executarModoCampo();
-}
-window.salvarSessao = salvarSessao;
-
-// -----------------------
-// Restaurar sessão (chamada no DOMContentLoaded)
-// Exibe GIF também antes de abrir interface
-// -----------------------
-function restaurarSessao(matricula) {
-  
-  // 1. FUNÇÃO INTERNA: Executa a restauração real e atualiza a interface
-  function doRestore(){
-    try {
-      const nome = (function(){
-        try { return localStorage.getItem('operadorNome') || getCookie('operadorNome') || 'Usuário'; } catch(e){ return getCookie('operadorNome') || 'Usuário'; }
-      })();
-      const acessosRaw = (function(){
-        try { return localStorage.getItem('acesso') || getCookie('acesso') || '[]'; } catch(e){ return getCookie('acesso') || '[]'; }
-      })();
-      const acessos = (function(){ try { return JSON.parse(acessosRaw || '[]'); } catch(e){ return []; } })();
-
-      window.APP_SESSION = { nome, acesso: acessos, matricula };
-      
-      try { 
-        sessionStorage.setItem('operadorNome', nome); 
-        sessionStorage.setItem('acesso', JSON.stringify(acessos)); 
-        sessionStorage.setItem('outlog_matricula', matricula); 
-      } catch(e){}
-
-      try { atualizarInterface(nome, acessos); } catch(e){}
-
-      setTimeout(updateBadges, 250);
-
-      const msg = 'Está ativo novamente restaurando sessão';
-      try {
-        if(typeof google !== 'undefined' && google.script && google.script.run){
-         
-          
-          // Garante e força que o status permaneça/mude para 1 na planilha
-          google.script.run.confirmarAtualizacaoUsuario(matricula);
-        } else console.log('LOG (simulado):', msg);
-      } catch(e){}
-    } catch(e2){
-      const lo = qs('loginOverlay'); if (lo) lo.style.display = 'flex';
-      const u = qs('usuario'); if (u) u.value = matricula;
-    }
-  }
-
-  // 2. FUNÇÃO INTERNA: Controla os GIFs e animações de entrada
-  function prosseguirParaUltimaPagina() {
-    if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){
-      showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, doRestore);
-    } else {
-      doRestore();
-    }
-    if (typeof executarModoCampo === 'function') executarModoCampo();
-  }
-
-  // 🛡️ 3. FLUXO CRÍTICO DE INTERCEPTAÇÃO (Validação do Status 0)
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    
-    google.script.run.withSuccessHandler(function(status) {
-      if (Number(status) === 0) {
-        // 🔴 Se for 0, cancela tudo e joga para a tela de reset
-        console.warn("Usuário desatualizado detectado. Redirecionando...");
-        if (typeof abrirLink === 'function') {
-          abrirLink("resetarLogin.html");
-        } else {
-          window.location.href = "resetarLogin.html";
-        }
-      } else {
-        // 🟢 Se for 1 (ou qualquer outro valor seguro), abre a última página
-        prosseguirParaUltimaPagina();
-      }
-    }).verificarStatusNoAcess(matricula);
-
-  } else {
-    // Fallback de segurança para testes locais fora do ambiente Google Sheets
-    prosseguirParaUltimaPagina();
-  }
-}
-
-window.restaurarSessao = restaurarSessao;
-
-// -----------------------
-// atualizarInterface (mantive essencialmente como o original, com checks)
-// -----------------------
-function atualizarInterface(nome, acessos) {
-  try {
-    const lo = qs('loginOverlay'); if (lo) lo.style.display = 'none';
-    const hu = qs('headerUser'); if (hu) hu.textContent = (nome||'').split(' ')[0] || '';
-  } catch(e){}
-
-  const botoes = {
-    'btncarregamentoOp': '0', //
-    'btndescargaOp': '1', 
-    'btnAcessoSeparação': '2',
-    'btnPitStop': '3', 
-    'btnadmin': '4', 
-    'btnptlControle': '5',
-    'btnptlLinha': '6', 
-    'btnbuscarProduto': '7', 
-    'btnRanking': '8',
-    'btnMoviCONF': '9', 
-    'btnAtendimento': '10', 
-    'btnMoviApp': '11', //MOVI OPERADOR
-    'btnAlocarSelo': '12', // descarga antigo
-    'btnRelatorio':'13',
-    'btnFeFoCompat':'14',
-    'btnSeloAcess':'15',
-    'btnRecebidosP1':'16', //descarga novo
-    'btnContagem':'17',
-    'btnSepManual':'18'
-  };
-
-  for (const [id, nivel] of Object.entries(botoes)) {
-    const btn = qs(id);
-    if (btn) {
-      try {
-        if (Array.isArray(acessos) && acessos.includes(String(nivel))) {
-          btn.style.display = 'flex';
-          btn.style.background = '#000000';
-          btn.disabled = false;
-          btn.style.opacity = 1;
-        } else {
-          btn.disabled = true;
-          btn.style.background = 'gray';
-          btn.style.opacity = 0.3;
-        }
-      } catch(e){}
-    }
-  }
-
-  // garante o texto do botão de login resetado
-  const btnLogin = qs('btnLogin');
-  if (btnLogin) { btnLogin.innerText = 'Login'; btnLogin.disabled = false; }
-
-  // Ao atualizar interface (quando já logado), tentar abrir última página se existir,
-  // corrigindo a checagem que existia anteriormente.
-  try {
-    const salvoKey = "";
-    const matricula = (function(){ try { return localStorage.getItem('outlog_matricula') || ''; } catch(e){ return ''; } })();
-
-    if (salvoKey && String(salvoKey).trim() !== '') {
-      abrirLink(salvoKey);
-    } else if (matricula) {
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler(function(serverSalvo){
-            if (serverSalvo && String(serverSalvo).trim() !== '') {
-              abrirLink(serverSalvo);
-            } else {
-              showNews();
+              let dataRetorno = res.hasOwnProperty('success') && res.hasOwnProperty('data') ? res.data : (res.hasOwnProperty('success') ? res : (res.page !== undefined ? res.page : (res.mensagem !== undefined ? res.mensagem : res)));
+              if (typeof successHandler === 'function') successHandler(dataRetorno);
             }
           })
-          .withFailureHandler(function(err){
-            console.error('Erro ao buscar última página:', err);
-            showNews();
-          })
-          .getLastOpenedPage(matricula);
-      } else {
-        showNews();
-      }
-    } else {
-      showNews();
-    }
-  } catch(e){
-    console.error('Erro ao tentar decidir última página / notícias:', e);
-    try { showNews(); } catch(_) {}
-  }
-}
-window.atualizarInterface = atualizarInterface;
-
-
-
-
-// -----------------------
-// Logout (mantive)
-// -----------------------
-function logout() {
-  try { localStorage.clear(); sessionStorage.clear(); } catch(e){}
-  window.APP_SESSION = { nome: 'Visitante', acesso: [], matricula: '' };
-  
-  const lo = qs('loginOverlay'); 
-  if (lo) {
-    lo.style.display = 'flex';
-    lo.setAttribute('aria-hidden', 'false'); // Atualiza a acessibilidade do overlay
-  }
-  
-  
-
-  const hu = qs('headerUser'); if (hu) hu.textContent = '';
-  
-  const u = qs('usuario'); 
-  if (u) { 
-    u.value = ''; 
-    // Joga o foco direto no input para o próximo login (já que agora usa o teclado nativo)
-    setTimeout(() => u.focus(), 50); 
-  }
-  
-  // Desmarca a opção "Manter-se Logado" para o próximo usuário
-  const sl = qs('stayLogged'); if (sl) sl.checked = false;
-  
-  const loaded = qs('loadedContent'); if (loaded) loaded.innerHTML = '';
-  if (typeof closeSidebar === 'function') closeSidebar();
-  
-  // remove cookies used by persistence
-  if (typeof delCookie === 'function') {
-    delCookie('operadorNome'); 
-    delCookie('acesso'); 
-    delCookie('outlog_matricula'); 
-    delCookie('ptl_stay');
-  }
-}
-
-// expose for other scripts
-window.logout = logout;
-
-// -----------------------
-// abrirLink / injetar HTML (mantidos)
-// -----------------------
-// Certifique-se de que a constante GAS_WEB_APP_URL já foi declarada no topo do seu script (conforme o passo anterior)
-// const GAS_WEB_APP_URL = 'SUA_URL_DO_WEB_APP_DO_GAS_AQUI';
-
-async function abrirLink(nomeArquivo) {
-  if (typeof closeSidebar === 'function') closeSidebar();
-  const contentDiv = qs('loadedContent');
-  const loader = qs('loader');
-  if(!contentDiv || !loader) return;
-  
-  contentDiv.innerHTML = '';
-  loader.style.display = 'flex';
-
-  // 1. SALVA IMEDIATAMENTE NO SERVIDOR AO CHAMAR A FUNÇÃO
-  try {
-    const matricula = (window.APP_SESSION && window.APP_SESSION.matricula) || 
-                      sessionStorage.getItem('outlog_matricula') || 
-                      localStorage.getItem('outlog_matricula') || '';
-
-    if (matricula && nomeArquivo) {
-      fetch(GAS_WEB_APP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ 
-          acao: 'saveLastOpenedPage', 
-          nomeArquivo: nomeArquivo, 
-          matricula: matricula 
-        })
-      }).catch(err => {
-        console.warn('Falha silenciosa ao registrar página no servidor:', err);
-      });
-    }
-  } catch(e){
-    console.warn('Erro ao disparar salvamento da página:', e);
-  }
-
-  // 2. CARREGA O CONTEÚDO DO MÓDULO VIA FETCH
-  try {
-    const response = await fetch(GAS_WEB_APP_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ acao: 'carregarConteudo', nomeArquivo: nomeArquivo })
-    });
-
-    const data = await response.json();
-    loader.style.display = 'none';
-
-    // Extrai o HTML retornado pelo GAS
-    const html = typeof data === 'string' ? data : (data.html || data.conteudo || '');
-    injetarHTMLSeguro(html, contentDiv);
-
-  } catch (e) {
-    loader.style.display = 'none';
-    contentDiv.innerHTML = `<div style="padding:20px;color:#f55;text-align:center">
-      <i class="fa-solid fa-triangle-exclamation" style="font-size:40px;margin-bottom:10px"></i><br>
-      <strong>Erro ao carregar módulo.</strong><br><small>${e}</small>
-    </div>`;
-  }
-}
-window.abrirLink = abrirLink;
-
-function injetarHTMLSeguro(html, container) {
-  // 1. Limpa o container de forma limpa uma única vez
-  container.innerHTML = '';
-
-  // 2. Insere o script com os dados da sessão do operador
-  const scriptDados = document.createElement('script');
-  const dados = window.APP_SESSION || { nome: '', acesso: [], matricula: '' };
-  const acessoJSON = JSON.stringify(dados.acesso || []);
-  scriptDados.textContent = `
-    window.OPERADOR_NOME = "${(dados.nome||'').replace(/(["\\])/g,'\\$1')}";
-    window.OPERADOR_MATRICULA = "${(dados.matricula||'').replace(/(["\\])/g,'\\$1')}";
-    window.OPERADOR_ACESSO = ${acessoJSON};
-    try {
-      if (!sessionStorage.getItem('operadorNome')) {
-          sessionStorage.setItem('operadorNome', "${(dados.nome||'').replace(/(["\\])/g,'\\$1')}");
-          sessionStorage.setItem('acesso', ${acessoJSON});
-          sessionStorage.setItem('outlog_matricula', "${(dados.matricula||'').replace(/(["\\])/g,'\\$1')}");
-      }
-    } catch(e) { console.log("Storage bloqueado (Tablet Mode). Usando variaveis globais."); }
-  `;
-  container.appendChild(scriptDados);
-
-  // 3. Processa o HTML recebido do GAS em um elemento temporário
-  const temp = document.createElement('div');
-  temp.innerHTML = html;
-
-  const scripts = Array.from(temp.querySelectorAll('script'));
-  scripts.forEach(s => s.remove()); 
-
-  while (temp.firstChild) {
-    container.appendChild(temp.firstChild);
-  }
-
-  // 4. Gerenciador de carregamento de scripts externos
-  let scriptsPendentes = scripts.filter(s => s.src).length;
-
-  const tentarInicializar = () => {
-    if (scriptsPendentes <= 0) {
-      setTimeout(() => {
-        if (typeof window.inicializarPagina === 'function') {
-            console.log("Iniciando página 3D carregada com inicializarPagina().");
-            try {
-              window.inicializarPagina();
-            } catch(err) {
-              console.error("Erro ao executar inicializarPagina():", err);
-            }
-        } else {
-            console.warn("Aviso: 'inicializarPagina' não foi encontrada no escopo global.");
-        }
-      }, 300);
-    }
-  };
-
-  scripts.forEach(oldScript => {
-    const newScript = document.createElement('script');
-    Array.from(oldScript.attributes).forEach(attr => {
-      newScript.setAttribute(attr.name, attr.value);
-    });
-
-    if (oldScript.src) {
-      newScript.async = false;
-      newScript.onload = () => {
-        scriptsPendentes--;
-        tentarInicializar();
-      };
-      newScript.onerror = () => {
-        console.warn("Falha ao carregar script externo:", oldScript.src);
-        scriptsPendentes--;
-        tentarInicializar();
-      };
-      newScript.src = oldScript.src;
-    } else {
-      newScript.textContent = oldScript.textContent;
-    }
-
-    container.appendChild(newScript);
-  });
-
-  if (scriptsPendentes === 0) {
-    tentarInicializar();
-  }
-}
-
-async function showNews() {
-  try { closeSidebar && closeSidebar(); } catch(e){}
-  const contentDiv = qs('loadedContent');
-  if (!contentDiv) return;
-  contentDiv.innerHTML = '';
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'news-wrap';
-
-  const list = document.createElement('div');
-  list.className = 'news-list';
-  wrapper.appendChild(list);
-
-  const empty = document.createElement('div');
-  empty.className = 'news-empty';
-  empty.textContent = 'Carregando notícias...';
-  list.appendChild(empty);
-
-  contentDiv.appendChild(wrapper);
-
-  try {
-    const response = await fetch(GAS_WEB_APP_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ acao: 'getNews' })
-    });
-    const res = await response.json();
-    renderNews(res, list);
-  } catch (err) {
-    console.error('Erro getNews', err);
-    renderNews(null, list, err);
-  }
-}
-
-  window.showNews = showNews;
-
-  function refreshNews(){ showNews(); }
-
-  // ==========================================
-// FUNÇÃO AUXILIAR DE FORMATAÇÃO (Compartilhada)
-// ==========================================
-function parseCustomTags(str) {
-  if (!str) return '';
-
-  // 1. Sanitiza o texto contra XSS
-  let safeText = String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-
-  // 2. Transforma <b>Texto</b> em negrito
-  safeText = safeText.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<b>$1</b>');
-
-  // 3. Transforma <color:red>Texto</color> em texto colorido
-  safeText = safeText.replace(/&lt;color:(.*?)&gt;(.*?)&lt;\/color&gt;/gi, '<span style="color: $1;">$2</span>');
-
-  // 4. Transforma <link>url</link> em link clicável (abre em nova aba)
-  safeText = safeText.replace(/&lt;link&gt;(.*?)&lt;\/link&gt;/gi, (match, url) => {
-    let href = url.trim();
-    if (!/^https?:\/\//i.test(href)) {
-      href = 'https://' + href;
-    }
-    return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${url}</a>`;
-  });
-
-  // 5. Converte quebras de linha em <br>
-  return safeText.replace(/\n/g, '<br>');
-}
-
-// ==========================================
-// 1. RENDERIZADOR DAS NOTÍCIAS (Cards)
-// ==========================================
-function renderNews(res, listEl, err) {
-    listEl.innerHTML = '';
-
-    if (err) {
-      const e = document.createElement('div');
-      e.className = 'news-empty';
-      e.textContent = 'Erro ao carregar notícias.';
-      listEl.appendChild(e);
-      return;
-    }
-
-    const itemsRaw = Array.isArray(res) ? res.slice() : [];
-    const normalized = itemsRaw.map(it => {
-      if (!it) return null;
-      if (Array.isArray(it)) {
-        return {
-          title: String(it[0]||'').trim(),
-          body: String(it[1]||'').trim(),
-          image: (it[2] || '') ? String(it[2]) : '',
-          timestamp: (it[3] || '') ? String(it[3]) : ''
+          .catch(err => {
+            if (typeof failureHandler === 'function') failureHandler(err);
+          });
         };
-      }
-      const title = it.title || it.titulo || it.TITLE || it.A || '';
-      const body = it.body || it.noticia || it.B || it.text || it.conteudo || '';
-      const img = (it.image || it.imagem || it.img || it.media || it.thumbnail || it.url || '');
-      const ts  = it.timestamp || it.ts || it.date || it.data || '';
-      return { title: String(title||''), body: String(body||''), image: String(img||''), timestamp: String(ts||'') };
-    }).filter(Boolean);
-
-    if (normalized.length === 0) {
-      const e = document.createElement('div');
-      e.className = 'news-empty';
-      e.textContent = 'Nenhuma notícia encontrada na aba News.';
-      listEl.appendChild(e);
-      return;
-    }
-
-    const lastFive = normalized.slice(-5).reverse();
-
-    lastFive.forEach(item => {
-      let imageUrl = (item.image||'').trim();
-      let imagePercent = null;
-      const imgWithPctRegex = /(https?:\/\/\S+\.(?:png|jpe?g|gif|webp)(?:\?\S*)?)(?:\s*,\s*(\d{1,3})%?)?/i;
-
-      if (imageUrl) {
-        const m = String(imageUrl).match(imgWithPctRegex);
-        if (m) {
-          imageUrl = m[1] || '';
-          if (m[2]) {
-            let p = Number(m[2]);
-            if (!isNaN(p)) { p = Math.max(1, Math.min(100, Math.floor(p))); imagePercent = p; }
-          }
-        } else {
-          imageUrl = '';
-        }
-      }
-
-      if (!imageUrl) {
-        const body = String(item.body || '');
-        const m2 = body.match(imgWithPctRegex);
-        if (m2) {
-          imageUrl = m2[1] || '';
-          if (m2[2]) {
-            let p = Number(m2[2]);
-            if (!isNaN(p)) { p = Math.max(1, Math.min(100, Math.floor(p))); imagePercent = p; }
-          }
-          item.body = body.replace(m2[0], '').trim();
-        }
-      }
-
-      const card = document.createElement('article');
-      card.className = 'news-card';
-
-      if (imageUrl) {
-        const mediaWrap = document.createElement('div');
-        mediaWrap.className = 'news-media';
-        if (imagePercent) {
-          mediaWrap.style.display = 'flex';
-          mediaWrap.style.justifyContent = 'center';
-        }
-        const img = document.createElement('img');
-        img.src = imageUrl;
-        img.alt = item.title || 'Imagem notícia';
-        img.style.maxWidth = '100%';
-        img.style.height = 'auto';
-        if (imagePercent) img.style.width = imagePercent + '%';
-        img.addEventListener('error', ()=> { try { mediaWrap.remove(); } catch(e){} });
-        mediaWrap.appendChild(img);
-        card.appendChild(mediaWrap);
-      }
-
-      const titleEl = document.createElement('div');
-      titleEl.className = 'news-title';
-      titleEl.innerHTML = parseCustomTags(item.title) || '(Sem título)';
-      card.appendChild(titleEl);
-
-      if (item.timestamp) {
-        const meta = document.createElement('div');
-        meta.className = 'news-meta';
-        meta.textContent = 'Publicado: ' + item.timestamp;
-        card.appendChild(meta);
-      }
-
-      const bodyElCard = document.createElement('div');
-      bodyElCard.className = 'news-body';
-      bodyElCard.innerHTML = parseCustomTags(item.body) || '(Sem conteúdo)';
-      card.appendChild(bodyElCard);
-
-      const actions = document.createElement('div');
-      actions.className = 'news-actions';
-      const readBtn = document.createElement('button');
-      readBtn.className = 'btn-small';
-      readBtn.textContent = 'Ler mais';
-      readBtn.addEventListener('click', function (ev) {
-        ev.stopPropagation();
-        window.openNewsModal && window.openNewsModal(item, imageUrl, imagePercent);
       });
-      actions.appendChild(readBtn);
-      card.appendChild(actions);
-
-      listEl.appendChild(card);
-    });
-
-    if (lastFive.length < 5) {
-      const note = document.createElement('div');
-      note.className = 'news-empty';
-      note.style.paddingTop = '6px';
-      note.textContent = `Mostrando ${lastFive.length} notícia(s).`;
-      listEl.appendChild(note);
+      return proxy;
     }
-}
-
-// ==========================================
-// 2. CONTROLE DO MODAL DE NOTÍCIAS
-// ==========================================
-(function(){
-    if (!window._newsModalInit) {
-      window._newsModalInit = true;
-
-      window.openNewsModal = function(item, imageUrl, imagePercent){
-        const overlay = qs('newsModalOverlay');
-        const titleEl = qs('newsModalTitle');
-        const tsEl = qs('newsModalTs');
-        const bodyElM = qs('newsModalBody');
-        const mediaEl = qs('newsModalMedia');
-
-        if (!overlay || !titleEl || !bodyElM || !mediaEl) {
-          console.error('Modal elements missing: verifique IDs do modal.');
-          return;
-        }
-
-        // 1. Ajusta o container principal do modal (100% largura, 80% altura)
-        const modalBox = overlay.querySelector('.news-modal');
-        if (modalBox) {
-          modalBox.style.width = '100%';
-          modalBox.style.maxWidth = '100vw';
-          modalBox.style.height = '80vh';
-          modalBox.style.maxHeight = '80vh';
-          modalBox.style.boxSizing = 'border-box';
-          modalBox.style.padding = '20px';
-          modalBox.style.display = 'flex';
-          modalBox.style.flexDirection = 'column';
-          modalBox.style.overflow = 'hidden';
-        }
-
-        // 2. Cria/Organiza wrappers de layout dinâmico (Imagem + Texto)
-        let mainWrapper = modalBox ? modalBox.querySelector('.news-modal-layout') : null;
-        let textWrapper = modalBox ? modalBox.querySelector('.news-modal-text-layout') : null;
-
-        if (modalBox && !mainWrapper) {
-          mainWrapper = document.createElement('div');
-          mainWrapper.className = 'news-modal-layout';
-          mainWrapper.style.display = 'flex';
-          mainWrapper.style.width = '100%';
-          mainWrapper.style.height = '100%';
-          mainWrapper.style.gap = '20px';
-
-          textWrapper = document.createElement('div');
-          textWrapper.className = 'news-modal-text-layout';
-          textWrapper.style.flex = '1';
-          textWrapper.style.display = 'flex';
-          textWrapper.style.flexDirection = 'column';
-
-          // Agrupa título, timestamp e corpo no container de texto
-          if (titleEl) textWrapper.appendChild(titleEl);
-          if (tsEl) textWrapper.appendChild(tsEl);
-          if (bodyElM) textWrapper.appendChild(bodyElM);
-
-          mainWrapper.appendChild(mediaEl);
-          mainWrapper.appendChild(textWrapper);
-          modalBox.appendChild(mainWrapper);
-        }
-
-        // 3. Preenche os textos com suporte a tags customizadas
-        titleEl.innerHTML = parseCustomTags(item.title) || '(Sem título)';
-        tsEl.textContent = item.timestamp ? 'Publicado: ' + item.timestamp : '';
-        bodyElM.innerHTML = parseCustomTags(item.body) || '(Sem conteúdo)';
-
-        // 4. Processa e posiciona a imagem conforme suas proporções
-        mediaEl.innerHTML = '';
-        if (imageUrl) {
-          mediaEl.style.display = 'flex';
-          mediaEl.style.alignItems = 'center';
-          mediaEl.style.justifyContent = 'center';
-
-          const img = document.createElement('img');
-          img.src = imageUrl;
-          img.alt = item.title || 'Imagem notícia';
-
-          img.onload = function(){
-            const isLandscape = img.naturalWidth > img.naturalHeight;
-
-            if (isLandscape) {
-              // --- MODO PAISAGEM (Largura > Altura): Imagem maior acima do texto ---
-              if (mainWrapper) {
-                mainWrapper.style.flexDirection = 'column';
-                mainWrapper.style.overflowY = 'auto';
-                if (textWrapper) textWrapper.style.overflowY = 'visible';
-                mainWrapper.insertBefore(mediaEl, textWrapper);
-              }
-
-              mediaEl.style.width = '100%';
-              mediaEl.style.flex = '0 0 auto';
-
-              img.style.width = '100%';
-              img.style.maxWidth = '100%';
-              img.style.maxHeight = '45vh';
-              img.style.objectFit = 'contain';
-              img.style.display = 'block';
-              img.style.margin = '0 auto 10px auto';
-
-            } else {
-              // --- MODO RETRATO (Altura >= Largura): Imagem ampliada à esquerda do texto ---
-              if (mainWrapper) {
-                mainWrapper.style.flexDirection = 'row';
-                mainWrapper.style.overflowY = 'hidden';
-                if (textWrapper) textWrapper.style.overflowY = 'auto';
-                mainWrapper.insertBefore(mediaEl, textWrapper);
-              }
-
-              mediaEl.style.flex = '0 0 45%';
-              mediaEl.style.maxWidth = '50%';
-              mediaEl.style.height = '100%';
-
-              img.style.width = '100%';
-              img.style.height = '100%';
-              img.style.maxHeight = '100%';
-              img.style.objectFit = 'contain';
-              img.style.display = 'block';
-            }
-          };
-
-          img.addEventListener('error', function(){
-            try { 
-              mediaEl.innerHTML = ''; 
-              mediaEl.style.display = 'none';
-              if (mainWrapper) {
-                mainWrapper.style.flexDirection = 'column';
-                mainWrapper.style.overflowY = 'auto';
-              }
-            } catch(e){}
-          });
-
-          mediaEl.appendChild(img);
-        } else {
-          mediaEl.style.display = 'none';
-          if (mainWrapper) {
-            mainWrapper.style.flexDirection = 'column';
-            mainWrapper.style.overflowY = 'auto';
-          }
-          if (textWrapper) textWrapper.style.overflowY = 'visible';
-        }
-
-        // 5. Exibe o modal
-        overlay.style.display = 'flex';
-        overlay.setAttribute('aria-hidden','false');
-        if (modalBox) {
-          try { modalBox.focus(); } catch(e){}
-        }
-
-        const closeBtn = qs('newsModalClose');
-        if (closeBtn && !closeBtn._newsCloseAttached) {
-          closeBtn.addEventListener('click', closeNewsModal);
-          closeBtn._newsCloseAttached = true;
-        }
-        if (!overlay._overlayClickAttached) {
-          overlay.addEventListener('click', function(ev){
-            if (ev.target === overlay) closeNewsModal();
-          });
-          overlay._overlayClickAttached = true;
-        }
-        if (!window._newsEscAttached) {
-          window.addEventListener('keydown', function(ev){
-            if (ev.key === 'Escape') closeNewsModal();
-          });
-          window._newsEscAttached = true;
-        }
-      };
-
-      window.closeNewsModal = function(){
-        const overlay = qs('newsModalOverlay');
-        if (!overlay) return;
-        overlay.style.display = 'none';
-        overlay.setAttribute('aria-hidden','true');
-        const mediaEl = qs('newsModalMedia');
-        if (mediaEl) mediaEl.innerHTML = '';
-      };
-    }
-})();
-
-
-
-  
-
-
-  // -----------------------
-  // Badges / pending counts
-  // -----------------------
-  function addOrUpdateBadge(buttonId, count) {
-    var btn = qs(buttonId);
-    if (!btn) return;
-    if (!count || count <= 0) {
-      var existing = btn.querySelector('.sideBadge');
-      if (existing) existing.remove();
-      return;
-    }
-    var existing = btn.querySelector('.sideBadge');
-    if (existing) {
-      existing.textContent = String(count);
-    } else {
-      var span = document.createElement('span');
-      span.className = 'sideBadge';
-      span.textContent = String(count);
-      btn.appendChild(span);
-    }
-  }
-
-  function clearAllBadges() {
-    var badges = document.querySelectorAll('.sideBadge');
-    badges.forEach(function(b){ b.remove(); });
-  }
-
-  function updateBadges() {
-    if (typeof google === 'undefined' || !google.script || !google.script.run) {
-      // Valores de teste
-      var c1 = 4;
-      var c2 = 2;
-      var c3 = 11;
-      var c4 = 7;
-      var c5 = 1;
-      var total = c1 + c2 + c3 + c4 + c5;
-
-      addOrUpdateBadge('btncarregamentoOp', c1);
-      addOrUpdateBadge('btndescargaOp', c2);
-      addOrUpdateBadge('btnAtendimento', c3);
-      addOrUpdateBadge('btnMoviApp', c4);
-      addOrUpdateBadge('btnPitStop', c5);
-      
-      // Atualiza o botão do menu com o total
-      addOrUpdateBadge('menuToggle', total);
-      return;
-    }
-
-    google.script.run.withSuccessHandler(function(res){
-      try {
-        var sep = Number(res.separacao) || 0;
-        var desc = Number(res.descarga) || 0;
-        var alt = Number(res.filtroFalse) || 0;
-        var mov = Number(res.movimentacoes) || 0;
-        var chat = Number(res.chat) || 0;
-        
-        // Calcula a soma total de notificações
-        var total = sep + desc + mov ;
-
-        addOrUpdateBadge('btncarregamentoOp', sep);
-        addOrUpdateBadge('btndescargaOp', desc);
-        addOrUpdateBadge('btnAtendimento', alt);
-        addOrUpdateBadge('btnMoviApp', mov);
-        addOrUpdateBadge('btnPitStop', chat);
-        
-        // Atualiza o botão do menu com o total
-        addOrUpdateBadge('menuToggle', total);
-      } catch(e) {
-        console.error('Erro ao atualizar badges:', e);
-      }
-    }).withFailureHandler(function(err){
-      console.error('Erro getPendingCounts:', err);
-    }).getPendingCounts();
-  }
-
-  
-
-  // -----------------------
-  // registrarAtividadeModulo (mantido)
-  // -----------------------
-  function registrarAtividadeModulo(nomeModulo){
-
-      if(!nomeModulo || typeof nomeModulo !== 'string'){
-        console.warn('registrarAtividadeModulo: nomeModulo inválido.');
-        return;
-      }
-      const operadorNome = sessionStorage.getItem('operadorNome') || 'Não Informado';
-      const msg = "O usuário '" + operadorNome + "' acabou de acessar o módulo [" + nomeModulo + "].";
-      
-  }
-
-  var _badgeInterval = setInterval(updateBadges, 60000);
-  window.updateBadges = updateBadges;
-  window.addOrUpdateBadge = addOrUpdateBadge;
-  window.clearAllBadges = clearAllBadges;
-  window.registrarAtividadeModulo = registrarAtividadeModulo;
-  window.fazerLogin = fazerLogin;
-  
-
-})();
-
-// teste login persistente
-
-(function(){
-  'use strict';
-
-  // cria o modal se não existir e retorna referências úteis
-  function createNewsEditorModal(){
-    if(document.getElementById('newsEditorModal')) {
-      return {
-        modal: document.getElementById('newsEditorModal'),
-        titleEl: document.getElementById('newsEditorTitle'),
-        textEl: document.getElementById('newsEditorText'),
-        fileEl: document.getElementById('newsEditorFile'),
-        saveBtn: document.getElementById('newsEditorSave'),
-        cancelBtn: document.getElementById('newsEditorCancel'),
-        statusEl: document.getElementById('newsEditorStatus')
-      };
-    }
-
-    const overlay = document.createElement('div');
-    overlay.id = 'newsEditorModal';
-    overlay.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:100000;';
-    overlay.setAttribute('aria-hidden','true');
-
-    const box = document.createElement('div');
-    box.style.cssText = 'width:92%;max-width:720px;background:#0f1720;color:#e6edf3;border-radius:12px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,0.6);font-family:Inter,system-ui,Arial;';
-    box.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <strong style="font-size:1.05rem">Criar notícia</strong>
-        <button id="newsEditorClose" style="background:transparent;border:none;color:#cbd5e1;font-weight:700;font-size:18px;cursor:pointer">×</button>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <label style="font-size:0.9rem">Título (col A)</label>
-        <input id="newsEditorTitle" type="text" placeholder="Título" style="height:44px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:inherit">
-        <label style="font-size:0.9rem">Texto (col B)</label>
-        <textarea id="newsEditorText" rows="6" placeholder="Conteúdo da notícia" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:inherit"></textarea>
-        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-          <div style="flex:1;min-width:200px">
-            <label style="font-size:0.9rem;display:block">Imagem (png / gif / jpg)</label>
-            <input id="newsEditorFile" type="file" accept=".png,.jpg,.jpeg,.gif" style="width:100%;"/>
-          </div>
-          <div style="min-width:140px;display:flex;gap:8px;align-items:center;justify-content:flex-end">
-            <button id="newsEditorCancel" style="height:40px;padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#cbd5e1;cursor:pointer">Cancelar</button>
-            <button id="newsEditorSave" style="height:40px;padding:8px 12px;border-radius:8px;border:none;background:linear-gradient(90deg,#0077e6,#005fb3);color:white;cursor:pointer">Enviar</button>
-          </div>
-        </div>
-        <div id="newsEditorStatus" style="min-height:18px;color:#9aa7b8;font-size:0.9rem;margin-top:6px"></div>
-      </div>
-    `;
-
-    overlay.appendChild(box);
-    document.body.appendChild(overlay);
-
-    // hook close
-    const closeBtn = document.getElementById('newsEditorClose');
-    closeBtn.addEventListener('click', closeNewsEditorModal);
-    overlay.addEventListener('click', function(ev){ if(ev.target === overlay) closeNewsEditorModal(); });
 
     return {
-      modal: overlay,
-      titleEl: document.getElementById('newsEditorTitle'),
-      textEl: document.getElementById('newsEditorText'),
-      fileEl: document.getElementById('newsEditorFile'),
-      saveBtn: document.getElementById('newsEditorSave'),
-      cancelBtn: document.getElementById('newsEditorCancel'),
-      statusEl: document.getElementById('newsEditorStatus')
+      withSuccessHandler: function(callback) {
+        return {
+          withFailureHandler: function(errCallback) {
+            return createRunner(callback, errCallback);
+          }
+        };
+      },
+      withFailureHandler: function(callback) {
+        return {
+          withSuccessHandler: function(succCallback) {
+            return createRunner(succCallback, callback);
+          }
+        };
+      }
     };
-  }
+  })();
 
-  function openNewsEditorModal(){
-    // check operator name
-    const operador = (function(){
-      try { return sessionStorage.getItem('operadorNome') || localStorage.getItem('operadorNome') || ''; }
-      catch(e){ return ''; }
-    })();
-    if(operador !== '[Administrador]'){
-      alert('Acesso restrito: somente [Administrador] pode enviar notícias.');
-      return;
-    }
+  // --- Funções Auxiliares ---
+  function qs(id){ try { return document.getElementById(id); } catch(e){ return null; } }
 
-    const m = createNewsEditorModal();
-    if(!m) return;
-    m.titleEl.value = '';
-    m.textEl.value = '';
-    m.fileEl.value = '';
-    m.statusEl.textContent = '';
-    m.modal.style.display = 'flex';
-    m.modal.setAttribute('aria-hidden','false');
-
-    // attach handlers (one-time remove then add)
-    m.cancelBtn.onclick = closeNewsEditorModal;
-    m.saveBtn.onclick = function(){ saveNewsFromModal(m); };
-  }
-
-  function closeNewsEditorModal(){
-    const modal = document.getElementById('newsEditorModal');
-    if(!modal) return;
-    modal.style.display = 'none';
-    modal.setAttribute('aria-hidden','true');
-  }
-
-  // show minimal status text
-  function setModalStatus(m, txt, isError){
-    if(!m || !m.statusEl) return;
-    m.statusEl.style.color = isError ? '#ff6666' : '#9aa7b8';
-    m.statusEl.textContent = txt || '';
-  }
-
-  // read file as base64 (returns Promise resolving {name, mime, base64})
-  function readFileAsBase64(file){
-    return new Promise((resolve, reject)=>{
-      if(!file) return resolve(null);
-      const fr = new FileReader();
-      fr.onload = function(){ 
-        const result = fr.result || '';
-        // result like "data:<mime>;base64,AAAA..."
-        resolve({ name: file.name, mime: file.type || '', dataUrl: result });
-      };
-      fr.onerror = function(e){ reject(e); };
-      fr.readAsDataURL(file);
-    });
-  }
-
-  // save news: if image present, upload image via GAS function uploadNewsImage(base64, filename) -> returns url
-  // then call addNewsRow(title, body) on GAS side
-  function saveNewsFromModal(m){
-    if(!m) m = createNewsEditorModal();
-    const title = (m.titleEl.value || '').trim();
-    let body = (m.textEl.value || '').trim();
-    const file = (m.fileEl.files && m.fileEl.files[0]) ? m.fileEl.files[0] : null;
-
-    if(!title){ setModalStatus(m, 'Informe o título.', true); m.titleEl.focus(); return; }
-    if(!body){ setModalStatus(m, 'Informe o texto da notícia.', true); m.textEl.focus(); return; }
-
-    setModalStatus(m, 'Preparando envio...');
-    m.saveBtn.disabled = true;
-
-    // helper to finally push the row
-    function pushRow(finalBody){
-      setModalStatus(m, 'Enviando notícia...');
-      // expected GAS function: addNewsRow(title, body) -> { ok:true } or similar
-      if(typeof google !== 'undefined' && google.script && google.script.run && typeof google.script.run.addNewsRow === 'function'){
-        google.script.run.withSuccessHandler(function(res){
-          m.saveBtn.disabled = false;
-          if(res && (res.ok || res === true)){
-            setModalStatus(m, 'Notícia enviada com sucesso.');
-            setTimeout(()=>{ closeNewsEditorModal(); }, 800);
-          } else {
-            setModalStatus(m, 'Enviado, servidor retornou erro.', true);
-            console.warn('addNewsRow result:', res);
-          }
-        }).withFailureHandler(function(err){
-          m.saveBtn.disabled = false;
-          setModalStatus(m, 'Erro ao enviar notícia: ' + String(err), true);
-          console.error('addNewsRow fail', err);
-        }).addNewsRow(title, finalBody);
-      } else {
-        // fallback: tentar chamar generic function or log to console
-        try {
-          if(typeof google !== 'undefined' && google.script && google.script.run && typeof google.script.run.insertNewsRow === 'function'){
-            google.script.run.insertNewsRow(title, finalBody);
-            setModalStatus(m, 'Chamado fallback insertNewsRow (sem retorno).');
-            setTimeout(()=>{ closeNewsEditorModal(); }, 700);
-            m.saveBtn.disabled = false;
-          } else {
-            console.log('NEWS (local fallback) ->', { title: title, body: finalBody });
-            alert('Ambiente sem servidor: notícia mostrada no console (fallback).');
-            m.saveBtn.disabled = false;
-            closeNewsEditorModal();
-          }
-        } catch(e){
-          m.saveBtn.disabled = false;
-          setModalStatus(m, 'Erro: ' + e, true);
-        }
-      }
-    }
-
-    // if file present, read and upload then append URL to body
-    if(file){
-      setModalStatus(m, 'Carregando imagem...');
-      readFileAsBase64(file).then(data => {
-        if(!data || !data.dataUrl){
-          setModalStatus(m, 'Falha ao ler arquivo.', true);
-          m.saveBtn.disabled = false;
-          return;
-        }
-        // send to GAS: expected function uploadNewsImage(dataUrl, filename) -> returns url string
-        if(typeof google !== 'undefined' && google.script && google.script.run && typeof google.script.run.uploadNewsImage === 'function'){
-          setModalStatus(m, 'Enviando imagem ao servidor...');
-          google.script.run.withSuccessHandler(function(url){
-            if(url && String(url).trim()){
-              // append url to body (separado por nova linha)
-              const finalBody = body + '\n' + String(url).trim();
-              pushRow(finalBody);
-            } else {
-              // server did not return url
-              setModalStatus(m, 'Imagem enviada, porém sem URL retornada. Inserindo sem imagem.', true);
-              pushRow(body);
-            }
-          }).withFailureHandler(function(err){
-            setModalStatus(m, 'Erro ao enviar imagem: ' + String(err), true);
-            m.saveBtn.disabled = false;
-          }).uploadNewsImage(data.dataUrl, data.name);
-        } else {
-          // no GAS upload available: fallback - use data URL directly (may be long) or reject
-          // We append the dataURL (not ideal) but keeps functionality offline
-          setModalStatus(m, 'Ambiente offline: incorporando imagem como dataURL (tamanho grande).');
-          const finalBody = body + '\n' + data.dataUrl;
-          pushRow(finalBody);
-        }
-      }).catch(err=>{
-        setModalStatus(m, 'Erro ao ler arquivo: ' + String(err), true);
-        m.saveBtn.disabled = false;
-      });
-    } else {
-      // no file, just push
-      pushRow(body);
-    }
-  }
-
-  // export function
-  window.openNewsEditorModal = openNewsEditorModal;
-  window.closeNewsEditorModal = closeNewsEditorModal;
-
-})();
-
-(function(){
- 
-
-  const KEEP_INTERVAL_MS = 30_000;     // frequência para regravar sessão
-  const HEARTBEAT_MS = 60_000;         // envio de heartbeat para server
-  const IDB_DB = 'ptl_persistence';
-  const IDB_STORE = 'session_store';
-  const COOKIE_TTL_DAYS = 14;
-
-
-  // --- persistência robusta ---
-  function persistSessionRobust({ matricula, nome, acessos, keepLogged }){
-    // write everywhere (best-effort)
-    try{ sessionStorage.setItem('outlog_matricula', matricula || ''); sessionStorage.setItem('operadorNome', nome || ''); }catch(e){}
-    try{ localStorage.setItem('outlog_matricula', matricula || ''); localStorage.setItem('operadorNome', nome || ''); localStorage.setItem('acesso', JSON.stringify(acessos||[])); if(keepLogged) localStorage.setItem('ptl_stay','1'); }catch(e){}
-    try{ setCookie('outlog_matricula', matricula || '', keepLogged ? COOKIE_TTL_DAYS : 0); setCookie('operadorNome', nome || '', keepLogged ? COOKIE_TTL_DAYS : 0); setCookie('acesso', JSON.stringify(acessos||[]), keepLogged ? COOKIE_TTL_DAYS : 0); }catch(e){}
-    // idb store
-    try{ idbPut('current_session', { matricula: matricula||'', nome: nome||'', acessos: acessos||[], savedAt: new Date().toISOString() }).catch(()=>{}); }catch(e){}
-    // also mirror last page timestamp
-    try{ sessionStorage.setItem('lastSessionSavedAt', new Date().toISOString()); }catch(e){}
-  }
-
-  // --- garantir salvar última página (Apenas Server) ---
-function saveLastPage(pageName){
-  try {
-    // Obtém a matrícula diretamente da sessão ativa no app (ou fallbacks se necessário)
-    const matricula = (window.APP_SESSION && window.APP_SESSION.matricula) || 
-                      sessionStorage.getItem('outlog_matricula') || 
-                      localStorage.getItem('outlog_matricula') || 
-                      getCookie('outlog_matricula') || '';
+  // --- Função abrirLink integrada com o Shim do GAS ---
+  function abrirLink(nomeArquivo) {
+    if (typeof closeSidebar === 'function') closeSidebar();
+    const contentDiv = qs('loadedContent');
+    const loader = qs('loader');
+    if(!contentDiv || !loader) return;
     
-    if (!matricula || !pageName) return;
+    contentDiv.innerHTML = '';
+    loader.style.display = 'flex';
 
-    // Chamada exclusiva ao servidor GAS (Non-blocking)
-    if (window.google && google && google.script && google.script.run) {
-      if (typeof google.script.run.saveLastOpenedPage === 'function') {
-        google.script.run.saveLastOpenedPage(pageName,matricula);
-      }
-    }
-  } catch(e) {
-    console.warn('Falha ao registrar página atual no servidor:', e);
-  }
-}
-
-  // --- keeper: periodicamente regrava sessão e heartbeat server ---
-  let keeperTimer = null;
-  let heartbeatTimer = null;
-  function startKeepers(){
-    stopKeepers();
-    keeperTimer = setInterval(()=> {
-      try{
-        const matricula = sessionStorage.getItem('outlog_matricula') || localStorage.getItem('outlog_matricula') || getCookie('outlog_matricula') || '';
-        const nome = sessionStorage.getItem('operadorNome') || localStorage.getItem('operadorNome') || getCookie('operadorNome') || '';
-        const acesso = (()=>{ try{ return JSON.parse(localStorage.getItem('acesso')||'[]'); }catch(e){ return []; } })();
-        if(matricula){
-          persistSessionRobust({ matricula, nome, acessos: acesso, keepLogged: true });
-        }
-      }catch(e){ console.warn('keeper persist fail', e); }
-    }, KEEP_INTERVAL_MS);
-
-    // heartbeat
-    heartbeatTimer = setInterval(()=> {
-      try{
-        const matricula = sessionStorage.getItem('outlog_matricula') || localStorage.getItem('outlog_matricula') || getCookie('outlog_matricula') || '';
-        if(matricula && window.google && google && google.script && google.script.run && typeof google.script.run.setUserOnline === 'function'){
-          try{ google.script.run.setUserOnline(nome); }catch(e){}
-        }
-      }catch(e){}
-    }, HEARTBEAT_MS);
-  }
-  function stopKeepers(){ if(keeperTimer){ clearInterval(keeperTimer); keeperTimer = null; } if(heartbeatTimer){ clearInterval(heartbeatTimer); heartbeatTimer = null; } }
-
-  // --- try auto-restore on visibility/focus --- 
-  let lastRestoreAttempt = 0;
-  function attemptAutoRestore() {
-  const now = Date.now();
-  if (now - lastRestoreAttempt < 2000) return; // avoid thrash
-  lastRestoreAttempt = now;
-
-  Promise.resolve(loadSessionAny()).then(sess => {
-    if (!sess || !sess.matricula) return;
-    const matricula = sess.matricula;
-    const nome = sess.nome || loadNameFromAny();
-
-    // Se salvarSessao existir, renderiza a UI do app
     try {
-      if (typeof salvarSessao === 'function') {
-        salvarSessao(nome || ('Usuário ' + matricula), JSON.parse(localStorage.getItem('acesso') || '[]'), matricula, true);
-        startKeepers();
-      } else {
-        persistSessionRobust({ matricula, nome, acessos: JSON.parse(localStorage.getItem('acesso') || '[]'), keepLogged: true });
+      const matricula = (window.APP_SESSION && window.APP_SESSION.matricula) || 
+                        sessionStorage.getItem('outlog_matricula') || 
+                        localStorage.getItem('outlog_matricula') || '';
+
+      if (matricula && nomeArquivo && typeof google !== 'undefined' && google.script && google.script.run) {
+        if (typeof google.script.run.saveLastOpenedPage === 'function') {
+          google.script.run
+            .withFailureHandler(err => console.warn('Falha ao registrar página:', err))
+            .saveLastOpenedPage(nomeArquivo, matricula);
+        }
       }
-    } catch (e) { 
-      console.warn('auto restore salvarSessao fail', e); 
+    } catch(e) {
+      console.warn('Erro ao disparar salvamento da página:', e);
     }
 
-    // Consulta SEMPRE o servidor para obter a última página ativa deste usuário
-    try {
-      if (window.google && google && google.script && google.script.run && typeof google.script.run.getLastOpenedPage === 'function') {
-        google.script.run.withSuccessHandler(function(serverPage) {
-          if (serverPage && String(serverPage).trim() && typeof abrirLink === 'function') {
-            try { 
-              abrirLink(serverPage); 
-            } catch (e) { 
-              console.warn('abrir Link fail', e); 
-            }
-          }
-        })
-        .withFailureHandler(err => {
-          console.warn('Falha ao recuperar última página do servidor:', err);
-        })
-        .getLastOpenedPage(matricula);
-      } else {
-        console.warn('Ambiente local ou função getLastOpenedPage indisponível no servidor.');
-      }
-    } catch (e) {
-      console.warn('Erro na execução do getLastOpenedPage:', e);
-    }
-
-  }).catch(e => { 
-    console.warn('loadSessionAny fail', e); 
-  });
-}
-
-  // auxiliary: loadNameFromAny used above
-  function loadNameFromAny(){
-    try{ const s = sessionStorage.getItem('operadorNome'); if(s) return s; }catch(e){}
-    try{ const l = localStorage.getItem('operadorNome'); if(l) return l; }catch(e){}
-    try{ return getCookie('operadorNome')||'';}catch(e){return '';}
-  }
-
-  // --- visibility / focus handlers ---
-  document.addEventListener('visibilitychange', function(){
-    if(document.hidden){
-      // before leaving: persist immediately
-      try{
-        const m = sessionStorage.getItem('outlog_matricula') || localStorage.getItem('outlog_matricula') || '';
-        const lp = '';
-        if(m && lp) serverSaveLastOpenedPageFallback(lp,m);
-        persistImmediateSnapshot();
-      }catch(e){}
-      stopKeepers();
-    } else {
-      // restore attempt when returning
-      attemptAutoRestore();
-      startKeepers();
-    }
-  }, { passive:true });
-
-  window.addEventListener('focus', function(){ attemptAutoRestore(); }, { passive:true });
-
-  // beforeunload: attempt final persist/save
-  window.addEventListener('beforeunload', function(){
-    try{
-      const m = sessionStorage.getItem('outlog_matricula') || localStorage.getItem('outlog_matricula') || '';
-      const lp = '';
-      if(m && lp) serverSaveLastOpenedPageFallback(lp,m);
-      persistImmediateSnapshot();
-    }catch(e){}
-  });
-
-  // persist immediate snapshot (used on hidden/unload)
-  function persistImmediateSnapshot(){
-    try{
-      const matricula = sessionStorage.getItem('outlog_matricula') || localStorage.getItem('outlog_matricula') || getCookie('outlog_matricula') || '';
-      const nome = sessionStorage.getItem('operadorNome') || localStorage.getItem('operadorNome') || getCookie('operadorNome') || '';
-      const acesso = (()=>{ try{ return JSON.parse(sessionStorage.getItem('acesso')||'[]'); }catch(e){ return []; } })();
-      if(matricula) persistSessionRobust({ matricula, nome, acessos: acesso, keepLogged: true });
-    }catch(e){ console.warn('persistImmediateSnapshot fail', e); }
-  }
-
-  // serverSaveLastOpenedPage fallback wrapper (best-effort)
-  function serverSaveLastOpenedPageFallback(pageName,matricula){
-    try{
-      if(window.google && google && google.script && google.script.run){
-        if(typeof google.script.run.saveLastOpenedPage === 'function') { google.script.run.saveLastOpenedPage(pageName,matricula); return; }
-        if(typeof google.script.run.saveFavoritePage === 'function') { google.script.run.saveLastOpenedPage(pageName, matricula); return; }
-        if(typeof google.script.run.registrarUltimaPagina === 'function') { google.script.run.saveLastOpenedPage((pageName,matricula)); return; }
-      }
-    }catch(e){}
-    // else do a beacon fallback if possible
-    try{
-      if(navigator.sendBeacon){
-        const url = '/saveLastPageBeacon';
-        navigator.sendBeacon(url, new Blob([JSON.stringify({ matricula, pageName })], { type:'application/json' }));
-      }
-    }catch(e){}
-  }
-
-  /* ---------- expose small API to original app ---------- */
-  window.__SESSION_GUARD__ = {
-    persistNow: persistImmediateSnapshot,
-    startKeepers: startKeepers,
-    stopKeepers: stopKeepers,
-    attemptAutoRestore: attemptAutoRestore,
-    persistSessionRobust: persistSessionRobust
-  };
-
-  // start keepers on load for working sessions
-  try { // call after short timeout so original salvarSessao can run first if present
-    setTimeout(()=> {
-      // if there is any session info available, initialize keepers and try restore
-      const anyMat = sessionStorage.getItem('outlog_matricula') || localStorage.getItem('outlog_matricula') || getCookie('outlog_matricula') || '';
-      if(anyMat){
-        startKeepers();
-        attemptAutoRestore();
-      } else {
-        // try to restore from IDB/cookies/local
-        attemptAutoRestore();
-      }
-    }, 120);
-  } catch(e){}
-
-  // safe guard: every 5 minutes ensure snapshot persisted
-  setInterval(()=>{ try{ persistImmediateSnapshot(); }catch(e){} }, 5*60*1000);
-
-})();
-
-
-
-  (function() {
-  // Configuração: Altere aqui para os testes (ex: 5000 para 5 segundos)
-  // Para produção, use: 3 * 60 * 60 * 1000 (3 horas)
-  var INTERVALO_VERIFICACAO = 5 * 1000; 
-
-  function iniciarRotinaMonitoramento() {
-    // 1. Tenta pegar a matrícula de TODOS os locais possíveis (Redundância para Tablet)
-    const matricula = sessionStorage.getItem("outlog_matricula") ||  "";
-
-    // Se o sistema ainda está carregando a tela e não achou a matrícula, reagenda a busca
-    if (!matricula) {
-      setTimeout(iniciarRotinaMonitoramento, 3000);
-      return;
-    }
-
-    // Executa a primeira checagem imediatamente
-    executarChecagemStatus(matricula);
-
-    // Agenda as próximas repetições
-    setInterval(function() {
-      executarChecagemStatus(matricula);
-    }, INTERVALO_VERIFICACAO);
-  }
-
-  function executarChecagemStatus(matricula) {
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       google.script.run
-        .withSuccessHandler(function(status) {
-          // Garante a leitura do número vindo da planilha
-          if (Number(status) === 0) {
-            aplicarOverlayBloqueio(matricula);
-          }
+        .withSuccessHandler(html => {
+          loader.style.display = 'none';
+          injetarHTMLSeguro(html, contentDiv);
         })
-        .withFailureHandler(function(erro) {
-          console.error("Erro na verificação do tablet:", erro);
+        .withFailureHandler(e => {
+          loader.style.display = 'none';
+          contentDiv.innerHTML = `<div style="padding:20px;color:#f55;text-align:center">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size:40px;margin-bottom:10px"></i><br>
+            <strong>Erro ao carregar módulo.</strong><br><small>${e}</small>
+          </div>`;
         })
-        .verificarStatusNoAcess(matricula);
+        .carregarConteudo(nomeArquivo);
     } else {
-      console.warn("Ambiente Google não detectado na WebView atual.");
+      loader.style.display = 'none';
+      contentDiv.innerHTML = `<div style="padding:20px;color:#aaa;text-align:center"><h3>Modo Local</h3></div>`;
     }
   }
+  window.abrirLink = abrirLink;
 
-  function aplicarOverlayBloqueio(matricula) {
-    if (document.getElementById("bloqueio-atualizacao-global")) return;
+  function injetarHTMLSeguro(html, container) {
+    container.innerHTML = '';
+    const scriptDados = document.createElement('script');
+    const dados = window.APP_SESSION || { nome: '', acesso: [], matricula: '' };
+    const acessoJSON = JSON.stringify(dados.acesso || []);
+    scriptDados.textContent = `
+      window.OPERADOR_NOME = "${(dados.nome||'').replace(/(["\\])/g,'\\$1')}";
+      window.OPERADOR_MATRICULA = "${(dados.matricula||'').replace(/(["\\])/g,'\\$1')}";
+      window.OPERADOR_ACESSO = ${acessoJSON};
+    `;
+    container.appendChild(scriptDados);
 
-    // Força a remoção do scroll da página de fundo no tablet
-    try {
-      document.body.style.overflow = "hidden";
-    } catch(e){}
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const scripts = Array.from(temp.querySelectorAll('script'));
+    scripts.forEach(s => s.remove());
 
-    var estilo = document.createElement("style");
-    estilo.innerHTML = "" +
-      "#bloqueio-atualizacao-global {" +
-        "position: fixed !important;" +
-        "top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;" +
-        "width: 100% !important; height: 100% !important;" +
-        "background: #0f111a !important;" + // Sem transparência para garantir bloqueio visual total
-        "z-index: 2147483647 !important;" + // Maior z-index permitido no ecossistema web
-        "display: flex !important;" +
-        "align-items: center !important;" +
-        "justify-content: center !important;" +
-        "padding: 20px !important;" +
-        "box-sizing: border-box !important;" +
-      "}" +
-      ".card-bloqueio-alerta {" +
-        "background: #1a1d2e !important;" +
-        "border: 1px solid rgba(255, 255, 255, 0.1) !important;" +
-        "border-top: 4px solid #ff9100 !important;" +
-        "max-width: 450px !important;" +
-        "width: 100% !important;" +
-        "padding: 35px 25px !important;" +
-        "border-radius: 12px !important;" +
-        "text-align: center !important;" +
-        "box-shadow: 0 20px 50px rgba(0,0,0,0.8) !important;" +
-        "font-family: sans-serif !important;" +
-      "}" +
-      ".card-bloqueio-alerta h2 {" +
-        "color: #f8fafc !important;" +
-        "font-size: 22px !important;" +
-        "margin: 15px 0 12px 0 !important;" +
-        "font-weight: 700 !important;" +
-      "}" +
-      ".card-bloqueio-alerta p {" +
-        "color: #94a3b8 !important;" +
-        "font-size: 15px !important;" +
-        "line-height: 1.6 !important;" +
-        "margin-bottom: 30px !important;" +
-      "}" +
-      ".btn-bloqueio-forcado {" +
-        "width: 100% !important;" +
-        "background: #ff9100 !important;" +
-        "border: none !important;" +
-        "color: #000000 !important;" +
-        "padding: 16px !important;" +
-        "border-radius: 8px !important;" +
-        "font-size: 16px !important;" +
-        "font-weight: 700 !important;" +
-        "cursor: pointer !important;" +
-      "}";
-    document.head.appendChild(estilo);
+    while (temp.firstChild) {
+      container.appendChild(temp.firstChild);
+    }
 
-    var overlay = document.createElement("div");
-    overlay.id = "bloqueio-atualizacao-global";
-    overlay.innerHTML = "" +
-      "<div class='card-bloqueio-alerta'>" +
-        "<div style='font-size: 50px; color: #ff9100;'><i class='fa-solid fa-triangle-exclamation'></i></div>" +
-        "<h2>Reinicialização Necessária</h2>" +
-        "<p>O OutLog precisa ser reiniciado. Para garantir a sincronização das tarefas, este dispositivo foi bloqueado.</p>" +
-        "<button id='btn-executar-atualizacao-obrigatoria' class='btn-bloqueio-forcado'>" +
-          "Deslogar e Atualizar Agora" +
-        "</button>" +
-      "</div>";
-    
-    document.body.appendChild(overlay);
-
-    document.getElementById("btn-executar-atualizacao-obrigatoria").onclick = function() {
-      this.disabled = true;
-      this.innerHTML = "REINICIE O APLICATIVO...";
-
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        google.script.run
-          .withSuccessHandler(deslogarSessaoTerminal)
-          .withFailureHandler(function() {
-            deslogarSessaoTerminal();
-          })
-          .saveLastOpenedPage("updateConcluido.html", matricula);
-      } else {
-        logout();
+    let scriptsPendentes = scripts.filter(s => s.src).length;
+    const tentarInicializar = () => {
+      if (scriptsPendentes <= 0) {
+        setTimeout(() => {
+          if (typeof window.inicializarPagina === 'function') {
+            try { window.inicializarPagina(); } catch(err) { console.error(err); }
+          }
+        }, 300);
       }
     };
+
+    scripts.forEach(oldScript => {
+      const newScript = document.createElement('script');
+      Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+      if (oldScript.src) {
+        newScript.async = false;
+        newScript.onload = () => { scriptsPendentes--; tentarInicializar(); };
+        newScript.onerror = () => { scriptsPendentes--; tentarInicializar(); };
+        newScript.src = oldScript.src;
+      } else {
+        newScript.textContent = oldScript.textContent;
+      }
+      container.appendChild(newScript);
+    });
+
+    if (scriptsPendentes === 0) tentarInicializar();
   }
 
-  function deslogarSessaoTerminal() {
-    if (typeof window.logout === 'function') {
-      window.logout();
-      boxLoginHide.style.display="flex";
-    } else if (typeof logout === 'function') {
-      logout();
-      boxLoginHide.style.display="flex";
-    } else {
-      try {
-        localStorage.clear();
-        sessionStorage.clear();
-        location.reload();
-      } catch (e) {
-        alert("Sessão encerrada. Por favor, reabra o aplicativo.");
+  function showNews() {
+    try { closeSidebar && closeSidebar(); } catch(e){}
+    const contentDiv = qs('loadedContent');
+    if (!contentDiv) return;
+    contentDiv.innerHTML = '';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'news-wrap';
+    const list = document.createElement('div');
+    list.className = 'news-list';
+    wrapper.appendChild(list);
+    contentDiv.appendChild(wrapper);
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(res => renderNews(res, list))
+        .withFailureHandler(err => renderNews(null, list, err))
+        .getNews();
+    }
+  }
+  window.showNews = showNews;
+
+  // Demais funções auxiliares de interface, login e menus preservadas...
+  function toggleSidebar() {
+    var sideBar = document.getElementById('sideBar');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (sideBar) {
+      sideBar.classList.toggle('active');
+      if (overlay) {
+        overlay.style.display = sideBar.classList.contains('active') ? 'block' : 'none';
+        overlay.style.opacity = sideBar.classList.contains('active') ? '1' : '0';
       }
     }
   }
+  window.toggleSidebar = toggleSidebar;
 
-  // Inicialização forçada independente do evento do navegador
-  if (document.readyState === "complete" || document.readyState === "interactive") {
-    iniciarRotinaMonitoramento();
-  } else {
-    document.addEventListener("DOMContentLoaded", iniciarRotinaMonitoramento);
+  function closeSidebar() {
+    var sideBar = document.getElementById('sideBar');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (sideBar) sideBar.classList.remove('active');
+    if (overlay) { overlay.style.opacity = '0'; overlay.style.display = 'none'; }
   }
-})();
+  window.closeSidebar = closeSidebar;
+
+  function toggleMenu(element) {
+    if (!element) return;
+    var dropdown = element.closest('.menu-dropdown') || element.parentElement;
+    if (dropdown && dropdown.classList) dropdown.classList.toggle('open');
+  }
+  window.toggleMenu = toggleMenu;
+
+  async function fazerLogin() {
+    const inputUser = document.getElementById('usuario');
+    let usuario = inputUser ? inputUser.value.trim() : '';
+    if (!usuario) return alert('Digite a matrícula');
+
+    google.script.run
+      .withSuccessHandler(res => {
+        if (res && res.success) {
+          salvarSessao(res.nome, res.acesso, usuario);
+        } else {
+          alert('Senha incorreta ou acesso não autorizado.');
+        }
+      })
+      .withFailureHandler(err => alert('Erro de conexão: ' + err))
+      .validarLogin(usuario);
+  }
+  window.fazerLogin = fazerLogin;
+
+  function salvarSessao(nome, acessos, matricula) {
+    window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
+    try {
+      sessionStorage.setItem('operadorNome', nome);
+      sessionStorage.setItem('acesso', JSON.stringify(window.APP_SESSION.acesso));
+      sessionStorage.setItem('outlog_matricula', matricula);
+    } catch(e){}
+
+    const lo = qs('loginOverlay'); if (lo) lo.style.display = 'none';
+    showNews();
+    toggleSidebar();
+  }
+  window.salvarSessao = salvarSessao;
+
+  function logout() {
+    try { localStorage.clear(); sessionStorage.clear(); } catch(e){}
+    location.reload();
+  }
+  window.logout = logout;
 </script>
-
-
-
-<div id="newsModalOverlay" aria-hidden="true">
-  <div class="news-modal" tabindex="-1">
-    <button id="newsModalClose">✕</button>
-    <div class="news-modal-container">
-      <div id="newsModalMedia"></div>
-      <div class="news-modal-text-wrap">
-        <h3 id="newsModalTitle"></h3>
-        <div id="newsModalTs"></div>
-        <div id="newsModalBody"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
