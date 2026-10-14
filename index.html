@@ -928,7 +928,7 @@
   // =========================================================================
   const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSGJihV_x_eFA1-yzJisl6naV8deqknfylzwoqWkd_7Cnwry8KS6xYeVxL1glsfXMy/exec';
 
-  // --- SHIM UNIVERSAL DE COMPATIBILIDADE (google.script.run via Proxy + Fetch para GitHub Pages) ---
+  // --- SHIM UNIVERSAL DE COMPATIBILIDADE (Suporta qualquer encadeamento) ---
   window.google = window.google || {};
   window.google.script = window.google.script || {};
 
@@ -936,6 +936,15 @@
     function createRunner(successHandler, failureHandler) {
       return new Proxy({}, {
         get(target, methodName) {
+          // Permite re-encadear caso chamem .withSuccessHandler ou .withFailureHandler novamente
+          if (methodName === 'withSuccessHandler') {
+            return function(cb) { return createRunner(cb, failureHandler); };
+          }
+          if (methodName === 'withFailureHandler') {
+            return function(cb) { return createRunner(successHandler, cb); };
+          }
+          
+          // Executa a chamada real via Fetch para o Apps Script
           return function(...args) {
             fetch(GAS_WEB_APP_URL, {
               method: 'POST',
@@ -965,22 +974,20 @@
       });
     }
 
-    return {
-      withSuccessHandler: function(callback) {
-        return {
-          withFailureHandler: function(errCallback) {
-            return createRunner(callback, errCallback);
-          }
-        };
-      },
-      withFailureHandler: function(callback) {
-        return {
-          withSuccessHandler: function(succCallback) {
-            return createRunner(succCallback, callback);
-          }
-        };
+    // Proxy raiz para interceptar .withSuccessHandler, .withFailureHandler ou a própria função
+    return new Proxy({}, {
+      get(target, methodName) {
+        if (methodName === 'withSuccessHandler') {
+          return function(cb) { return createRunner(cb, null); };
+        }
+        if (methodName === 'withFailureHandler') {
+          return function(cb) { return createRunner(null, cb); };
+        }
+        // Se chamar a função direto sem handlers
+        const runner = createRunner(null, null);
+        return runner[methodName];
       }
-    };
+    });
   })();
 
   // --- HELPERS BÁSICOS ---
