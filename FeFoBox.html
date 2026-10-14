@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FefoBox - Sistema Ativo de Busca</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================================
+     1. DESIGN SYSTEM - DARK NEON (ACCENT CYAN / BLUE)
+     ============================================================================ */
+  :root {
+    --bg-main: #0a0a0a;            
+    --bg-card: #111111;            
+    --bg-surface: #161616;         
+    --bg-input: #0a0a0a;           
+    
+    /* Contornos Escuros e Precisos */
+    --border-black: #000000;       
+    --border-dark-gray: #222222;   
+    
+    /* Tons Neon Cyan Padronizados */
+    --neon-light: #00f2ff;         
+    --neon-dark: #00b8c4;          
+    --neon-hover: #33f5ff;
+    --neon-glow: rgba(0, 242, 255, 0.25);
+    
+    --text-main: #e6edf3;
+    --text-muted: #888888;
+    --text-white: #ffffff;
+    
+    /* Semáforo Industrial Neon */
+    --color-divergencia: #f97316;
+    --color-vazio: #f87171;
+    --color-producao: #4eb369;
+    --color-bloqueado: #a855f7;
+
+    /* Sombras e Transições */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 12px 32px -4px rgba(0, 0, 0, 0.8);
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* CONTROLES DINÂMICOS DE FONTE */
+    --dynamic-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --dynamic-size: 16px;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin-top: 0;
+    padding: 0;
+    font-family: var(--dynamic-font);
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+
+  /* Customização Neon de Scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-main);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-dark-gray);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--neon-light);
+  }
+
+  #titleRow {
+    display: none;
+    padding: 12px 14px 0 8px;
+    margin: 0 auto;
+  }
+
+  /* ============================================================================
+     2. LAYOUT E CARDS (FLUIDEZ E ELEVAÇÃO VISUAL)
+     ============================================================================ */
+  .app-container {
+    width: 100%;
+    height:95%;
+    margin: 0 auto;
+    padding: 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .search-wrapper, .content-area, .sidebar-panel, .modal-window {
+    background: var(--bg-card);
+    border: 1px solid var(--border-dark-gray);
+    box-shadow: var(--shadow-md);
+    border-radius: 12px;
+  }
+
+  /* Barra de Busca Estilo Command Palette */
+  .search-wrapper {
+    height: 35px;
+    padding: 5px 8px;
+    display: flex;
+    gap: 3px;
+    align-items: center;
+    position: sticky;
+    top: 1px;
+    z-index: 100;
+    background: rgba(17, 17, 17, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-color: var(--border-dark-gray);
+  }
+
+  .input-group {
+    width: 50%;
+    flex: 1;
+    position: relative;
+  }
+
+  .search-wrapper input {
+    height: 33px;
+    width: 100%;
+    background: var(--bg-main);
+    border: 1px solid var(--border-dark-gray);
+    color: var(--text-main);
+    padding: 0 16px;
+    font-size: var(--dynamic-size);
+    font-weight: 500;
+    border-radius: 8px;
+    transition: var(--transition-fast);
+  }
+
+  .search-wrapper input:focus {
+    outline: none;
+    border-color: var(--neon-light);
+    background: var(--bg-main);
+    box-shadow: 0 0 10px var(--neon-glow);
+  }
+
+  /* Dropdown Autocomplete Clean */
+  .suggestions-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-dark-gray);
+    border-radius: 8px;
+    list-style: none;
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 110;
+    display: none;
+    box-shadow: var(--shadow-md);
+  }
+
+  .suggestions-dropdown li {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: calc(var(--dynamic-size) - 1px);
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-dark-gray);
+    transition: var(--transition-fast);
+  }
+
+  .suggestions-dropdown li:hover {
+    background: rgba(0, 242, 255, 0.06);
+    color: var(--neon-light);
+    padding-left: 20px;
+  }
+
+  .main-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 1742px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .search-wrapper { flex-wrap: wrap; position: relative; top: 0; height: auto; padding: 12px; }
+    .search-wrapper .btn-core { flex: 1; min-width: 140px; }
+    .input-group { width: 100%; }
+  }
+
+  .content-area { 
+    height:auto-fill;
+    overflow: hidden; 
+    border-color: var(--border-dark-gray);
+  }
+
+  .sidebar-panel {
+    width: auto-fill;
+    text-align: center;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--bg-card);
+  }
+
+  /* ============================================================================
+     3. TABELA DE RESULTADOS (MODERNA E HIGH CONTRAST)
+     ============================================================================ */
+
+  .results-table-container { width: 100%; overflow-x: auto; }
+
+  table { height:90%;width: 100%; border-collapse: collapse; text-align: left; }
+  
+  .table-wrapper {
+    height: calc(100vh - 180px); 
+    overflow-y: auto; 
+    -webkit-overflow-scrolling: touch; 
+    min-height: 350px; 
+  }
+
+  /* Cabeçalho Fixo Dark Neon */
+  .table-wrapper th {
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-surface); 
+    z-index: 10;
+    padding: 16px;
+    font-size: var(--dynamic-size);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--neon-light);
+    border-bottom: 2px solid var(--border-dark-gray);
+  }
+
+  td { 
+    padding: 14px 18px; 
+    font-size: var(--dynamic-size); 
+    border-bottom: 1px solid var(--border-dark-gray); 
+    vertical-align: middle; 
+    color: var(--text-main);
+    transition: background 0.15s ease;
+  }
+  
+  tr:hover td {
+    background: rgba(0, 242, 255, 0.04);
+  }
+  
+  tr:last-child td { border-bottom: none; }
+  
+  .prod-title-cell { font-weight: 500; line-height: 1.5; color: var(--text-white); }
+  .empty-row-state { text-align: center; padding: 60px !important; color: var(--text-muted); font-style: italic; font-size: var(--dynamic-size); }
+
+  /* ============================================================================
+     4. BOTÕES E INTERATIVIDADE (UX PREMIUM)
+     ============================================================================ */
+  .btn-core {
+    padding: 0 20px;
+    font-size: var(--dynamic-size);
+    font-weight: 700;
+    border: 1px solid transparent; 
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: var(--transition-fast);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  
+  .btn-primary { 
+    background: var(--neon-light); 
+    color: #000; 
+    box-shadow: 0 2px 8px var(--neon-glow);
+  }
+  .btn-primary:hover { 
+    opacity: 0.95;
+    box-shadow: 0 0 16px var(--neon-glow);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-ghost { 
+    background: rgba(255, 255, 255, 0.05); 
+    border: 1px solid var(--border-dark-gray); 
+    color: var(--text-main); 
+  }
+  .btn-ghost:hover { 
+    background: rgba(255, 255, 255, 0.1); 
+    border-color: var(--neon-light);
+    color: var(--text-white);
+  }
+
+  /* Estilização para os Custom Selects de Fonte */
+  select.btn-ghost {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0 30px 0 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300f2ff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+    text-transform: none;
+  }
+  select.btn-ghost option {
+    background: var(--bg-card);
+    color: var(--text-main);
+  }
+
+  .view-inspect-trigger {
+    background: rgba(0, 242, 255, 0.05);
+    color: var(--neon-light);
+    border: 1px solid rgba(0, 242, 255, 0.2);
+    width: 40px; 
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    font-size: var(--dynamic-size);
+  }
+  .view-inspect-trigger:hover { 
+    background: var(--neon-light); 
+    color: #000; 
+    border-color: var(--neon-light);
+    box-shadow: 0 0 12px var(--neon-glow);
+  }
+
+  .filter-group-node {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border-radius: 8px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-dark-gray);
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+
+  .filter-header-btn {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-size: var(--dynamic-size); 
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+  }
+
+  .filter-header-btn:hover { background: rgba(255, 255, 255, 0.02); color: var(--neon-light); }
+  
+  .filter-sub-menu { 
+    text-align: center;
+    display: none; 
+    flex-direction: column; 
+    background: var(--bg-main); 
+    border-top: 1px solid var(--border-dark-gray); 
+    padding: 6px; 
+    gap: 4px; 
+  }
+
+  .filter-sub-menu.active { display: flex; }
+  
+  .sub-filter-item { 
+    text-align: center;
+    padding: 10px 12px; 
+    font-size: var(--dynamic-size); 
+    font-weight: 500; 
+    color: var(--text-muted); 
+    background: transparent; 
+    border: none; 
+    text-align: left; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    transition: var(--transition-fast);
+  }
+  .sub-filter-item:hover { background: rgba(0, 242, 255, 0.06); color: var(--text-white); }
+
+  /* ============================================================================
+     5. MODAL INTERATIVO (GLASSMORPHISM & MICRO-ANIMAÇÕES)
+     ============================================================================ */
+  .overlay-backdrop {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .modal-window {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-dark-gray);
+    max-width: 700px;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes modalSlideUp {
+    from { transform: translateY(12px) scale(0.98); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  
+  .modal-step-destination {
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: center;
+  }
+  .destination-title {
+    font-size: 18px; 
+    font-weight: 700;
+    color: var(--text-white);
+    text-align: center;
+    line-height: 1.4;
+  }
+  .destination-grid-choice {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+  }
+  .btn-neon-outline {
+    background: rgba(0, 242, 255, 0.03);
+    color: var(--neon-light);
+    border: 1px solid rgba(0, 242, 255, 0.3);
+  }
+  .btn-neon-outline:hover {
+    background: var(--neon-light);
+    color: #000;
+    box-shadow: 0 0 16px var(--neon-glow);
+  }
+
+  .modal-step-address-view {
+    display: none;
+    width: 100%;
+  }
+  .modal-header-banner {
+    padding: 28px 24px; 
+    text-align: center;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-dark-gray);
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .huge-address-display { 
+    font-size: 72px; 
+    font-weight: 800; 
+    color: var(--neon-light); 
+    letter-spacing: -2px;
+    line-height: 1;
+    text-shadow: 0 0 20px var(--neon-glow);
+  }
+  .expiration-sub-tag { 
+    font-size: 13px; 
+    font-weight: 600; 
+    color: var(--text-main); 
+    background: var(--bg-main); 
+    padding: 6px 14px; 
+    border-radius: 99px; 
+    margin-top: 12px; 
+    border: 1px solid var(--border-dark-gray); 
+  }
+  
+  .modal-body-details { padding: 10px; display: flex; flex-direction: column; gap: 14px; }
+  .product-meta-title { font-size: var(--dynamic-size); font-weight: 500; color: var(--text-white); text-align: center; line-height: 1.5; }
+
+  /* Grid Ocorrências / Justificativas */
+  .justification-flow-box {
+    background: var(--bg-main);
+    border: 1px dashed var(--border-dark-gray);
+    border-radius: 10px; 
+    padding: 16px;
+    display: none; 
+    flex-direction: column; 
+    gap: 12px;
+  }
+  .justification-flow-box p { 
+    font-size: 12px; 
+    font-weight: 700; 
+    color: var(--neon-light); 
+    text-transform: uppercase; 
+    text-align: center; 
+    letter-spacing: 0.05em; 
+  }
+  .justification-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  
+  .btn-reason { 
+    padding: 12px 8px; 
+    font-size: var(--dynamic-size); 
+    font-weight: 700; 
+    color: #fff; 
+    border: none; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    transition: var(--transition-fast); 
+  }
+  .btn-reason:hover { transform: translateY(-1px); filter: brightness(1.15); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  .btn-reason:active { transform: translateY(0); }
+  
+  .br-divergencia { background: var(--color-divergencia); }
+  .br-vazio { background: var(--color-vazio); }
+  .br-producao { background: var(--color-producao); }
+  .br-bloqueado { background: var(--color-bloqueado); }
+
+  .modal-footer-controls { 
+    padding: 16px 24px; 
+    background: var(--bg-card); 
+    border-top: 1px solid var(--border-dark-gray); 
+    display: flex; 
+    gap: 12px; 
+    justify-content: space-between; 
+  }
+
+  /* Spinner Moderno */
+  .global-app-spinner { 
+    position: fixed; 
+    top: 0; left: 0; width: 100vw; height: 100vh; 
+    background: rgba(0, 0, 0, 0.75); 
+    backdrop-filter: blur(3px);
+    z-index: 5000; 
+    display: none; 
+    justify-content: center; 
+    align-items: center; 
+  }
+  .global-app-spinner.show { display: flex; }
+
+  .spinner-circle { 
+    width: 40px; 
+    height: 40px; 
+    border: 3px solid var(--border-dark-gray); 
+    border-top-color: var(--neon-light); 
+    border-radius: 50%; 
+    animation: spin 0.8s linear infinite; 
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+  <div id="titleRow"></div>
+
+  <div class="app-container" style="display: flex; flex-direction: column; overflow: hidden; padding: 6px;">
+    
+    <header class="search-wrapper" style="height:auto;position: static; flex-shrink: 0; width: auto; margin-bottom: 4px;">
+      <div class="input-group">
+        <input style="width:400px" id="searchInput" type="text" placeholder="Prouto ou código para filtrar instantaneamente..." autocomplete="off">
+        <ul id="suggestions" class="suggestions-dropdown"></ul>
+      </div>
+
+      <select id="fontFamilySelect" class="btn-core btn-ghost" style="height:26px; font-weight: 500;" onchange="alterarFamiliaFonte(this.value)">
+        <option value="'Orbitron', sans-serif" >Orbitron</option>
+        <option value="'Inter', sans-serif" selected>Inter</option>
+        <option value="'Roboto', sans-serif">Roboto</option>
+        <option value="Arial, sans-serif">Arial</option>
+        <option value="monospace">Monospace</option>
+      </select>
+
+      <select id="fontSizeSelect" class="btn-core btn-ghost" style="height:26px; font-weight: 500;" onchange="alterarTamanhoFonte(this.value)">
+        <option value="8px">8px</option>
+        <option value="11px">11px</option>
+        <option value="14px">14px</option>
+        <option value="16px" selected>16px</option>
+        <option value="18px">18px</option>
+        <option value="22px">22px</option>
+        <option value="24px">24px</option>
+        <option value="28px">28px</option>
+        
+      </select>
+
+      <button id="csvImport" class="btn-core btn-ghost" style="flex-shrink: 0; height:26px;" onclick="abrirModalImportarCSV()">Upload contagem.csv</button>
+    </header>
+
+    <main class="main-layout" style="flex: 1; display: grid; grid-template-columns: 1fr 360px; gap: 20px; overflow: hidden; min-height: 0;">
+      
+      <section class="content-area" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+        <div class="results-table-container" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+          <div class="table-wrapper" style="flex: 1; overflow-y: auto; height: 100%;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th style="width: 60px; text-align: center;">Ação</th>
+                </tr>
+              </thead>
+              <tbody id="resultBody">
+                <tr>
+                  <td colspan="2" class="empty-row-state">Aguardando inicialização do sistema...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section> 
+
+      <aside class="sidebar-panel" style="height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box;">
+        <div style="font-size: var(--dynamic-size); font-weight: 700; color: var(--neon-light); text-transform: uppercase; letter-spacing: 0.08em; padding-bottom: 2px; flex-shrink: 0;">
+          Filtros de Sistema
+        </div>
+        <div id="mainBar" style="flex: 1; overflow-y: auto;"></div>
+      </aside>
+
+    </main>
+  </div>
+
+  <div id="zeroModal" class="overlay-backdrop">
+    <div class="modal-window" role="dialog" aria-modal="true">
+      
+      <div id="modalStepDestination" class="modal-step-destination">
+        <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;">Triagem de Fluxo</div>
+        <h3 class="destination-title">Para onde o produto será movimentado?</h3>
+        <div class="destination-grid-choice">
+          <button style="height: 40px;" id="btnDestinoIlha" class="btn-core btn-primary">ILHA</button>
+          <button style="height: 40px;" id="btnDestinoAsFechad" class="btn-core btn-neon-outline">A.S FECHAD</button>
+        </div>
+        <div style="width: 100%; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 20px; display: flex; justify-content: center;">
+          <button id="btnCancelarDestino" class="btn-core btn-ghost" style="max-width: 200px; width: 100%;">
+            <i class="fa-solid fa-arrow-left"></i> Voltar
+          </button>
+        </div>
+      </div>
+
+      <div id="modalStepAddress" class="modal-step-address-view">
+        <div class="modal-header-banner">
+          <div id="zeroAddr" class="huge-address-display">-</div>
+          <div id="modalZeroValidadeSub" class="expiration-sub-tag">Sem validade registrada</div>
+        </div>
+        
+        <div class="modal-body-details">
+          <div id="modalProdLabel" class="product-meta-title">Identificando item...</div>
+          
+          <div id="justificationPanel" class="justification-flow-box">
+            <p>Selecione a razão para avançar ao próximo box:</p>
+            <div class="justification-grid">
+              <button class="btn-reason br-divergencia" data-reason="Divergência">⚠️ Divergência</button>
+              <button class="btn-reason br-vazio" data-reason="Box Vazio">❌ Box Vazio</button>
+              <button class="btn-reason br-producao" data-reason="Box Produção">📦 Box Produção</button>
+              <button class="btn-reason br-bloqueado" data-reason="Bloqueado">🚫 Bloqueado</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer-controls">
+          <button id="btnVoltarTotal" class="btn-core btn-ghost">
+            <i class="fa-solid fa-close"></i> Fechar
+          </button>
+          <button id="btnVerProximo" class="btn-core btn-primary">
+            Ver Próximo <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="spinner" class="global-app-spinner" aria-hidden="true">
+    <div class="spinner-circle"></div>
+  </div>
+
+
+<script>
+
+  function alterarFamiliaFonte(familia) {
+      document.documentElement.style.setProperty('--dynamic-font', familia);
+    }
+
+    function alterarTamanhoFonte(tamanho) {
+      document.documentElement.style.setProperty('--dynamic-size', tamanho);
+    }
+
+  function abrirModalImportarCSV() {
+  if (document.getElementById("modalImportarCSV")) return;
+
+  // Variável local para armazenar os dados validados que serão enviados
+  let dadosValidadosParaEnviar = [];
+
+  // 1. Estilização Ampliada (Modal maior e tabela com rolagem longa)
+  const estilo = document.createElement("style");
+  estilo.id = "estiloModalCSV";
+  estilo.textContent = `
+    .modal-csv-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center;
+      align-items: center; z-index: 10000;
+    }
+    .modal-csv-content {
+      background: #ffffff; padding: 25px; border-radius: 8px;
+      width: 1000px; max-width: 95%; max-height: 90vh; 
+      box-shadow: 0 4px 25px rgba(0,0,0,0.4);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex; flex-direction: column;
+    }
+    .modal-csv-header { 
+      font-size: 1.25rem; font-weight: 600; color: #0056b3; 
+      margin-bottom: 15px; border-bottom: 2px solid #eceff1; padding-bottom: 8px; 
+      flex-shrink: 0;
+    }
+    .modal-csv-body { 
+      font-size: 0.9rem; color: #333; 
+      display: flex; flex-direction: column; overflow: hidden; flex: 1;
+    }
+    
+    .modal-csv-status {
+      padding: 10px; border-radius: 4px; margin-top: 12px; font-size: 0.85rem; display: none; flex-shrink: 0;
+    }
+    .status-erro { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+    .status-sucesso { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+
+    .modal-csv-file-input { 
+      width: 100%; padding: 12px; margin-top: 5px; border: 1px dashed #0056b3;
+      border-radius: 4px; background: #f8f9fa; cursor: pointer; flex-shrink: 0;
+    }
+
+    /* AMPLIAÇÃO DA TABELA: Contêiner cresce dinamicamente e ativa rolagem vertical se estourar a tela */
+    .container-previa-csv {
+      margin-top: 15px; 
+      flex: 1; 
+      overflow-y: auto; 
+      border: 1px solid #ddd;
+      border-radius: 4px; 
+      display: none;
+      background: #fafafa;
+    }
+    .tabela-previa-csv { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left; }
+    
+    /* Mantém o cabeçalho fixo no topo durante a rolagem */
+    .tabela-previa-csv th { 
+      background: #f1f3f5; padding: 10px; font-weight: 600; 
+      position: sticky; top: 0; box-shadow: inset 0 -1px 0 #ddd; z-index: 1;
+    }
+    .tabela-previa-csv td { padding: 10px; border-bottom: 1px solid #eee; background: #fff; }
+    .tabela-previa-csv tr:hover td { background: #f1f5f9; }
+
+    .modal-csv-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; flex-shrink: 0; }
+    .btn-csv-importar { background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; }
+    .btn-csv-importar:hover { background-color: #218838; }
+    .btn-csv-importar:disabled { background-color: #cccccc; color: #666666; cursor: not-allowed; }
+    .btn-csv-cancelar { background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; }
+    .btn-csv-cancelar:hover { background-color: #5a6268; }
+  `;
+  document.head.appendChild(estilo);
+
+  // 2. Criação da Estrutura HTML do Modal
+  const overlay = document.createElement("div");
+  overlay.id = "modalImportarCSV";
+  overlay.className = "modal-csv-overlay";
+
+  overlay.innerHTML = `
+    <div class="modal-csv-content">
+      <div class="modal-csv-header">Importar e Pré-visualizar CSV</div>
+      <div class="modal-csv-body">
+        <label style="font-weight:600; color:#555;">Selecione o arquivo CSV:</label>
+        <input type="file" id="inputArquivoCSV" class="modal-csv-file-input" accept=".csv">
+        
+        <div id="statusValidacaoCSV" class="modal-csv-status"></div>
+
+        <div id="wrapperPreviaCSV" class="container-previa-csv">
+          <table class="tabela-previa-csv">
+            <thead>
+              <tr>
+                <th>Código Item</th>
+                <th>Descrição Item</th>
+                <th>Endereço</th>
+                <th>Validade Aferida</th>
+              </tr>
+            </thead>
+            <tbody id="corpoPreviaCSV"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-csv-footer">
+        <button type="button" class="btn-csv-cancelar" id="btnCancelarCSV">Cancelar</button>
+        <button type="button" class="btn-csv-importar" id="btnProcessarCSV" disabled>Salvar na Planilha</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const fecharModal = () => {
+    overlay.remove();
+    estilo.remove();
+  };
+
+  const elStatus = document.getElementById("statusValidacaoCSV");
+  const elWrapperPrevia = document.getElementById("wrapperPreviaCSV");
+  const elCorpoPrevia = document.getElementById("corpoPreviaCSV");
+  const btnProcessar = document.getElementById("btnProcessarCSV");
+
+  document.getElementById("btnCancelarCSV").onclick = fecharModal;
+
+  // 3. Processamento e Leitura em Tempo Real ao Alterar o Input
+  document.getElementById("inputArquivoCSV").onchange = function(e) {
+    dadosValidadosParaEnviar = [];
+    btnProcessar.disabled = true;
+    elStatus.style.display = "none";
+    elWrapperPrevia.style.display = "none";
+    elCorpoPrevia.innerHTML = "";
+
+    if (e.target.files.length === 0) return;
+
+    const arquivo = e.target.files[0];
+    const leitor = new FileReader();
+
+    leitor.onload = function(evt) {
+      const textoCompleto = evt.target.result;
+      const linhas = textoCompleto.split(/\r?\n/);
+      
+      if (linhas.length < 2) {
+        mostrarErro("O arquivo selecionado está vazio ou inválido.");
+        return;
+      }
+
+      // Remove caractere oculto BOM que costuma quebrar o primeiro cabeçalho
+      let primeiraLinha = linhas[0].replace(/^\uFEFF/, '').trim();
+      const separador = primeiraLinha.includes(";") ? ";" : ",";
+
+      const cabecalhos = primeiraLinha.split(separador).map(h => h.trim().replace(/^["']|["']$/g, ''));
+
+      const idxCodigo = cabecalhos.indexOf("Código Item");
+      const idxDescricao = cabecalhos.indexOf("Descrição Item");
+      const idxEndereco = cabecalhos.indexOf("Endereço");
+      const idxValidade = cabecalhos.indexOf("Validade Aferida");
+
+      if (idxCodigo === -1 || idxDescricao === -1 || idxEndereco === -1 || idxValidade === -1) {
+        mostrarErro("Cabeçalhos não encontrados! Verifique se as colunas são exatamente: 'Código Item', 'Descrição Item', 'Endereço' e 'Validade Aferida'.");
+        return;
+      }
+
+      let contagemIgnorados = 0;
+
+      // Processamento das linhas de dados do CSV
+      for (let i = 1; i < linhas.length; i++) {
+        const linhaLimpa = linhas[i].trim();
+        if (!linhaLimpa) continue; 
+
+        const colunas = linhaLimpa.split(separador).map(c => c.trim().replace(/^["']|["']$/g, ''));
+        if (colunas.length < cabecalhos.length) continue;
+
+        const codigo = String(colunas[idxCodigo]);
+        const descricao = String(colunas[idxDescricao]);
+        const endereco = String(colunas[idxEndereco]);
+        const validade = String(colunas[idxValidade]);
+
+        // FILTRO AUTOMÁTICO: Desconsidera se a validade for estritamente igual a "-"
+        if (validade === "-") {
+          contagemIgnorados++;
+          continue;
+        }
+
+        dadosValidadosParaEnviar.push([codigo, descricao, endereco, validade]);
+      }
+
+      if (dadosValidadosParaEnviar.length === 0) {
+        mostrarErro(`Nenhum registro restou para processamento. Todas as linhas válidas possuíam a validade igual a '-'.`);
+        return;
+      }
+
+      // RENDERIZAÇÃO COMPLETA: Monta todas as linhas remanescentes na tabela sem travas de limite
+      const fragmento = document.createDocumentFragment(); // Melhora a performance de renderização em lote
+      
+      for (let k = 0; k < dadosValidadosParaEnviar.length; k++) {
+        const item = dadosValidadosParaEnviar[k];
+        const tr = document.createElement("tr");
+        
+        const tdCod = document.createElement("td"); tdCod.textContent = item[0];
+        const tdDesc = document.createElement("td"); tdDesc.textContent = item[1];
+        const tdEnd = document.createElement("td"); tdEnd.textContent = item[2];
+        const tdVal = document.createElement("td"); tdVal.textContent = item[3];
+
+        tr.appendChild(tdCod); tr.appendChild(tdDesc); tr.appendChild(tdEnd); tr.appendChild(tdVal);
+        fragmento.appendChild(tr);
+      }
+      elCorpoPrevia.appendChild(fragmento);
+
+      // Exibe mensagem informativa mapeando os itens ignorados pelo filtro
+      elStatus.className = "modal-csv-status status-sucesso";
+      elStatus.textContent = `Sucesso! Total de ${dadosValidadosParaEnviar.length} registros carregados. (${contagemIgnorados} linhas com validade '-' foram descartadas automaticamente).`;
+      elStatus.style.display = "block";
+      
+      elWrapperPrevia.style.display = "block";
+      btnProcessar.disabled = false;
+    };
+
+    leitor.readAsText(arquivo, "UTF-8");
+  };
+
+  // 4. Gravação Final dos dados na Planilha Ativa (Aba: BD PRODUTOS)
+  btnProcessar.onclick = function() {
+    if (dadosValidadosParaEnviar.length === 0) return;
+
+    btnProcessar.disabled = true;
+    btnProcessar.textContent = "Gravando...";
+
+    google.script.run
+      .withSuccessHandler(function(resposta) {
+        alert(resposta);
+        fecharModal();
+        registrarLogServidor('Contagem importada ao OutLog, dados atualizados para pesquisa.');
+      })
+      .withFailureHandler(function(erro) {
+        alert("Erro ao gravar dados na aba: " + erro.message);
+        btnProcessar.disabled = false;
+        btnProcessar.textContent = "Salvar na Planilha";
+      })
+      .salvarCsvNoBdProdutos(dadosValidadosParaEnviar);
+  };
+
+  function mostrarErro(mensagem) {
+    elStatus.className = "modal-csv-status status-erro";
+    elStatus.textContent = mensaje;
+    elStatus.style.display = "block";
+    btnProcessar.disabled = true;
+  }
+}   
+
+// CSV MODAL DAQUI PRA CIMA //
+
+    var serverBrandTerms = [];
+    var serverButtons = [];
+    var allDataRows = [];      // Guarda os dados atualmente renderizados na tela
+    var allFetchedRows = [];    // Cache intocado da última busca para permitir reset na filtragem
+    var activeProductGroup = [];
+    var activeGroupIndex = 0;
+    var destinoSelecionadoAtual = "";
+
+    var DOM = {
+      searchInput: document.getElementById('searchInput'),
+      suggestions: document.getElementById('suggestions'),
+      resultBody: document.getElementById('resultBody'),
+      mainBar: document.getElementById('mainBar'),
+      spinner: document.getElementById('spinner'),
+      zeroModal: document.getElementById('zeroModal'),
+      
+      modalStepDestination: document.getElementById('modalStepDestination'),
+      modalStepAddress: document.getElementById('modalStepAddress'),
+      btnDestinoIlha: document.getElementById('btnDestinoIlha'),
+      btnDestinoAsFechad: document.getElementById('btnDestinoAsFechad'),
+      btnCancelarDestino: document.getElementById('btnCancelarDestino'),
+      
+      zeroAddr: document.getElementById('zeroAddr'),
+      modalZeroValidadeSub: document.getElementById('modalZeroValidadeSub'),
+      modalProdLabel: document.getElementById('modalProdLabel'),
+      justificationPanel: document.getElementById('justificationPanel'),
+      btnVoltarTotal: document.getElementById('btnVoltarTotal'),
+      btnVerProximo: document.getElementById('btnVerProximo')
+    };
+
+    // 🟢 ADICIONADO: Lógica para criar e controlar o botão de limpar (❌) interno
+    if (DOM.searchInput) {
+      // Cria o elemento do emoji X
+      var clearSearchBtn = document.createElement('span');
+      clearSearchBtn.id = 'searchClearBtn';
+      clearSearchBtn.innerText = '❌';
+      
+      // Estilização para fixar o emoji dentro do input à direita
+      clearSearchBtn.style.position = 'absolute';
+      clearSearchBtn.style.right = '10px';
+      clearSearchBtn.style.top = '50%';
+      clearSearchBtn.style.transform = 'translateY(-50%)';
+      clearSearchBtn.style.cursor = 'pointer';
+      clearSearchBtn.style.display = 'none'; // Oculto por padrão
+      clearSearchBtn.style.zIndex = '10';
+      clearSearchBtn.style.fontSize = '14px';
+
+      // Garante que o texto digitado não fique embaixo do emoji
+      DOM.searchInput.style.paddingRight = '30px';
+      
+      // Garante que o elemento pai aceite posicionamento absoluto do botão
+      var inputParent = DOM.searchInput.parentElement;
+      if (inputParent) {
+        if (window.getComputedStyle(inputParent).position === 'static') {
+          inputParent.style.position = 'relative';
+        }
+        inputParent.appendChild(clearSearchBtn);
+      }
+
+      // Escuta a digitação: Mostra o X se houver texto, esconde se estiver vazio
+      DOM.searchInput.addEventListener('input', function() {
+        if (DOM.searchInput.value.trim() !== '') {
+          clearSearchBtn.style.display = 'block';
+        } else {
+          clearSearchBtn.style.display = 'none';
+        }
+      });
+
+      // Ação de clique no ❌: Limpa tudo e restaura o estado original
+      clearSearchBtn.addEventListener('click', function() {
+        DOM.searchInput.value = ''; // Limpa o texto do campo
+        clearSearchBtn.style.display = 'none'; // Oconde o próprio X
+        
+        if (DOM.suggestions) {
+          DOM.suggestions.innerHTML = ''; // Limpa sugestões ativas se houver
+        }
+        
+        // Restaura os filtros renderizando novamente o cache original intacto
+        renderProducts(allFetchedRows, false);
+      });
+    }
+
+    function showLoading() { DOM.spinner.classList.add('show'); }
+    function hideLoading() { DOM.spinner.classList.remove('show'); }
+    function escapeHtml(str) { return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+    function getOperador() { return sessionStorage.getItem('operadorNome') || 'Operador Geral'; }
+
+    function limparAspasTexto(str) {
+      return String(str || '').replace(/"/g, '').trim();
+    }
+
+    function registrarLogServidor(mensagem) {
+      if (window.google && google.script && google.script.run.registrarLog) {
+        google.script.run.registrarLog(mensagem, getOperador());
+      } else {
+        console.log("[LOG MOCK]: " + message);
+      }
+    }
+
+    function obterStringDetalhadaItem(item) {
+      if (!item) return "Nenhum item carregado";
+      var codStr = item.codigo ? item.codigo : "N/A";
+      var valStr = item.validade ? item.validade : "Sem Validade";
+      var boxStr = item.addr ? item.addr : "Sem Endereço";
+      var linStr = item.row ? item.row : "N/A";
+      return "[Nome: " + item.desc + " | Código: " + codStr + " | Endereço: " + boxStr + " | Validade: " + valStr + " | Linha BD: " + linStr + "]";
+    }
+
+    function parseServerRow(r) {
+      if (!r) return { desc: '', addr: '', validade: '', row: null, codigo: '' };
+      if (Array.isArray(r)) {
+        return {
+          desc: String(r[0] || ''),
+          addr: String(r[1] || ''),
+          validade: String(r[2] ?? ''),
+          codigo: String(r[3] ?? ''),
+          row: r[4] !== undefined ? (Number(r[4]) || null) : null
+        };
+      }
+      if (typeof r === 'object') {
+        return {
+          desc: String(r.descricao || r.Descricao || r.DESCRICAO || r.desc || r.produto || r.Produto || ''),
+          addr: String(r.endereco || r.ENDERECO || r.box || r.BOX || r.addr || ''),
+          validade: String(r.validade || r.VALIDADE || r.validity || r.date || ''),
+          codigo: String(r.codigo || r.Codigo || r.CODIGO || r.cod || r.id || ''),
+          row: r.row || r._row || r.rowNumber || null
+        };
+      }
+      return { desc: String(r || ''), addr: '', validade: '', row: null, codigo: '' };
+    }
+
+    function renderProducts(data, atualizarCacheMaster) {
+      hideLoading();
+      DOM.resultBody.innerHTML = '';
+      
+      // Controla se estamos salvando uma nova resposta integral vinda do servidor
+      if (atualizarCacheMaster !== false) {
+        allFetchedRows = data;
+      }
+      
+      if (!Array.isArray(data) || data.length === 0) {
+        DOM.resultBody.innerHTML = '<tr><td colspan="2" class="empty-row-state">Nenhum produto localizado para os critérios informados.</td></tr>';
+        return;
+      }
+
+      allDataRows = data;
+      var groupedMap = new Map();
+
+      data.forEach(function(itemRaw) {
+        var parsed = parseServerRow(itemRaw);
+        var descChave = parsed.desc.trim();
+        if (!descChave) return;
+
+        if (!groupedMap.has(descChave)) {
+          groupedMap.set(descChave, []);
+        }
+        groupedMap.get(descChave).push(parsed);
+      });
+
+      var sortedKeys = Array.from(groupedMap.keys()).sort(function(a, b) {
+        return a.localeCompare(b, 'pt', { sensitivity: 'base' });
+      });
+
+      sortedKeys.forEach(function(prodName) {
+        var arrItems = groupedMap.get(prodName);
+        var tr = document.createElement('tr');
+        
+        var tdDesc = document.createElement('td');
+        tdDesc.className = 'prod-title-cell';
+        tdDesc.textContent = prodName;
+
+        var tdAction = document.createElement('td');
+        tdAction.style.textAlign = 'center';
+        
+        var inspectBtn = document.createElement('button');
+        inspectBtn.className = 'view-inspect-trigger';
+        inspectBtn.innerHTML = '<i class="fa-regular fa-eye"></i>';
+        
+        inspectBtn.addEventListener('click', function() {
+          abrirModalEnderecos(arrItems);
+        });
+
+        tdAction.appendChild(inspectBtn);
+        tr.appendChild(tdDesc);
+        tr.appendChild(tdAction);
+        DOM.resultBody.appendChild(tr);
+      });
+    }
+
+    function abrirModalEnderecos(groupArray) {
+      activeProductGroup = JSON.parse(JSON.stringify(groupArray)); 
+      activeGroupIndex = 0;
+      destinoSelecionadoAtual = "";
+      
+      DOM.justificationPanel.style.display = 'none';
+      DOM.modalStepDestination.style.display = 'flex';
+      DOM.modalStepAddress.style.display = 'none';
+      DOM.zeroModal.style.display = 'flex';
+      
+      var principal = activeProductGroup[0];
+      //registrarLogServidor('[INÍCIO CONSULTA] -> Janela aberta para o item: ' + principal.desc + '. Aguardando destinação.');
+    }
+
+    function processarSelecaoDestino(destino) {
+      destinoSelecionadoAtual = destino;
+      var itemCompleto = activeProductGroup[0];
+      var metadadosString = obterStringDetalhadaItem(itemCompleto);
+      
+      registrarLogServidor('[DESTINO INFORMADO: ' + destinoSelecionadoAtual + '] | Produto: ' + metadadosString);
+      
+      DOM.modalStepDestination.style.display = 'none';
+      DOM.modalStepAddress.style.display = 'block';
+      
+      atualizarLayoutModalAtivo();
+    }
+
+    function atualizarLayoutModalAtivo() {
+      if (activeProductGroup.length === 0) {
+        fecharModalTotalmente();
+        return;
+      }
+      
+      var itemAtual = activeProductGroup[activeGroupIndex];
+
+      DOM.zeroAddr.textContent = itemAtual.addr || 'SEM BOX';
+      DOM.modalZeroValidadeSub.textContent = itemAtual.validade ? 'Validade: ' + itemAtual.validade : 'Sem validade registrada';
+      DOM.modalProdLabel.textContent = (itemAtual.codigo ? itemAtual.codigo + ' - ' : '') + itemAtual.desc;
+
+      var totalNoGrupo = activeProductGroup.length;
+      if (totalNoGrupo > 1) {
+        DOM.btnVerProximo.style.display = 'inline-flex';
+        DOM.btnVerProximo.innerHTML = 'Ver Próximo (' + (activeGroupIndex + 1) + '/' + totalNoGrupo + ') <i class="fa-solid fa-chevron-right"></i>';
+      } else {
+        DOM.btnVerProximo.style.display = 'none';
+      }
+    }
+
+    function fecharModalTotalmente() {
+      DOM.zeroModal.style.display = 'none';
+      activeProductGroup = [];
+      activeGroupIndex = 0;
+      destinoSelecionadoAtual = "";
+      DOM.justificationPanel.style.display = 'none';
+    }
+
+    // 🟢 ADICIONADO: Criação automática e comportamento do botão ❌ de Limpeza Total
+    if (DOM.searchInput && !document.getElementById('searchClearBtn')) {
+      var clearSearchBtn = document.createElement('span');
+      clearSearchBtn.id = 'searchClearBtn';
+      clearSearchBtn.innerText = '❌';
+      
+      // Estilização para fixar o emoji dentro do input à direita
+      clearSearchBtn.style.position = 'absolute';
+      clearSearchBtn.style.right = '10px';
+      clearSearchBtn.style.top = '50%';
+      clearSearchBtn.style.transform = 'translateY(-50%)';
+      clearSearchBtn.style.cursor = 'pointer';
+      clearSearchBtn.style.display = 'none'; // Oculto por padrão
+      clearSearchBtn.style.zIndex = '10';
+      clearSearchBtn.style.fontSize = '14px';
+
+      // Garante que o texto digitado não fique embaixo do emoji
+      DOM.searchInput.style.paddingRight = '30px';
+      
+      var inputParent = DOM.searchInput.parentElement;
+      if (inputParent) {
+        if (window.getComputedStyle(inputParent).position === 'static') {
+          inputParent.style.position = 'relative';
+        }
+        inputParent.appendChild(clearSearchBtn);
+      }
+
+      // 🔴 CLIQUE NO ❌: Limpa o campo e força o servidor a carregar TUDO do zero (Sem Filtros)
+      clearSearchBtn.addEventListener('click', function() {
+        DOM.searchInput.value = ''; 
+        clearSearchBtn.style.display = 'none'; 
+        
+        if (DOM.suggestions) {
+          DOM.suggestions.innerHTML = ''; 
+        }
+        
+        // Faz a busca master no servidor sem passar nenhum termo ou filtro de categoria
+        callGetFilteredProducts('', null, null);
+      });
+    }
+
+    function callGetFilteredProducts(searchText, filtersArray, brandTermsArr) {
+      showLoading();
+      var fArr = Array.isArray(filtersArray) ? filtersArray : [];
+      var bArr = Array.isArray(brandTermsArr) ? brandTermsArr : [];
+
+      if (window.google && google.script && google.script.run.getFilteredProducts) {
+        google.script.run
+          .withSuccessHandler(function(resp) {
+            var rows = resp.data || (resp.success && resp.rows) || resp.rows || resp;
+            renderProducts(rows, true);
+            DOM.searchInput.value = searchText || ''; // Mantém o texto se houver, ou deixa limpo
+            
+            // Atualiza a visibilidade do X após o retorno do servidor
+            var clearBtn = document.getElementById('searchClearBtn');
+            if (clearBtn) clearBtn.style.display = DOM.searchInput.value ? 'block' : 'none';
+          })
+          .withFailureHandler(function(err) {
+            hideLoading();
+            alert('Erro ao buscar dados do servidor: ' + err);
+          })
+          .getFilteredProducts(searchText || '', fArr.length ? fArr : null, bArr.length ? bArr : null);
+      } else {
+        setTimeout(function() {
+          var mockBanco = [
+            ['GUARANA ANTARCTICA PET 2L', 'BOX-01A', '10/12/2026', '78910001', 1],
+            ['GUARANA ANTARCTICA PET 2L', 'BOX-01B', '15/12/2026', '78910001', 2],
+            ['COCA COLA LATA 350ML', 'BOX-12A', '05/08/2026', '78920002', 4]
+          ];
+          renderProducts(mockBanco, true);
+        }, 300);
+      }
+    }
+
+    function loadButtonsFromServer() {
+      if (window.google && google.script && google.script.run.getButtonConfig) {
+        google.script.run
+          .withSuccessHandler(function(resp) {
+            if (resp && resp.success) {
+              serverButtons = resp.buttons || [];
+              serverBrandTerms = resp.brandTerms || [];
+              renderSidebarFilters();
+            }
+          })
+          .getButtonConfig();
+      } else {
+        serverButtons = [
+          { label: '"Refrigerantes Pet"', filters: ['PET'], subfilters: [{ label: '"Guaraná"' }] }
+        ];
+        renderSidebarFilters();
+      }
+    }
+
+    function renderSidebarFilters() {
+      DOM.mainBar.innerHTML = '';
+      serverButtons.forEach(function(b) {
+        var containerNode = document.createElement('div');
+        containerNode.className = 'filter-group-node';
+
+        var headerBtn = document.createElement('button');
+        headerBtn.className = 'filter-header-btn';
+        
+        var textoBotaoPrincipal = limparAspasTexto(b.label);
+        headerBtn.innerHTML = '<span>' + escapeHtml(textoBotaoPrincipal) + '</span> <i class="fa-solid fa-chevron-down" style="font-size:var(--dynamic-size);"></i>';
+
+        var subMenu = document.createElement('div');
+        subMenu.className = 'filter-sub-menu';
+        var subs = Array.isArray(b.subfilters) ? b.subfilters : [];
+
+        headerBtn.addEventListener('click', function() {
+          if (subs.length === 0) {
+            callGetFilteredProducts('', b.filters || [b.label], serverBrandTerms);
+          } else {
+            var isOpen = subMenu.classList.contains('active');
+            document.querySelectorAll('.filter-sub-menu').forEach(function(m) { m.classList.remove('active'); });
+            if (!isOpen) subMenu.classList.add('active');
+          }
+        });
+
+        subs.forEach(function(sf) {
+          var subBtn = document.createElement('button');
+          subBtn.className = 'sub-filter-item';
+          
+          var labelOriginal = sf.label || sf;
+          subBtn.textContent = limparAspasTexto(labelOriginal);
+          
+          subBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var tokens = [].concat(b.filters || [], sf.filters || [labelOriginal]);
+            callGetFilteredProducts('', tokens, serverBrandTerms);
+          });
+          subMenu.appendChild(subBtn);
+        });
+
+        containerNode.appendChild(headerBtn);
+        if (subs.length > 0) containerNode.appendChild(subMenu);
+        DOM.mainBar.appendChild(containerNode);
+      });
+    }
+
+    // LISTENER DE DIGITAÇÃO: Filtra localmente se houver texto, ou reseta TUDO se o campo for apagado
+    DOM.searchInput.addEventListener('input', function() {
+      var termoBusca = this.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      
+      var clearBtn = document.getElementById('searchClearBtn');
+      if (clearBtn) {
+        clearBtn.style.display = termoBusca ? 'block' : 'none';
+      }
+
+      // 🔴 SE APAGOU O TEXTO PELO TECLADO: Remove todos os filtros e traz a lista completa do servidor
+      if (!termoBusca) {
+        callGetFilteredProducts('', null, null); 
+        return;
+      }
+      
+      // Filtragem em tempo real usando o cache da última busca ativa
+      var linhasFiltradas = allFetchedRows.filter(function(rowRaw) {
+        var parsed = parseServerRow(rowRaw);
+        var descricaoLimpa = parsed.desc.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        var codigoLimpo = parsed.codigo.toLowerCase();
+        return descricaoLimpa.includes(termoBusca) || codigoLimpo.includes(termoBusca);
+      });
+      
+      renderProducts(linhasFiltradas, false);
+    });
+    
+    DOM.btnDestinoIlha.addEventListener('click', function() { processarSelecaoDestino('ILHA'); });
+    DOM.btnDestinoAsFechad.addEventListener('click', function() { processarSelecaoDestino('A.S FECHAD'); });
+    
+    DOM.btnCancelarDestino.addEventListener('click', function() {
+      var itemP = activeProductGroup[0];
+      var dadosItem = obterStringDetalhadaItem(itemP);
+      registrarLogServidor('Consulta indevida detectada, usuario não informou o destino do produto. Rastreamento: ' + dadosItem);
+      fecharModalTotalmente();
+    });
+
+    DOM.btnVoltarTotal.addEventListener('click', fecharModalTotalmente);
+
+    DOM.zeroModal.addEventListener('click', function(e) { 
+      if (e.target === DOM.zeroModal) {
+        if (DOM.modalStepDestination.style.display === 'flex') {
+          var itemP = activeProductGroup[0];
+          var dadosItem = obterStringDetalhadaItem(itemP);
+          registrarLogServidor('[CONSULTA INCORRETA] Usuário não informou o destino do produto. | Item: ' + dadosItem);
+        }
+        fecharModalTotalmente(); 
+      }
+    });
+
+    DOM.btnVerProximo.addEventListener('click', function() { DOM.justificationPanel.style.display = DOM.justificationPanel.style.display === 'flex' ? 'none' : 'flex'; });
+
+    DOM.justificationPanel.querySelectorAll('.btn-reason').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var razao = this.getAttribute('data-reason');
+        var itemAnterior = activeProductGroup[activeGroupIndex];
+        var operadorNome = getOperador();
+
+        if (!itemAnterior || !itemAnterior.row) {
+          alert("Aviso: Não foi possível rastrear a linha de registro deste Box no Banco de Dados.");
+          return;
+        }
+
+        showLoading();
+
+        var copiaLinhaBD = obterStringDetalhadaItem(itemAnterior);
+        var mensagemFinalLog = "Item " + copiaLinhaBD + " deletado pelo usuario por motivo: " + razao.toUpperCase() + ".";
+
+        if (window.google && google.script && google.script.run) {
+          google.script.run
+            .withSuccessHandler(function() {
+              var linhaDeletadaFisicamente = itemAnterior.row;
+
+              activeProductGroup.splice(activeGroupIndex, 1);
+
+              activeProductGroup.forEach(function(t) {
+                if (t.row && t.row > linhaDeletadaFisicamente) {
+                  t.row--;
+                }
+              });
+
+              // Sincroniza remoção no cache geral de digitação
+              allFetchedRows = allFetchedRows.filter(function(rowRaw) {
+                var p = parseServerRow(rowRaw);
+                if (p.row === linhaDeletadaFisicamente) return false;
+                if (p.row && p.row > linhaDeletadaFisicamente) {
+                  if (Array.isArray(rowRaw) && rowRaw[4] !== undefined) rowRaw[4]--;
+                  else if (rowRaw.row) rowRaw.row--;
+                }
+                return true;
+              });
+
+              allDataRows = allDataRows.filter(function(rowRaw) {
+                var p = parseServerRow(rowRaw);
+                return p.row !== linhaDeletadaFisicamente;
+              });
+
+              renderProducts(allDataRows, false); 
+              hideLoading();
+
+              if (activeProductGroup.length === 0) {
+                alert("Todas as posições registradas deste produto foram limpas!");
+                fecharModalTotalmente();
+              } else {
+                if (activeGroupIndex >= activeProductGroup.length) {
+                  activeGroupIndex = 0;
+                }
+                DOM.justificationPanel.style.display = 'none';
+                atualizarLayoutModalAtivo();
+              }
+            })
+            .withFailureHandler(function(err) {
+              hideLoading();
+              alert("Erro crítico ao tentar processar a limpeza do box no servidor: " + err);
+            })
+            .executarExclusaoETransmitirLog(itemAnterior.row, mensagemFinalLog, operadorNome);
+        } else {
+          console.log("[MOCK SERVER] Deletando linha: " + itemAnterior.row);
+          activeProductGroup.splice(activeGroupIndex, 1);
+          if (activeGroupIndex >= activeProductGroup.length) activeGroupIndex = 0;
+          DOM.justificationPanel.style.display = 'none';
+          hideLoading();
+          atualizarLayoutModalAtivo();
+        }
+      });
+    });
+
+    var obterStringDetailedItem = obterStringDetalhadaItem;
+
+    window.inicializarPagina = function() {
+      loadButtonsFromServer();
+      var t = document.getElementById('titleRow');
+      if (t) t.style.display = 'flex';
+      
+      callGetFilteredProducts('', null, serverBrandTerms);
+      
+      google.script.run
+        .withSuccessHandler(function(res) {})
+        .withFailureHandler(function(err) {
+          alert('Erro na rotina de otimização de banco: ' + err.message);
+        })
+        .cleanAndSortBDProdutos();
+    };
+
+</script>
+
+</body>
+</html>
