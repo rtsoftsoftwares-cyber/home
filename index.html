@@ -1814,53 +1814,394 @@ document.addEventListener('visibilitychange', () => {
     if (scriptsPendentes === 0) tentarInicializar();
   }
 
-  // --- NOTÍCIAS E MODAL ---
-  async function showNews() {
-    closeSidebar();
-    const contentDiv = qs('loadedContent');
-    if (!contentDiv) return;
-    contentDiv.innerHTML = '';
+  function showNews() {
+  try { closeSidebar && closeSidebar(); } catch(e){}
+  const contentDiv = qs('loadedContent');
+  if (!contentDiv) return;
+  contentDiv.innerHTML = '';
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'news-wrap';
-    const list = document.createElement('div');
-    list.className = 'news-list';
-    wrapper.appendChild(list);
-    contentDiv.appendChild(wrapper);
+  const wrapper = document.createElement('div');
+  wrapper.className = 'news-wrap';
 
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run
-        .withSuccessHandler(res => renderNews(res, list))
-        .withFailureHandler(err => renderNews(null, list, err))
-        .getNews();
-    }
+  const list = document.createElement('div');
+  list.className = 'news-list';
+  wrapper.appendChild(list);
+
+  const empty = document.createElement('div');
+  empty.className = 'news-empty';
+  empty.textContent = 'Carregando notícias...';
+  list.appendChild(empty);
+
+  contentDiv.appendChild(wrapper);
+
+  if (typeof google !== 'undefined' && google.script && google.script.run) {
+    google.script.run.withSuccessHandler(function(res){
+      renderNews(res, list);
+    }).withFailureHandler(function(err){
+      console.error('Erro getNews', err);
+      renderNews(null, list, err);
+    }).getNews();
+  } else {
+    setTimeout(()=> {
+      const demo = [
+        { title: 'Comunicação: Atualização de Sistema', body: 'Iremos realizar manutenção hoje à noite das 22h às 23h. Esperamos breve interrupção.', image: '' , timestamp: new Date().toLocaleString() },
+        { title: 'Novo Procedimento', body: 'O procedimento X foi atualizado. Consulte o manual anexo.', image: '' },
+        { title: 'Boletim Rápido', body: 'Teste de envio contendo imagem.', image: 'https://via.placeholder.com/320x180.png?text=Not%C3%ADcia' }
+      ];
+      renderNews(demo, list);
+    }, 300);
   }
+}
+
   window.showNews = showNews;
 
-  function parseCustomTags(str) {
-    if (!str) return '';
-    let safeText = String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    safeText = safeText.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<b>$1</b>');
-    safeText = safeText.replace(/&lt;color:(.*?)&gt;(.*?)&lt;\/color&gt;/gi, '<span style="color: $1;">$2</span>');
-    return safeText.replace(/\n/g, '<br>');
-  }
+  function refreshNews(){ showNews(); }
 
-  function renderNews(res, listEl, err) {
+  // ==========================================
+// FUNÇÃO AUXILIAR DE FORMATAÇÃO (Compartilhada)
+// ==========================================
+function parseCustomTags(str) {
+  if (!str) return '';
+
+  // 1. Sanitiza o texto contra XSS
+  let safeText = String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+  // 2. Transforma <b>Texto</b> em negrito
+  safeText = safeText.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<b>$1</b>');
+
+  // 3. Transforma <color:red>Texto</color> em texto colorido
+  safeText = safeText.replace(/&lt;color:(.*?)&gt;(.*?)&lt;\/color&gt;/gi, '<span style="color: $1;">$2</span>');
+
+  // 4. Transforma <link>url</link> em link clicável (abre em nova aba)
+  safeText = safeText.replace(/&lt;link&gt;(.*?)&lt;\/link&gt;/gi, (match, url) => {
+    let href = url.trim();
+    if (!/^https?:\/\//i.test(href)) {
+      href = 'https://' + href;
+    }
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${url}</a>`;
+  });
+
+  // 5. Converte quebras de linha em <br>
+  return safeText.replace(/\n/g, '<br>');
+}
+
+// ==========================================
+// 1. RENDERIZADOR DAS NOTÍCIAS (Cards)
+// ==========================================
+function renderNews(res, listEl, err) {
     listEl.innerHTML = '';
-    if (err) { listEl.innerHTML = '<div class="news-empty">Erro ao carregar notícias.</div>'; return; }
-    const itemsRaw = Array.isArray(res) ? res.slice() : [];
-    if (!itemsRaw.length) { listEl.innerHTML = '<div class="news-empty">Nenhuma notícia encontrada.</div>'; return; }
 
-    itemsRaw.slice(-5).reverse().forEach(item => {
+    if (err) {
+      const e = document.createElement('div');
+      e.className = 'news-empty';
+      e.textContent = 'Erro ao carregar notícias.';
+      listEl.appendChild(e);
+      return;
+    }
+
+    const itemsRaw = Array.isArray(res) ? res.slice() : [];
+    const normalized = itemsRaw.map(it => {
+      if (!it) return null;
+      if (Array.isArray(it)) {
+        return {
+          title: String(it[0]||'').trim(),
+          body: String(it[1]||'').trim(),
+          image: (it[2] || '') ? String(it[2]) : '',
+          timestamp: (it[3] || '') ? String(it[3]) : ''
+        };
+      }
+      const title = it.title || it.titulo || it.TITLE || it.A || '';
+      const body = it.body || it.noticia || it.B || it.text || it.conteudo || '';
+      const img = (it.image || it.imagem || it.img || it.media || it.thumbnail || it.url || '');
+      const ts  = it.timestamp || it.ts || it.date || it.data || '';
+      return { title: String(title||''), body: String(body||''), image: String(img||''), timestamp: String(ts||'') };
+    }).filter(Boolean);
+
+    if (normalized.length === 0) {
+      const e = document.createElement('div');
+      e.className = 'news-empty';
+      e.textContent = 'Nenhuma notícia encontrada na aba News.';
+      listEl.appendChild(e);
+      return;
+    }
+
+    const lastFive = normalized.slice(-5).reverse();
+
+    lastFive.forEach(item => {
+      let imageUrl = (item.image||'').trim();
+      let imagePercent = null;
+      const imgWithPctRegex = /(https?:\/\/\S+\.(?:png|jpe?g|gif|webp)(?:\?\S*)?)(?:\s*,\s*(\d{1,3})%?)?/i;
+
+      if (imageUrl) {
+        const m = String(imageUrl).match(imgWithPctRegex);
+        if (m) {
+          imageUrl = m[1] || '';
+          if (m[2]) {
+            let p = Number(m[2]);
+            if (!isNaN(p)) { p = Math.max(1, Math.min(100, Math.floor(p))); imagePercent = p; }
+          }
+        } else {
+          imageUrl = '';
+        }
+      }
+
+      if (!imageUrl) {
+        const body = String(item.body || '');
+        const m2 = body.match(imgWithPctRegex);
+        if (m2) {
+          imageUrl = m2[1] || '';
+          if (m2[2]) {
+            let p = Number(m2[2]);
+            if (!isNaN(p)) { p = Math.max(1, Math.min(100, Math.floor(p))); imagePercent = p; }
+          }
+          item.body = body.replace(m2[0], '').trim();
+        }
+      }
+
       const card = document.createElement('article');
       card.className = 'news-card';
-      card.innerHTML = `
-        <div class="news-title">${parseCustomTags(item.title || item.titulo || '')}</div>
-        <div class="news-body">${parseCustomTags(item.body || item.noticia || '')}</div>
-      `;
+
+      if (imageUrl) {
+        const mediaWrap = document.createElement('div');
+        mediaWrap.className = 'news-media';
+        if (imagePercent) {
+          mediaWrap.style.display = 'flex';
+          mediaWrap.style.justifyContent = 'center';
+        }
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = item.title || 'Imagem notícia';
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        if (imagePercent) img.style.width = imagePercent + '%';
+        img.addEventListener('error', ()=> { try { mediaWrap.remove(); } catch(e){} });
+        mediaWrap.appendChild(img);
+        card.appendChild(mediaWrap);
+      }
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'news-title';
+      titleEl.innerHTML = parseCustomTags(item.title) || '(Sem título)';
+      card.appendChild(titleEl);
+
+      if (item.timestamp) {
+        const meta = document.createElement('div');
+        meta.className = 'news-meta';
+        meta.textContent = 'Publicado: ' + item.timestamp;
+        card.appendChild(meta);
+      }
+
+      const bodyElCard = document.createElement('div');
+      bodyElCard.className = 'news-body';
+      bodyElCard.innerHTML = parseCustomTags(item.body) || '(Sem conteúdo)';
+      card.appendChild(bodyElCard);
+
+      const actions = document.createElement('div');
+      actions.className = 'news-actions';
+      const readBtn = document.createElement('button');
+      readBtn.className = 'btn-small';
+      readBtn.textContent = 'Ler mais';
+      readBtn.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        window.openNewsModal && window.openNewsModal(item, imageUrl, imagePercent);
+      });
+      actions.appendChild(readBtn);
+      card.appendChild(actions);
+
       listEl.appendChild(card);
     });
-  }
+
+    if (lastFive.length < 5) {
+      const note = document.createElement('div');
+      note.className = 'news-empty';
+      note.style.paddingTop = '6px';
+      note.textContent = `Mostrando ${lastFive.length} notícia(s).`;
+      listEl.appendChild(note);
+    }
+}
+
+// ==========================================
+// 2. CONTROLE DO MODAL DE NOTÍCIAS
+// ==========================================
+(function(){
+    if (!window._newsModalInit) {
+      window._newsModalInit = true;
+
+      window.openNewsModal = function(item, imageUrl, imagePercent){
+        const overlay = qs('newsModalOverlay');
+        const titleEl = qs('newsModalTitle');
+        const tsEl = qs('newsModalTs');
+        const bodyElM = qs('newsModalBody');
+        const mediaEl = qs('newsModalMedia');
+
+        if (!overlay || !titleEl || !bodyElM || !mediaEl) {
+          console.error('Modal elements missing: verifique IDs do modal.');
+          return;
+        }
+
+        // 1. Ajusta o container principal do modal (100% largura, 80% altura)
+        const modalBox = overlay.querySelector('.news-modal');
+        if (modalBox) {
+          modalBox.style.width = '100%';
+          modalBox.style.maxWidth = '100vw';
+          modalBox.style.height = '80vh';
+          modalBox.style.maxHeight = '80vh';
+          modalBox.style.boxSizing = 'border-box';
+          modalBox.style.padding = '20px';
+          modalBox.style.display = 'flex';
+          modalBox.style.flexDirection = 'column';
+          modalBox.style.overflow = 'hidden';
+        }
+
+        // 2. Cria/Organiza wrappers de layout dinâmico (Imagem + Texto)
+        let mainWrapper = modalBox ? modalBox.querySelector('.news-modal-layout') : null;
+        let textWrapper = modalBox ? modalBox.querySelector('.news-modal-text-layout') : null;
+
+        if (modalBox && !mainWrapper) {
+          mainWrapper = document.createElement('div');
+          mainWrapper.className = 'news-modal-layout';
+          mainWrapper.style.display = 'flex';
+          mainWrapper.style.width = '100%';
+          mainWrapper.style.height = '100%';
+          mainWrapper.style.gap = '20px';
+
+          textWrapper = document.createElement('div');
+          textWrapper.className = 'news-modal-text-layout';
+          textWrapper.style.flex = '1';
+          textWrapper.style.display = 'flex';
+          textWrapper.style.flexDirection = 'column';
+
+          // Agrupa título, timestamp e corpo no container de texto
+          if (titleEl) textWrapper.appendChild(titleEl);
+          if (tsEl) textWrapper.appendChild(tsEl);
+          if (bodyElM) textWrapper.appendChild(bodyElM);
+
+          mainWrapper.appendChild(mediaEl);
+          mainWrapper.appendChild(textWrapper);
+          modalBox.appendChild(mainWrapper);
+        }
+
+        // 3. Preenche os textos com suporte a tags customizadas
+        titleEl.innerHTML = parseCustomTags(item.title) || '(Sem título)';
+        tsEl.textContent = item.timestamp ? 'Publicado: ' + item.timestamp : '';
+        bodyElM.innerHTML = parseCustomTags(item.body) || '(Sem conteúdo)';
+
+        // 4. Processa e posiciona a imagem conforme suas proporções
+        mediaEl.innerHTML = '';
+        if (imageUrl) {
+          mediaEl.style.display = 'flex';
+          mediaEl.style.alignItems = 'center';
+          mediaEl.style.justifyContent = 'center';
+
+          const img = document.createElement('img');
+          img.src = imageUrl;
+          img.alt = item.title || 'Imagem notícia';
+
+          img.onload = function(){
+            const isLandscape = img.naturalWidth > img.naturalHeight;
+
+            if (isLandscape) {
+              // --- MODO PAISAGEM (Largura > Altura): Imagem maior acima do texto ---
+              if (mainWrapper) {
+                mainWrapper.style.flexDirection = 'column';
+                mainWrapper.style.overflowY = 'auto';
+                if (textWrapper) textWrapper.style.overflowY = 'visible';
+                mainWrapper.insertBefore(mediaEl, textWrapper);
+              }
+
+              mediaEl.style.width = '100%';
+              mediaEl.style.flex = '0 0 auto';
+
+              img.style.width = '100%';
+              img.style.maxWidth = '100%';
+              img.style.maxHeight = '45vh';
+              img.style.objectFit = 'contain';
+              img.style.display = 'block';
+              img.style.margin = '0 auto 10px auto';
+
+            } else {
+              // --- MODO RETRATO (Altura >= Largura): Imagem ampliada à esquerda do texto ---
+              if (mainWrapper) {
+                mainWrapper.style.flexDirection = 'row';
+                mainWrapper.style.overflowY = 'hidden';
+                if (textWrapper) textWrapper.style.overflowY = 'auto';
+                mainWrapper.insertBefore(mediaEl, textWrapper);
+              }
+
+              mediaEl.style.flex = '0 0 45%';
+              mediaEl.style.maxWidth = '50%';
+              mediaEl.style.height = '100%';
+
+              img.style.width = '100%';
+              img.style.height = '100%';
+              img.style.maxHeight = '100%';
+              img.style.objectFit = 'contain';
+              img.style.display = 'block';
+            }
+          };
+
+          img.addEventListener('error', function(){
+            try { 
+              mediaEl.innerHTML = ''; 
+              mediaEl.style.display = 'none';
+              if (mainWrapper) {
+                mainWrapper.style.flexDirection = 'column';
+                mainWrapper.style.overflowY = 'auto';
+              }
+            } catch(e){}
+          });
+
+          mediaEl.appendChild(img);
+        } else {
+          mediaEl.style.display = 'none';
+          if (mainWrapper) {
+            mainWrapper.style.flexDirection = 'column';
+            mainWrapper.style.overflowY = 'auto';
+          }
+          if (textWrapper) textWrapper.style.overflowY = 'visible';
+        }
+
+        // 5. Exibe o modal
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden','false');
+        if (modalBox) {
+          try { modalBox.focus(); } catch(e){}
+        }
+
+        const closeBtn = qs('newsModalClose');
+        if (closeBtn && !closeBtn._newsCloseAttached) {
+          closeBtn.addEventListener('click', closeNewsModal);
+          closeBtn._newsCloseAttached = true;
+        }
+        if (!overlay._overlayClickAttached) {
+          overlay.addEventListener('click', function(ev){
+            if (ev.target === overlay) closeNewsModal();
+          });
+          overlay._overlayClickAttached = true;
+        }
+        if (!window._newsEscAttached) {
+          window.addEventListener('keydown', function(ev){
+            if (ev.key === 'Escape') closeNewsModal();
+          });
+          window._newsEscAttached = true;
+        }
+      };
+
+      window.closeNewsModal = function(){
+        const overlay = qs('newsModalOverlay');
+        if (!overlay) return;
+        overlay.style.display = 'none';
+        overlay.setAttribute('aria-hidden','true');
+        const mediaEl = qs('newsModalMedia');
+        if (mediaEl) mediaEl.innerHTML = '';
+      };
+    }
+})();
 
   // --- BADGES ---
   function addOrUpdateBadge(buttonId, count) {
