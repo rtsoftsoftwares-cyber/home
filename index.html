@@ -1411,25 +1411,44 @@
   const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
   const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
 
-  function inicializarCampoMatricula() {
-    const inputUser = document.getElementById('usuario');
-    if (!inputUser) return;
-    const matriculaSalva = localStorage.getItem(LOCAL_STORAGE_MATRICULA);
-    if (matriculaSalva) inputUser.value = matriculaSalva;
+  // --- GERENCIADOR DO CAMPO DE MATRÍCULA ---
+function inicializarCampoMatricula() {
+  const inputUser = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
+  if (!inputUser) return;
 
-    inputUser.addEventListener('input', () => {
-      const valor = inputUser.value.trim();
-      if (valor === '') localStorage.removeItem(LOCAL_STORAGE_MATRICULA);
-      else localStorage.setItem(LOCAL_STORAGE_MATRICULA, valor);
-    });
+  // 1. Restaura a matrícula salva (se existir) ao recarregar
+  const matriculaSalva = localStorage.getItem(LOCAL_STORAGE_MATRICULA);
+  if (matriculaSalva) {
+    inputUser.value = matriculaSalva;
   }
 
-  function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ usuario, ip, nome, acesso, timestamp: Date.now() }));
-      localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
-    } catch(e){}
+  // 2. Monitora mudanças: se o usuário digitar, salva. Se apagar tudo, remove.
+  inputUser.addEventListener('input', () => {
+    const valor = inputUser.value.trim();
+    if (valor === '') {
+      localStorage.removeItem(LOCAL_STORAGE_MATRICULA);
+    } else {
+      localStorage.setItem(LOCAL_STORAGE_MATRICULA, valor);
+    }
+  });
+}
+
+// --- FUNÇÃO PARA SALVAR A SESSÃO LOCALMENTE ---
+function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
+  try {
+    const dadosSessao = {
+      usuario: usuario,
+      ip: ip,
+      nome: nome,
+      acesso: acesso,
+      timestamp: Date.now()
+    };
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dadosSessao));
+    localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario); // Garante a fixação da matrícula
+  } catch (e) {
+    console.error('Erro ao guardar sessão localmente:', e);
   }
+}
 
   function obterSessaoLocal() {
     try {
