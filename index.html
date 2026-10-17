@@ -1250,37 +1250,57 @@
   }
 
   function toggleSidebar() {
-    updateBadges();
-    var sideBar = document.getElementById('sideBar');
-    var overlay = document.getElementById('sidebarOverlay');
-    var labelSidebar = document.getElementById('sidebarUserName');
 
-    if (sideBar && !sideBar.classList.contains('active')) {
-      // Procura primeiro no sessionStorage, se não achar, busca no localStorage
-      var operador = sessionStorage.getItem("operadorNome") || localStorage.getItem("operadorNome");
-      if (labelSidebar) labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
-      
-      var dropdowns = sideBar.querySelectorAll('.menu-dropdown');
-      dropdowns.forEach(function(menu) {
-        var trigger = menu.querySelector('.menu-trigger');
-        if (trigger) {
-          trigger.removeAttribute('onclick');
-          trigger.onclick = null;
-          trigger.removeEventListener('click', lidarCliqueMenu);
-          trigger.addEventListener('click', lidarCliqueMenu);
-        }
-      });
+  updateBadges();
+
+  var sideBar = document.getElementById('sideBar');
+  //var overlay = document.getElementById('sidebarOverlay');
+  var labelSidebar = document.getElementById('sidebarUserName');
+
+  // Intercepta apenas o momento exato da ABERTURA da barra lateral
+  if (sideBar && !sideBar.classList.contains('active')) {
+    
+    // 1. Carrega e valida o nome do operador vindo do sessionStorage
+    var operador = sessionStorage.getItem("operadorNome");
+    if (labelSidebar) {
+      labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
     }
 
-    if (sideBar) {
-      sideBar.classList.toggle('active');
-      if (overlay) {
-        var isOpened = sideBar.classList.contains('active');
-        overlay.style.display = isOpened ? 'block' : 'none';
-        overlay.style.opacity = isOpened ? '1' : '0';
+    // 2. Configura e higieniza os menus dropdown
+    var dropdowns = sideBar.querySelectorAll('.menu-dropdown');
+    dropdowns.forEach(function(menu) {
+      // Garante sua regra: Força todos os menus a abrirem automaticamente ao iniciar
+      //menu.classList.add('open');
+      
+      var trigger = menu.querySelector('.menu-trigger');
+      if (trigger) {
+        // CORREÇÃO CRUCIAL: Remove o atributo inline do HTML para impedir o clique duplo conflituoso
+        trigger.removeAttribute('onclick');
+        trigger.onclick = null;
+        
+        // Vincula a escuta nativa e limpa para alternar perfeitamente ao clicar
+        trigger.removeEventListener('click', lidarCliqueMenu);
+        trigger.addEventListener('click', lidarCliqueMenu);
+      }
+    });
+  }
+
+  // Executa o deslizamento físico da barra lateral na tela
+  if (sideBar) {
+    sideBar.classList.toggle('active');
+    
+    if (overlay) {
+      var isOpened = sideBar.classList.contains('active');
+      if (isOpened) {
+        overlay.style.display = 'block';
+        setTimeout(function() { overlay.style.opacity = '1'; }, 10);
+      } else {
+        overlay.style.opacity = '0';
+        setTimeout(function() { overlay.style.display = 'none'; }, 300);
       }
     }
   }
+}
   
   window.toggleSidebar = toggleSidebar;
 
