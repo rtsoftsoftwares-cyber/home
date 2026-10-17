@@ -1261,7 +1261,7 @@
   if (sideBar && !sideBar.classList.contains('active')) {
     
     // 1. Carrega e valida o nome do operador vindo do sessionStorage
-    var operador = sessionStorage.getItem("operadorNome");
+    const operador = sessionStorage.getItem("operadorNome")??localStorage.getItem("operadorNome");
     if (labelSidebar) {
       labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
     }
