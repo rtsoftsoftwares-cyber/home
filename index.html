@@ -1305,7 +1305,7 @@
 
   // --- LOGIN E DIGITAÇÃO INTELIGENTE ---
   const OPENING_GIF = 'https://i.imgur.com/v0xrFKm.gif';
-  const OPENING_GIF_DURATION = 1800;
+  const OPENING_GIF_DURATION = 1200;
 
   function showOpeningGifOverlay(url, duration, onDone){
     if(!url){ if(typeof onDone === 'function') onDone(); return; }
@@ -1415,58 +1415,7 @@
   const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
   const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
 
-  // --- GERENCIADOR DO CAMPO DE MATRÍCULA ---
-function inicializarCampoMatricula() {
-  const inputUser = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
-  if (!inputUser) return;
-
-  // 1. Restaura a matrícula salva (se existir) ao recarregar
-  const matriculaSalva = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA);
-  if (matriculaSalva) {
-    inputUser.value = matriculaSalva;
-  }
-
-  // 2. Monitora mudanças: se o usuário digitar, salva. Se apagar tudo, remove.
-  inputUser.addEventListener('input', () => {
-    const valor = inputUser.value.trim();
-    if (valor === '') {
-      sessionStorage.removeItem(LOCAL_STORAGE_MATRICULA);
-    } else {
-      sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, valor);
-    }
-  });
-}
-
-// --- FUNÇÃO PARA SALVAR A SESSÃO LOCALMENTE ---
-function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
-  try {
-    const dadosSessao = {
-      usuario: usuario,
-      ip: ip,
-      nome: nome,
-      acesso: acesso,
-      timestamp: Date.now()
-    };
-    sessionStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dadosSessao));
-    sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario); // Garante a fixação da matrícula
-  } catch (e) {
-    console.error('Erro ao guardar sessão localmente:', e);
-  }
-}
-
-  function obterSessaoLocal() {
-    try {
-      const sessao = sessionStorage.getItem(LOCAL_STORAGE_KEY);
-      return sessao ? JSON.parse(sessao) : null;
-    } catch(e){ return null; }
-  }
-
-  function limparSessaoLocal(manterMatricula = true) {
-    try {
-      sessionStorage.removeItem(LOCAL_STORAGE_KEY);
-      if (!manterMatricula) sessionStorage.removeItem(LOCAL_STORAGE_MATRICULA);
-    } catch(e){}
-  }
+  
 
   // --- FUNÇÃO PRINCIPAL DE LOGIN ---
 async function fazerLogin(autoLogin = false) {
@@ -1641,27 +1590,33 @@ async function fazerLogin(autoLogin = false) {
   }
 }
 
-// --- EXECUÇÃO INICIAL AO CARREGAR O DOM ---
-document.addEventListener('DOMContentLoaded', () => {
-  inicializarCampoMatricula();
+if (inputUsuario) {
+    inputUsuario.addEventListener('input', function() {
+      const valor = this.value.trim();
+      clearTimeout(typingTimeout);
 
-  // Verifica se há sessão ativa para auto-login
-  const sessao = obterSessaoLocal();
-  if (sessao && sessao.usuario) {
-    fazerLogin(true);
+      // Se o botão já estiver em estado de "Validando...", ignora novas digitações para evitar spam
+      const btn = document.getElementById('btnLogin') || (typeof qs === 'function' ? qs('btnLogin') : null);
+      if (btn && btn.disabled) return;
+
+      // Se o usuário digitar 8 dígitos, valida NA HORA (tentativa final)
+      if (valor.length === 8) {
+        fazerLogin();
+      } 
+      // Se ele digitar de 6 a 7 dígitos, aguarda uma pausa de 600ms para ver se ele parou por ali
+      else if (valor.length >= 6 && valor.length < 8) {
+        typingTimeout = setTimeout(() => {
+          // Só dispara se o campo ainda não estiver ocupado validando
+          const btnCheck = document.getElementById('btnLogin') || (typeof qs === 'function' ? qs('btnLogin') : null);
+          if (btnCheck && !btnCheck.disabled) {
+            fazerLogin();
+            
+          }
+        }, 900); // Meio segundo de tolerância para digitação
+      }
+    });
   }
 });
-
-// Restauração ao minimizar/reabrir
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    inicializarCampoMatricula();
-  }
-});
-
-  window.fazerLogin = fazerLogin;
-  window.limparSessaoLocal = limparSessaoLocal;
-
   function salvarSessao(nome, acessos, matricula) {
     try { persistSession(nome, acessos, matricula); } catch(e){}
     window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
