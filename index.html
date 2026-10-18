@@ -901,7 +901,7 @@
        <div style="display: none;" class="phrase">..:: Bem-vindo ao OUTLOG ::.. </div>
     </div>
 
-    <input type="username" id="usuario" placeholder="MATRÍCULA / ID" inputmode="numeric" aria-label="Campo matrícula (use o teclado na tela)" />
+    <input type="number" id="usuario" placeholder="MATRÍCULA / ID" inputmode="numeric" aria-label="Campo matrícula (use o teclado na tela)" />
 
      <button id="btnLogin" onclick="fazerLogin()" style="font-size:12px;height:35px;width:120px" >Login</button>
 
@@ -1364,8 +1364,8 @@
     const data = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
     window.APP_SESSION = data;
     try {
-      localStorage.setItem('operadorNome', nome);
-      localStorage.setItem('acesso', JSON.stringify(data.acesso));
+      sessionStorage.setItem('operadorNome', nome);
+      sessionStorage.setItem('acesso', JSON.stringify(data.acesso));
       localStorage.setItem('outlog_matricula', matricula);
       if(stay) localStorage.setItem('ptl_stay', '1');
     } catch(e){}
