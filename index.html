@@ -1032,7 +1032,7 @@
       google.script.run
         .withSuccessHandler(function(mensagem) {
           if (!mensagem) return;
-          const msgSalva = localStorage.getItem('h1_msg_lida');
+          const msgSalva = sessionStorage.getItem('h1_msg_lida');
           if (msgSalva === mensagem) return;
           exibirBotaoNotificacao(mensagem);
         })
@@ -1059,7 +1059,7 @@
       if (btn) {
         btn.onclick = function() {
           exibirToastCentral(mensagem);
-          localStorage.setItem('h1_msg_lida', mensagem);
+          sessionStorage.setItem('h1_msg_lida', mensagem);
           footer.textContent = 'Richard Ferreira';
         };
       }
@@ -1245,7 +1245,7 @@
   if (sideBar && !sideBar.classList.contains('active')) {
     
     // 1. Carrega e valida o nome do operador vindo do sessionStorage
-    const operador = sessionStorage.getItem("operadorNome")??localStorage.getItem("operadorNome");
+    const operador = sessionStorage.getItem("operadorNome");
     if (labelSidebar) {
       labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
     }
@@ -1421,7 +1421,7 @@ function inicializarCampoMatricula() {
   if (!inputUser) return;
 
   // 1. Restaura a matrícula salva (se existir) ao recarregar
-  const matriculaSalva = localStorage.getItem(LOCAL_STORAGE_MATRICULA);
+  const matriculaSalva = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA);
   if (matriculaSalva) {
     inputUser.value = matriculaSalva;
   }
@@ -1430,9 +1430,9 @@ function inicializarCampoMatricula() {
   inputUser.addEventListener('input', () => {
     const valor = inputUser.value.trim();
     if (valor === '') {
-      localStorage.removeItem(LOCAL_STORAGE_MATRICULA);
+      sessionStorage.removeItem(LOCAL_STORAGE_MATRICULA);
     } else {
-      localStorage.setItem(LOCAL_STORAGE_MATRICULA, valor);
+      sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, valor);
     }
   });
 }
@@ -1447,8 +1447,8 @@ function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
       acesso: acesso,
       timestamp: Date.now()
     };
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dadosSessao));
-    localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario); // Garante a fixação da matrícula
+    sessionStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dadosSessao));
+    sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario); // Garante a fixação da matrícula
   } catch (e) {
     console.error('Erro ao guardar sessão localmente:', e);
   }
@@ -1456,15 +1456,15 @@ function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
 
   function obterSessaoLocal() {
     try {
-      const sessao = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const sessao = sessionStorage.getItem(LOCAL_STORAGE_KEY);
       return sessao ? JSON.parse(sessao) : null;
     } catch(e){ return null; }
   }
 
   function limparSessaoLocal(manterMatricula = true) {
     try {
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
-      if (!manterMatricula) localStorage.removeItem(LOCAL_STORAGE_MATRICULA);
+      sessionStorage.removeItem(LOCAL_STORAGE_KEY);
+      if (!manterMatricula) sessionStorage.removeItem(LOCAL_STORAGE_MATRICULA);
     } catch(e){}
   }
 
@@ -1477,7 +1477,7 @@ async function fazerLogin(autoLogin = false) {
   // Tenta obter do input ou recupera do localStorage
   let usuario = inputUser ? inputUser.value.trim() : '';
   if (!usuario) {
-    usuario = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
+    usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
     if (usuario && inputUser) inputUser.value = usuario;
   }
 
@@ -1709,11 +1709,11 @@ document.addEventListener('visibilitychange', () => {
     function restaurarSessao(matricula) {
     function doRestore(){
       try {
-        const nome = localStorage.getItem('operadorNome') || getCookie('operadorNome') || 'Usuário';
+        const nome = sessionStorage.getItem('operadorNome') || getCookie('operadorNome') || 'Usuário';
         // Garante que o sessionStorage também receba o nome recuperado
         if(nome) sessionStorage.setItem('operadorNome', nome);
 
-        const acessos = JSON.parse(localStorage.getItem('acesso') || getCookie('acesso') || '[]');
+        const acessos = JSON.parse(sessionStorage.getItem('acesso') || getCookie('acesso') || '[]');
         window.APP_SESSION = { nome, acesso: acessos, matricula };
         setTimeout(updateBadges, 250);
         if (typeof google !== 'undefined' && google.script && google.script.run) {
