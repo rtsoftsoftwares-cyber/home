@@ -921,12 +921,12 @@
 
 <script>
 
-  // =========================================================================
+ // =========================================================================
   // CONFIGURAÇÃO DA URL DO WEB APP DO GOOGLE APPS SCRIPT
   // =========================================================================
   const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSGJihV_x_eFA1-yzJisl6naV8deqknfylzwoqWkd_7Cnwry8KS6xYeVxL1glsfXMy/exec';
 
-  // --- SHIM UNIVERSAL DE COMPATIBILIDADE (Suporta qualquer encadeamento) ---
+  // --- SHIM UNIVERSAL DE COMPATIBILIDADE (Comunicação Robusta com o GAS)[cite: 1] ---
   window.google = window.google || {};
   window.google.script = window.google.script || {};
 
@@ -934,7 +934,6 @@
     function createRunner(successHandler, failureHandler) {
       return new Proxy({}, {
         get(target, methodName) {
-          // Permite re-encadear caso chamem .withSuccessHandler ou .withFailureHandler novamente
           if (methodName === 'withSuccessHandler') {
             return function(cb) { return createRunner(cb, failureHandler); };
           }
@@ -942,7 +941,6 @@
             return function(cb) { return createRunner(successHandler, cb); };
           }
           
-          // Executa a chamada real via Fetch para o Apps Script
           return function(...args) {
             fetch(GAS_WEB_APP_URL, {
               method: 'POST',
@@ -950,8 +948,15 @@
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               body: JSON.stringify({ acao: methodName, payload: args })
             })
-            .then(response => response.json())
-            .then(res => {
+            .then(response => response.text())
+            .then(text => {
+              let res;
+              try {
+                res = JSON.parse(text);
+              } catch (e) {
+                res = { error: text };
+              }
+
               if (res && res.error) {
                 if (typeof failureHandler === 'function') failureHandler(res.error);
               } else {
@@ -972,7 +977,6 @@
       });
     }
 
-    // Proxy raiz para interceptar .withSuccessHandler, .withFailureHandler ou a própria função
     return new Proxy({}, {
       get(target, methodName) {
         if (methodName === 'withSuccessHandler') {
@@ -981,20 +985,19 @@
         if (methodName === 'withFailureHandler') {
           return function(cb) { return createRunner(null, cb); };
         }
-        // Se chamar a função direto sem handlers
         const runner = createRunner(null, null);
         return runner[methodName];
       }
     });
   })();
 
-  // --- HELPERS BÁSICOS ---
+  // --- HELPERS BÁSICOS[cite: 1] ---
   function qs(id){ try { return document.getElementById(id); } catch(e){ return null; } }
   function setAttr(el, name, value){ if(!el) return; el.setAttribute(name, value); }
   function show(el){ if(!el) return; el.style.display = ''; setAttr(el,'aria-hidden','false'); }
   function hide(el){ if(!el) return; el.style.display = 'none'; setAttr(el,'aria-hidden','true'); }
 
-  // Cookie helpers
+  // Cookie helpers[cite: 1]
   function setCookie(name, value, days){
     try {
       let expires = '';
@@ -1017,7 +1020,7 @@
     try { document.cookie = name + '=; Max-Age=0; path=/'; } catch(e){}
   }
 
-  // --- MONITORAMENTO DE MENSAGENS (H1) ---
+  // --- MONITORAMENTO DE MENSAGENS (H1)[cite: 1] ---
   (function() {
     const INTERVALO_MS = 1 * 60 * 1000;
 
@@ -1105,9 +1108,7 @@
     }
   })();
 
-  
-
-  // --- MODO CAMPO / GPS ---
+  // --- MODO CAMPO / GPS[cite: 1] ---
   var idWatchGps = null;
   var cronometroEnvio = null;
   var bufferLocalPontos = [];
@@ -1218,7 +1219,7 @@
     }, 7000);
   }
 
-  // --- CONTROLE DE MENUS E SIDEBAR ---
+  // --- CONTROLE DE MENUS E SIDEBAR[cite: 1] ---
   function lidarCliqueMenu(event) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     var dropdown = (this.closest) ? this.closest('.menu-dropdown') : this.parentElement;
@@ -1234,58 +1235,45 @@
   }
 
   function toggleSidebar() {
+    updateBadges();
 
-  updateBadges();
+    var sideBar = document.getElementById('sideBar');
+    var labelSidebar = document.getElementById('sidebarUserName');
+    var overlay = document.getElementById('sidebarOverlay');
 
-  var sideBar = document.getElementById('sideBar');
-  //var overlay = document.getElementById('sidebarOverlay');
-  var labelSidebar = document.getElementById('sidebarUserName');
+    if (sideBar && !sideBar.classList.contains('active')) {
+      const operador = sessionStorage.getItem("operadorNome");
+      if (labelSidebar) {
+        labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
+      }
 
-  // Intercepta apenas o momento exato da ABERTURA da barra lateral
-  if (sideBar && !sideBar.classList.contains('active')) {
-    
-    // 1. Carrega e valida o nome do operador vindo do sessionStorage
-    const operador = sessionStorage.getItem("operadorNome");
-    if (labelSidebar) {
-      labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
+      var dropdowns = sideBar.querySelectorAll('.menu-dropdown');
+      dropdowns.forEach(function(menu) {
+        var trigger = menu.querySelector('.menu-trigger');
+        if (trigger) {
+          trigger.removeAttribute('onclick');
+          trigger.onclick = null;
+          trigger.removeEventListener('click', lidarCliqueMenu);
+          trigger.addEventListener('click', lidarCliqueMenu);
+        }
+      });
     }
 
-    // 2. Configura e higieniza os menus dropdown
-    var dropdowns = sideBar.querySelectorAll('.menu-dropdown');
-    dropdowns.forEach(function(menu) {
-      // Garante sua regra: Força todos os menus a abrirem automaticamente ao iniciar
-      //menu.classList.add('open');
+    if (sideBar) {
+      sideBar.classList.toggle('active');
       
-      var trigger = menu.querySelector('.menu-trigger');
-      if (trigger) {
-        // CORREÇÃO CRUCIAL: Remove o atributo inline do HTML para impedir o clique duplo conflituoso
-        trigger.removeAttribute('onclick');
-        trigger.onclick = null;
-        
-        // Vincula a escuta nativa e limpa para alternar perfeitamente ao clicar
-        trigger.removeEventListener('click', lidarCliqueMenu);
-        trigger.addEventListener('click', lidarCliqueMenu);
-      }
-    });
-  }
-
-  // Executa o deslizamento físico da barra lateral na tela
-  if (sideBar) {
-    sideBar.classList.toggle('active');
-    
-    if (overlay) {
-      var isOpened = sideBar.classList.contains('active');
-      if (isOpened) {
-        overlay.style.display = 'block';
-        setTimeout(function() { overlay.style.opacity = '1'; }, 10);
-      } else {
-        overlay.style.opacity = '0';
-        setTimeout(function() { overlay.style.display = 'none'; }, 300);
+      if (overlay) {
+        var isOpened = sideBar.classList.contains('active');
+        if (isOpened) {
+          overlay.style.display = 'block';
+          setTimeout(function() { overlay.style.opacity = '1'; }, 10);
+        } else {
+          overlay.style.opacity = '0';
+          setTimeout(function() { overlay.style.display = 'none'; }, 300);
+        }
       }
     }
   }
-}
-  
   window.toggleSidebar = toggleSidebar;
 
   function closeSidebar() {
@@ -1303,7 +1291,7 @@
   }
   window.toggleMenu = toggleMenu;
 
-  // --- LOGIN E DIGITAÇÃO INTELIGENTE ---
+  // --- LOGIN E DIGITAÇÃO INTELIGENTE[cite: 1] ---
   const OPENING_GIF = 'https://i.imgur.com/v0xrFKm.gif';
   const OPENING_GIF_DURATION = 1200;
 
@@ -1360,7 +1348,7 @@
   }
 
   function persistSession(nome, acessos, matricula){
-    const stay = (qs('stayLogged') && qs('stayLogged5') !== false);
+    const stay = (qs('stayLogged') && qs('stayLogged').checked);
     const data = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
     window.APP_SESSION = data;
     try {
@@ -1377,12 +1365,41 @@
     } catch(e){ return ''; }
   }
 
+  // --- INICIALIZAÇÃO E CONFIGURAÇÃO DO CAMPO COM PROMPT AO CLICAR ---
   document.addEventListener('DOMContentLoaded', () => {
     ensureStayLoggedCheckbox();
+
+    const inputUser = qs('usuario');
+    const persistedMatricula = loadPersistedSession();
+
+    if (inputUser) {
+      if (persistedMatricula) {
+        inputUser.value = persistedMatricula;
+      }
+
+      // Garante que ao clicar no campo, abra o prompt para inserir/atualizar a matrícula e realize o login
+      inputUser.addEventListener('click', function() {
+        const digitado = prompt("Digite a sua matrícula / ID:", this.value || '');
+        if (digitado !== null) {
+          const novaMatricula = digitado.trim();
+          if (novaMatricula) {
+            this.value = novaMatricula;
+            try {
+              localStorage.setItem('outlog_matricula', novaMatricula);
+              sessionStorage.setItem('outlog_matricula', novaMatricula);
+              if (window.AppInventor && window.AppInventor.setWebViewString) {
+                window.AppInventor.setWebViewString(novaMatricula);
+              }
+            } catch(e){}
+            fazerLogin();
+          }
+        }
+      });
+    }
+
     try {
-      const user = loadPersistedSession();
-      if (user) {
-        restaurarSessao(user);
+      if (persistedMatricula) {
+        restaurarSessao(persistedMatricula);
       } else {
         const lo = qs('loginOverlay');
         if (lo) lo.style.display = 'flex';
@@ -1415,208 +1432,178 @@
   const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
   const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
 
-  
-
   // --- FUNÇÃO PRINCIPAL DE LOGIN ---
-async function fazerLogin(autoLogin = false) {
-
-  const inputUser = document.getElementById('usuario');
-  const boxLoginHide = document.getElementById('loginBox');
-  
-  // Tenta obter do input ou recupera do localStorage
-  let usuario = inputUser ? inputUser.value.trim() : '';
-  if (!usuario) {
-    usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
-    if (usuario && inputUser) inputUser.value = usuario;
-  }
-
-  if (!usuario) return alert('Digite a matrícula');
-
-  const btn = typeof qs === 'function' ? qs('btnLogin') : document.getElementById('btnLogin');
-  const txtOriginal = btn && (btn.innerText || 'Login');
-
-  const restaurarBotao = () => {
-    if (btn) {
-      btn.innerText = txtOriginal;
-      btn.disabled = false;
-    }
-  };
-
-  if (btn) { btn.innerText = "Validando..."; btn.disabled = true; }
-  
-
-  // --- CAPTURA DO IP DO USUÁRIO ---
-  const sessaoExistente = obterSessaoLocal();
-  let userIp = sessaoExistente ? (sessaoExistente.ip || 'IP não identificado') : 'IP não identificado';
-  try {
-    const responseIp = await fetch('https://api.ipify.org?format=json');
-    if (responseIp.ok) {
-      const dataIp = await responseIp.json();
-      userIp = dataIp.ip || userIp;
-    }
-  } catch (err) {
-    console.warn('Não foi possível obter o IP público:', err);
-  }
-
-  // --- MODAL DE ALERTA DE ERRO ---
-  const exibirModalCustomizado = (mensagem) => {
-
+  async function fazerLogin(autoLogin = false) {
+    const inputUser = document.getElementById('usuario');
     
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center;
-      align-items: center; z-index: 99999;
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    `;
+    let usuario = inputUser ? inputUser.value.trim() : '';
+    if (!usuario) {
+      usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
+      if (usuario && inputUser) inputUser.value = usuario;
+    }
 
-    const modalBox = document.createElement('div');
-    modalBox.style.cssText = `
-      background: #ffffff; padding: 30px; border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25); max-width: 400px;
-      width: 85%; text-align: center; border-top: 6px solid #dc3545;
-    `;
+    if (!usuario) return alert('Digite a matrícula');
 
-    const textoMsg = document.createElement('p');
-    textoMsg.innerText = mensagem;
-    textoMsg.style.cssText = `
-      font-size: 16px; color: #333333; line-height: 1.6;
-      margin: 0 0 25px 0; font-weight: 500;
-    `;
+    if (window.AppInventor && window.AppInventor.setWebViewString) {
+      window.AppInventor.setWebViewString(usuario);
+    }
 
-    const btnFechar = document.createElement('button');
-    btnFechar.innerText = 'OK';
-    btnFechar.style.cssText = `
-      background: #dc3545; color: #ffffff; border: none;
-      padding: 10px 35px; font-size: 14px; border-radius: 6px;
-      cursor: pointer; font-weight: bold; transition: background 0.2s;
-    `;
-    
-    btnFechar.onmouseover = () => btnFechar.style.background = '#bd2130';
-    btnFechar.onmouseout = () => btnFechar.style.background = '#dc3545';
-    btnFechar.onclick = () => overlay.remove();
+    const btn = typeof qs === 'function' ? qs('btnLogin') : document.getElementById('btnLogin');
+    const txtOriginal = btn && (btn.innerText || 'Login');
 
-    modalBox.appendChild(textoMsg);
-    modalBox.appendChild(btnFechar);
-    overlay.appendChild(modalBox);
-    document.body.appendChild(overlay);
-  };
+    const restaurarBotao = () => {
+      if (btn) {
+        btn.innerText = txtOriginal;
+        btn.disabled = false;
+      }
+    };
 
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    google.script.run.withSuccessHandler(res => {
-      restaurarBotao();
+    if (btn) { btn.innerText = "Validando..."; btn.disabled = true; }
 
-      if (res && res.success) {
-        salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
+    const sessaoExistente = typeof obterSessaoLocal === 'function' ? obterSessaoLocal() : null;
+    let userIp = sessaoExistente ? (sessaoExistente.ip || 'IP não identificado') : 'IP não identificado';
+    try {
+      const responseIp = await fetch('https://api.ipify.org?format=json');
+      if (responseIp.ok) {
+        const dataIp = await responseIp.json();
+        userIp = dataIp.ip || userIp;
+      }
+    } catch (err) {
+      console.warn('Não foi possível obter o IP público:', err);
+    }
 
-        google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
+    const exibirModalCustomizado = (mensagem) => {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center;
+        align-items: center; z-index: 99999;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      `;
 
-        google.script.run.withSuccessHandler(licRes => {
-          if (licRes && licRes.expirado) {
-            ocultarCabecalhosEMenus();
-            if (typeof abrirLink === 'function') {
-              abrirLink("LICENÇA");
-            } else if (typeof abrirPagina === 'function') {
-              abrirPagina("LICENÇA");
-            }
-          } else {
-            const dias = licRes ? licRes.diasRestantes : 0;
-            const msgBoasVindas = `Licença Ativa ( ${dias} dias restantes )`;
+      const modalBox = document.createElement('div');
+      modalBox.style.cssText = `
+        background: #ffffff; padding: 30px; border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25); max-width: 400px;
+        width: 85%; text-align: center; border-top: 6px solid #dc3545;
+      `;
 
-            const prosseguirAcesso = () => {
-              const proceed = function(){
-                try { 
-                  salvarSessao(res.nome, res.acesso, usuario); 
-                } catch(e){ 
-                  console.error(e); 
+      const textoMsg = document.createElement('p');
+      textoMsg.innerText = mensagem;
+      textoMsg.style.cssText = `
+        font-size: 16px; color: #333333; line-height: 1.6;
+        margin: 0 0 25px 0; font-weight: 500;
+      `;
+
+      const btnFechar = document.createElement('button');
+      btnFechar.innerText = 'OK';
+      btnFechar.style.cssText = `
+        background: #dc3545; color: #ffffff; border: none;
+        padding: 10px 35px; font-size: 14px; border-radius: 6px;
+        cursor: pointer; font-weight: bold; transition: background 0.2s;
+      `;
+      
+      btnFechar.onmouseover = () => btnFechar.style.background = '#bd2130';
+      btnFechar.onmouseout = () => btnFechar.style.background = '#dc3545';
+      btnFechar.onclick = () => overlay.remove();
+
+      modalBox.appendChild(textoMsg);
+      modalBox.appendChild(btnFechar);
+      overlay.appendChild(modalBox);
+      document.body.appendChild(overlay);
+    };
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run.withSuccessHandler(res => {
+        restaurarBotao();
+
+        if (res && res.success) {
+          if (typeof salvarSessaoLocalmente === 'function') {
+            salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
+          }
+
+          google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
+
+          google.script.run.withSuccessHandler(licRes => {
+            if (licRes && licRes.expirado) {
+              ocultarCabecalhosEMenus();
+              if (typeof abrirLink === 'function') {
+                abrirLink("LICENÇA");
+              } else if (typeof abrirPagina === 'function') {
+                abrirPagina("LICENÇA");
+              }
+            } else {
+              const dias = licRes ? licRes.diasRestantes : 0;
+              const msgBoasVindas = `Licença Ativa ( ${dias} dias restantes )`;
+
+              const prosseguirAcesso = () => {
+                const proceed = function(){
+                  try { 
+                    salvarSessao(res.nome, res.acesso, usuario); 
+                  } catch(e){ 
+                    console.error(e); 
+                  }
+                };
+                if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
+                  showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
+                } else { 
+                  proceed(); 
                 }
               };
-              if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
-                showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
-              } else { 
-                proceed(); 
+
+              if (autoLogin) {
+                prosseguirAcesso();
+              } else {
+                exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
               }
-            };
-
-            if (autoLogin) {
-              prosseguirAcesso();
-            } else {
-              exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
             }
+          }).withFailureHandler(e => {
+            console.error('Erro ao verificar licença:', e);
+            alert('Erro ao validar licença: ' + e);
+          }).verificarLicenca();
+
+        } else {
+          if (typeof limparSessaoLocal === 'function') limparSessaoLocal(true);
+          const stringResposta = res ? String(res.status || res.motivo || res.error || res.mensagem || '').toUpperCase() : '';
+          const mensagemLog = `Usuario tentou acesso Ambev | IP: ${userIp}`;
+          google.script.run.registrarLog(mensagemLog, usuario);
+
+          let mensagemFinal = "Senha incorreta";
+          if (stringResposta.includes('NOK') || (res && res.nok)) {
+            mensagemFinal = "Acesso temporariamente indisponível, aguardando permissão oficial para uso do sistema OutLog.";
           }
-        }).withFailureHandler(e => {
-          console.error('Erro ao verificar licença:', e);
-          alert('Erro ao validar licença: ' + e);
-        }).verificarLicenca();
 
-      } else {
-        limparSessaoLocal(true); // Mantém a matrícula salva mesmo se a senha falhar
-        const stringResposta = res ? String(res.status || res.motivo || res.error || res.mensagem || '').toUpperCase() : '';
-        const mensagemLog = `Usuario tentou acesso Ambev | IP: ${userIp}`;
-        google.script.run.registrarLog(mensagemLog, usuario);
-
-        let mensagemFinal = "Senha incorreta";
-        if (stringResposta.includes('NOK') || (res && res.nok)) {
-          mensagemFinal = "Acesso temporariamente indisponível, aguardando permissão oficial para uso do sistema OutLog.";
+          exibirModalCustomizado(mensagemFinal);
         }
-
-        exibirModalCustomizado(mensagemFinal);
-      }
-    }).withFailureHandler(e => {
-      restaurarBotao();
-      alert('Erro de conexão: ' + e);
-    }).validarLogin(usuario);
-  } else {
-    // Modo local demo
-    setTimeout(() => {
-      restaurarBotao();
-      salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
-      
-      const prosseguirDemo = () => {
-        const proceed = function(){
-          try { salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario); } catch(e){}
+      }).withFailureHandler(e => {
+        restaurarBotao();
+        alert('Erro de conexão: ' + e);
+      }).validarLogin(usuario);
+    } else {
+      setTimeout(() => {
+        restaurarBotao();
+        if (typeof salvarSessaoLocalmente === 'function') {
+          salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
+        }
+        
+        const prosseguirDemo = () => {
+          const proceed = function(){
+            try { salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario); } catch(e){}
+          };
+          if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
+            showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
+          } else proceed();
         };
-        if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
-          showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
-        } else proceed();
-      };
 
-      if (autoLogin) {
-        prosseguirDemo();
-      } else {
-        exibirModalBoasVindasLicenca("Licença Ativa ( Demo - 30 dias restantes )", 1500, prosseguirDemo);
-      }
-    }, 500);
+        if (autoLogin) {
+          prosseguirDemo();
+        } else {
+          exibirModalBoasVindasLicenca("Licença Ativa ( Demo - 30 dias restantes )", 1500, prosseguirDemo);
+        }
+      }, 500);
+    }
   }
-}
 
-if (inputUsuario) {
-    inputUsuario.addEventListener('input', function() {
-      const valor = this.value.trim();
-      clearTimeout(typingTimeout);
-
-      // Se o botão já estiver em estado de "Validando...", ignora novas digitações para evitar spam
-      const btn = document.getElementById('btnLogin') || (typeof qs === 'function' ? qs('btnLogin') : null);
-      if (btn && btn.disabled) return;
-
-      // Se o usuário digitar 8 dígitos, valida NA HORA (tentativa final)
-      if (valor.length === 8) {
-        fazerLogin();
-      } 
-      // Se ele digitar de 6 a 7 dígitos, aguarda uma pausa de 600ms para ver se ele parou por ali
-      else if (valor.length >= 6 && valor.length < 8) {
-        typingTimeout = setTimeout(() => {
-          // Só dispara se o campo ainda não estiver ocupado validando
-          const btnCheck = document.getElementById('btnLogin') || (typeof qs === 'function' ? qs('btnLogin') : null);
-          if (btnCheck && !btnCheck.disabled) {
-            fazerLogin();
-            
-          }
-        }, 900); // Meio segundo de tolerância para digitação
-      }
-    });
-  }
-});
   function salvarSessao(nome, acessos, matricula) {
     try { persistSession(nome, acessos, matricula); } catch(e){}
     window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
@@ -1660,18 +1647,16 @@ if (inputUsuario) {
   }
   window.salvarSessao = salvarSessao;
 
-
-    function restaurarSessao(matricula) {
+  function restaurarSessao(matricula) {
     function doRestore(){
       try {
         const nome = sessionStorage.getItem('operadorNome') || getCookie('operadorNome') || 'Usuário';
-        // Garante que o sessionStorage também receba o nome recuperado
         if(nome) {
-      sessionStorage.setItem('operadorNome', nome);
-          // Envia o valor atual para o App Inventor via WebViewString
-      if (window.AppInventor && window.AppInventor.setWebViewString) {
-        window.AppInventor.setWebViewString(sessionStorage.getItem('operadorNome'));
-  }
+          sessionStorage.setItem('operadorNome', nome);
+          if (window.AppInventor && window.AppInventor.setWebViewString) {
+            window.AppInventor.setWebViewString(sessionStorage.getItem('operadorNome'));
+          }
+        }
 
         const acessos = JSON.parse(sessionStorage.getItem('acesso') || getCookie('acesso') || '[]');
         window.APP_SESSION = { nome, acesso: acessos, matricula };
@@ -1713,7 +1698,7 @@ if (inputUsuario) {
   }
   window.logout = logout;
 
-  // --- ABRIR LINK / INJETAR HTML SEGURO ---
+  // --- ABRIR LINK / INJETAR HTML SEGURO[cite: 1] ---
   async function abrirLink(nomeArquivo) {
     closeSidebar();
     const contentDiv = qs('loadedContent');
@@ -1796,6 +1781,8 @@ if (inputUsuario) {
 
     if (scriptsPendentes === 0) tentarInicializar();
   }
+
+  
 
   function showNews() {
   try { closeSidebar && closeSidebar(); } catch(e){}
