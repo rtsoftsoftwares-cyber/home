@@ -1711,7 +1711,12 @@ document.addEventListener('visibilitychange', () => {
       try {
         const nome = sessionStorage.getItem('operadorNome') || getCookie('operadorNome') || 'Usuário';
         // Garante que o sessionStorage também receba o nome recuperado
-        if(nome) sessionStorage.setItem('operadorNome', nome);
+        if(nome) {
+      sessionStorage.setItem('operadorNome', nome);
+          // Envia o valor atual para o App Inventor via WebViewString
+      if (window.AppInventor && window.AppInventor.setWebViewString) {
+        window.AppInventor.setWebViewString(sessionStorage.getItem('operadorNome'));
+  }
 
         const acessos = JSON.parse(sessionStorage.getItem('acesso') || getCookie('acesso') || '[]');
         window.APP_SESSION = { nome, acesso: acessos, matricula };
