@@ -1105,23 +1105,7 @@
     }
   })();
 
-  // --- VERIFICAÇÃO DE ACESSO ADM ---
-  (function verifyAdmAccess() {
-    const checkPermission = () => {
-      const menuAdm = document.getElementById('menuAdm');
-      const operadorNome = localStorage.getItem('operadorNome') || sessionStorage.getItem('operadorNome');
-     
-              
-      if (menuAdm && (operadorNome === '[Administrador]' || operadorNome === 'Marcos Barnabe')) {
-        menuAdm.style.display = 'block';
-      }
-    };
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', checkPermission);
-    } else {
-      checkPermission();
-    }
-  })();
+  
 
   // --- MODO CAMPO / GPS ---
   var idWatchGps = null;
