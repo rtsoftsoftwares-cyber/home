@@ -1490,7 +1490,7 @@
       usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
       if (usuario && inputUser) inputUser.value = usuario;
       // Dispara o login automaticamente usando os dados salvos
-      fazerLogin(true);
+      fazerLogin();
     }
 
     if (!usuario) return alert('Digite a matrícula');
@@ -1604,6 +1604,7 @@
               if (autoLogin) {
                 prosseguirAcesso();
               } else {
+                fazerLogin();
                 exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
               }
             }
