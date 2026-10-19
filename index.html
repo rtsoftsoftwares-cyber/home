@@ -1489,8 +1489,7 @@
     if (!usuario) {
       usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
       if (usuario && inputUser) inputUser.value = usuario;
-      // Dispara o login automaticamente usando os dados salvos
-      fazerLogin();
+      
     }
 
     if (!usuario) return alert('Digite a matrícula');
@@ -1595,6 +1594,8 @@
                   }
                 };
                 if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
+                  // Dispara o login automaticamente usando os dados salvos
+                  fazerLogin();
                   showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
                 } else { 
                   proceed(); 
@@ -1604,7 +1605,6 @@
               if (autoLogin) {
                 prosseguirAcesso();
               } else {
-                fazerLogin();
                 exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
               }
             }
