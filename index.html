@@ -1703,8 +1703,7 @@
       try {
         const nome = sessionStorage.getItem('operadorNome') || getCookie('operadorNome') || 'Usuário';
         if(nome) {
-          sessionStorage.setItem('operadorNome', nome);
-          fazerLogin();
+          sessionStorage.setItem('operadorNome', nome)
           if (window.AppInventor && window.AppInventor.setWebViewString) {
             window.AppInventor.setWebViewString(sessionStorage.getItem('operadorNome'));
           }
