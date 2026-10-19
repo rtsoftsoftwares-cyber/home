@@ -1389,6 +1389,98 @@
   const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
   const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
 
+  // --- INICIALIZAÇÃO E CONFIGURAÇÃO DO CAMPO (Sem prompt automático ao clicar) ---
+  document.addEventListener('DOMContentLoaded', () => {
+    ensureStayLoggedCheckbox();
+
+    const inputUser = qs('usuario');
+    const persistedMatricula = loadPersistedSession();
+
+    if (inputUser && persistedMatricula) {
+      inputUser.value = persistedMatricula;
+    }
+
+    try {
+      if (persistedMatricula) {
+        restaurarSessao(persistedMatricula);
+      } else {
+        const lo = qs('loginOverlay');
+        if (lo) lo.style.display = 'flex';
+      }
+    } catch(e) {
+      const lo = qs('loginOverlay'); if (lo) lo.style.display = 'flex';
+    }
+    setTimeout(updateBadges, 400);
+  });
+
+  // --- FUNÇÃO AUXILIAR PARA PERGUNTAR SE DESEJA SALVAR A MATRÍCULA ---
+  function verificarEPerguntarSalvamento(usuarioLogado) {
+    try {
+      let ignoradas = JSON.parse(localStorage.getItem('outlog_matriculas_ignoradas') || '[]');
+      let salvaAtual = localStorage.getItem(LOCAL_STORAGE_MATRICULA);
+
+      // Se já está salva ou o usuário marcou para ignorar esta matrícula, não pergunta nada
+      if (salvaAtual === usuarioLogado || ignoradas.includes(usuarioLogado)) {
+        return;
+      }
+
+      // Cria um modal customizado limpo perguntando se deseja salvar
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center;
+        align-items: center; z-index: 999999; font-family: 'Segoe UI', Roboto, sans-serif;
+      `;
+
+      const modalBox = document.createElement('div');
+      modalBox.style.cssText = `
+        background: #ffffff; padding: 25px; border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.25); max-width: 380px;
+        width: 85%; text-align: center; border-top: 6px solid #36b8f2;
+      `;
+
+      const textoMsg = document.createElement('p');
+      textoMsg.innerText = `Deseja salvar a matrícula ${usuarioLogado} para os próximos logins neste dispositivo?`;
+      textoMsg.style.cssText = `font-size: 15px; color: #333333; line-height: 1.5; margin: 0 0 20px 0; font-weight: 500;`;
+
+      const divBotoes = document.createElement('div');
+      divBotoes.style.cssText = `display: flex; gap: 10px; justify-content: center;`;
+
+      const btnSim = document.createElement('button');
+      btnSim.innerText = 'Sim, salvar';
+      btnSim.style.cssText = `background: #28a745; color: #fff; border: none; padding: 10px 20px; font-size: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1;`;
+      
+      const btnNao = document.createElement('button');
+      btnNao.innerText = 'Não perguntar';
+      btnNao.style.cssText = `background: #6c757d; color: #fff; border: none; padding: 10px 20px; font-size: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1;`;
+
+      btnSim.onclick = () => {
+        localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuarioLogado);
+        sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, usuarioLogado);
+        if (window.AppInventor && window.AppInventor.setWebViewString) {
+          window.AppInventor.setWebViewString(usuarioLogado);
+        }
+        overlay.remove();
+      };
+
+      btnNao.onclick = () => {
+        ignoradas.push(usuarioLogado);
+        localStorage.setItem('outlog_matriculas_ignoradas', JSON.stringify(ignoradas));
+        overlay.remove();
+      };
+
+      divBotoes.appendChild(btnNao);
+      divBotoes.appendChild(btnSim);
+      modalBox.appendChild(textoMsg);
+      modalBox.appendChild(divBotoes);
+      overlay.appendChild(modalBox);
+      document.body.appendChild(overlay);
+
+    } catch(e) {
+      console.warn('Erro ao gerenciar prompt de salvamento:', e);
+    }
+  }
+
   // --- FUNÇÃO PRINCIPAL DE LOGIN ---
   async function fazerLogin(autoLogin = false) {
     const inputUser = document.getElementById('usuario');
@@ -1400,10 +1492,6 @@
     }
 
     if (!usuario) return alert('Digite a matrícula');
-
-    if (window.AppInventor && window.AppInventor.setWebViewString) {
-      window.AppInventor.setWebViewString(usuario);
-    }
 
     const btn = typeof qs === 'function' ? qs('btnLogin') : document.getElementById('btnLogin');
     const txtOriginal = btn && (btn.innerText || 'Login');
@@ -1479,6 +1567,9 @@
             salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
           }
 
+          // Pergunta se deseja salvar a matrícula para os próximos logins (caso ainda não esteja salva ou ignorada)
+          verificarEPerguntarSalvamento(usuario);
+
           google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
 
           google.script.run.withSuccessHandler(licRes => {
@@ -1543,6 +1634,8 @@
           salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
         }
         
+        verificarEPerguntarSalvamento(usuario);
+
         const prosseguirDemo = () => {
           const proceed = function(){
             try { salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario); } catch(e){}
