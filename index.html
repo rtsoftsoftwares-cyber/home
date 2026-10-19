@@ -1489,6 +1489,8 @@
     if (!usuario) {
       usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
       if (usuario && inputUser) inputUser.value = usuario;
+      // Dispara o login automaticamente usando os dados salvos
+      fazerLogin(true);
     }
 
     if (!usuario) return alert('Digite a matrícula');
