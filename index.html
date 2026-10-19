@@ -1594,8 +1594,6 @@
                   }
                 };
                 if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
-                  // Dispara o login automaticamente usando os dados salvos
-                  fazerLogin();
                   showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
                 } else { 
                   proceed(); 
@@ -1706,6 +1704,7 @@
         const nome = sessionStorage.getItem('operadorNome') || getCookie('operadorNome') || 'Usuário';
         if(nome) {
           sessionStorage.setItem('operadorNome', nome);
+          fazerLogin();
           if (window.AppInventor && window.AppInventor.setWebViewString) {
             window.AppInventor.setWebViewString(sessionStorage.getItem('operadorNome'));
           }
