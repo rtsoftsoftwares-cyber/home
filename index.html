@@ -1365,50 +1365,7 @@
     } catch(e){ return ''; }
   }
 
-  // --- INICIALIZAÇÃO E CONFIGURAÇÃO DO CAMPO COM PROMPT AO CLICAR ---
-  document.addEventListener('DOMContentLoaded', () => {
-    ensureStayLoggedCheckbox();
-
-    const inputUser = qs('usuario');
-    const persistedMatricula = loadPersistedSession();
-
-    if (inputUser) {
-      if (persistedMatricula) {
-        inputUser.value = persistedMatricula;
-      }
-
-      // Garante que ao clicar no campo, abra o prompt para inserir/atualizar a matrícula e realize o login
-      inputUser.addEventListener('click', function() {
-        const digitado = prompt("Digite a sua matrícula / ID:", this.value || '');
-        if (digitado !== null) {
-          const novaMatricula = digitado.trim();
-          if (novaMatricula) {
-            this.value = novaMatricula;
-            try {
-              localStorage.setItem('outlog_matricula', novaMatricula);
-              sessionStorage.setItem('outlog_matricula', novaMatricula);
-              if (window.AppInventor && window.AppInventor.setWebViewString) {
-                window.AppInventor.setWebViewString(novaMatricula);
-              }
-            } catch(e){}
-            fazerLogin();
-          }
-        }
-      });
-    }
-
-    try {
-      if (persistedMatricula) {
-        restaurarSessao(persistedMatricula);
-      } else {
-        const lo = qs('loginOverlay');
-        if (lo) lo.style.display = 'flex';
-      }
-    } catch(e) {
-      const lo = qs('loginOverlay'); if (lo) lo.style.display = 'flex';
-    }
-    setTimeout(updateBadges, 400);
-  });
+  
 
   function ocultarCabecalhosEMenus() {
     ['header', 'nav', '.header', '.sidebar', '#header', '#sidebar'].forEach(seletor => {
