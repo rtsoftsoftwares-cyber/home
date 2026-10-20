@@ -925,7 +925,7 @@
   // =========================================================================
   const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSGJihV_x_eFA1-yzJisl6naV8deqknfylzwoqWkd_7Cnwry8KS6xYeVxL1glsfXMy/exec';
 
-  // --- SHIM UNIVERSAL DE COMPATIBILIDADE (Comunicação Robusta com o GAS) ---
+  // --- SHIM UNIVERSAL DE COMPATIBILIDADE (Comunicação Robusta com o GAS)[cite: 1] ---
   window.google = window.google || {};
   window.google.script = window.google.script || {};
 
@@ -990,13 +990,13 @@
     });
   })();
 
-  // --- HELPERS BÁSICOS ---
+  // --- HELPERS BÁSICOS[cite: 1] ---
   function qs(id){ try { return document.getElementById(id); } catch(e){ return null; } }
   function setAttr(el, name, value){ if(!el) return; el.setAttribute(name, value); }
   function show(el){ if(!el) return; el.style.display = ''; setAttr(el,'aria-hidden','false'); }
   function hide(el){ if(!el) return; el.style.display = 'none'; setAttr(el,'aria-hidden','true'); }
 
-  // Cookie helpers
+  // Cookie helpers[cite: 1]
   function setCookie(name, value, days){
     try {
       let expires = '';
@@ -1019,7 +1019,7 @@
     try { document.cookie = name + '=; Max-Age=0; path=/'; } catch(e){}
   }
 
-  // --- MONITORAMENTO DE MENSAGENS (H1) ---
+  // --- MONITORAMENTO DE MENSAGENS (H1)[cite: 1] ---
   (function() {
     const INTERVALO_MS = 1 * 60 * 1000;
 
@@ -1107,7 +1107,7 @@
     }
   })();
 
-  // --- MODO CAMPO / GPS ---
+  // --- MODO CAMPO / GPS[cite: 1] ---
   var idWatchGps = null;
   var cronometroEnvio = null;
   var bufferLocalPontos = [];
@@ -1218,7 +1218,7 @@
     }, 7000);
   }
 
-  // --- CONTROLE DE MENUS E SIDEBAR ---
+  // --- CONTROLE DE MENUS E SIDEBAR[cite: 1] ---
   function lidarCliqueMenu(event) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     var dropdown = (this.closest) ? this.closest('.menu-dropdown') : this.parentElement;
@@ -1290,7 +1290,7 @@
   }
   window.toggleMenu = toggleMenu;
 
-  // --- LOGIN E DIGITAÇÃO INTELIGENTE ---
+  // --- LOGIN E DIGITAÇÃO INTELIGENTE[cite: 1] ---
   const OPENING_GIF = 'https://i.imgur.com/v0xrFKm.gif';
   const OPENING_GIF_DURATION = 1200;
 
@@ -1386,39 +1386,6 @@
   const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
   const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
 
-  // --- INICIALIZAÇÃO AUTOMÁTICA AO CARREGAR A PÁGINA ---
-  document.addEventListener('DOMContentLoaded', () => {
-   
-
-    const inputUser = qs('usuario');
-    const persistedMatricula = loadPersistedSession();
-    
-    // Pega o valor atual do input ou busca no storage
-    let valorCampo = inputUser ? inputUser.value.trim() : '';
-    let matriculaParaValidar = valorCampo || persistedMatricula;
-    
-    // Remove tudo que não for número
-    matriculaParaValidar = String(matriculaParaValidar).replace(/\D/g, '');
-
-    console.log("DEBUG - Matrícula encontrada para validação inicial:", matriculaParaValidar);
-
-    const regexMatricula = /^\d{6}$|^\d{8}$/;
-
-    if (matriculaParaValidar && regexMatricula.test(matriculaParaValidar)) {
-      if (inputUser) {
-        inputUser.value = matriculaParaValidar;
-      }
-      // Tenta fazer o login automático
-      fazerLogin();
-    } else {
-      // Se não tem matrícula válida, garante que o campo fique limpo (se houver lixo) e exibe o login
-      if (inputUser && valorCampo) inputUser.value = '';
-      const lo = qs('loginOverlay');
-      if (lo) lo.style.display = 'flex';
-    }
-    setTimeout(updateBadges, 400);
-  });
-
   // --- FUNÇÃO AUXILIAR PARA PERGUNTAR SE DESEJA SALVAR A MATRÍCULA ---
   function verificarEPerguntarSalvamento(usuarioLogado) {
     try {
@@ -1489,30 +1456,17 @@
   async function fazerLogin(autoLogin = false) {
     const inputUser = document.getElementById('usuario');
     
-    let usuario = '';
-    if (inputUser && inputUser.value.trim()) {
-      usuario = inputUser.value.trim();
-    } else {
-      usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || getCookie(LOCAL_STORAGE_MATRICULA) || '';
+    let usuario = inputUser ? inputUser.value.trim() : '';
+    if (!usuario) {
+      usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
+      if (usuario && inputUser) inputUser.value = usuario;
     }
 
-    // Limpa a matrícula deixando apenas os números
-    usuario = String(usuario).replace(/\D/g, '');
-    
-    if (inputUser && usuario) {
-      inputUser.value = usuario;
-    }
-
-    console.log("DEBUG - Tentando logar com matrícula:", usuario, "| AutoLogin:", autoLogin);
-
+    // [CORRIGIDO] Regex corrigido para validar exatamente 6 ou 8 dígitos numéricos
     const regexMatricula = /^\d{6}$\vert{}^\d{8}$/;
     if (!usuario || !regexMatricula.test(usuario)) {
       if (!autoLogin) {
-        alert(`A matrícula informada ("${usuario}") é inválida. Ela deve conter exatamente 6 ou 8 dígitos numéricos.`);
-      } else {
-        // Se for auto-login e falhou, apenas exibe a tela de login para o usuário digitar manualmente
-        const lo = qs('loginOverlay');
-        if (lo) lo.style.display = 'flex';
+        alert('A matrícula deve conter exatamente 6 ou 8 dígitos.');
       }
       return;
     }
@@ -1677,6 +1631,21 @@
     }
   }
 
+  // --- [NOVO] AUTO-LOGIN AO CARREGAR A PÁGINA ---
+  document.addEventListener("DOMContentLoaded", () => {
+    ensureStayLoggedCheckbox();
+    const matriculaSalva = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
+    const inputUser = document.getElementById('usuario');
+
+    if (matriculaSalva) {
+      if (inputUser) {
+        inputUser.value = matriculaSalva;
+      }
+      // Executa o login automaticamente utilizando o valor salvo no storage
+      fazerLogin(true);
+    }
+  });
+
   function salvarSessao(nome, acessos, matricula) {
     try { persistSession(nome, acessos, matricula); } catch(e){}
     window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
@@ -1771,7 +1740,7 @@
   }
   window.logout = logout;
 
-  // --- ABRIR LINK / INJETAR HTML SEGURO ---
+  // --- ABRIR LINK / INJETAR HTML SEGURO[cite: 1] ---
   async function abrirLink(nomeArquivo) {
     closeSidebar();
     const contentDiv = qs('loadedContent');
@@ -1885,7 +1854,7 @@
     } else {
       setTimeout(()=> {
         const demo = [
-          { title: 'Comunicação: Atualização de Sistema', body: 'Iremos realizar maintenance hoje à noite das 22h às 23h. Esperamos breve interrupção.', image: '' , timestamp: new Date().toLocaleString() },
+          { title: 'Comunicação: Atualização de Sistema', body: 'Iremos realizar manutenção hoje à noite das 22h às 23h. Esperamos breve interrupção.', image: '' , timestamp: new Date().toLocaleString() },
           { title: 'Novo Procedimento', body: 'O procedimento X foi atualizado. Consulte o manual anexo.', image: '' },
           { title: 'Boletim Rápido', body: 'Teste de envio contendo imagem.', image: 'https://via.placeholder.com/320x180.png?text=Not%C3%ADcia' }
         ];
@@ -1893,16 +1862,12 @@
       }, 300);
     }
   }
-  window.showNews = showNews;
 
+  window.showNews = showNews;
   function refreshNews(){ showNews(); }
 
-  // ==========================================
-  // FUNÇÃO AUXILIAR DE FORMATAÇÃO (Compartilhada)
-  // ==========================================
   function parseCustomTags(str) {
     if (!str) return '';
-
     let safeText = String(str)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -1919,16 +1884,11 @@
       }
       return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${url}</a>`;
     });
-
     return safeText.replace(/\n/g, '<br>');
   }
 
-  // ==========================================
-  // 1. RENDERIZADOR DAS NOTÍCIAS (Cards)
-  // ==========================================
   function renderNews(res, listEl, err) {
     listEl.innerHTML = '';
-
     if (err) {
       const e = document.createElement('div');
       e.className = 'news-empty';
@@ -2048,185 +2008,7 @@
 
       listEl.appendChild(card);
     });
-
-    if (lastFive.length < 5) {
-      const note = document.createElement('div');
-      note.className = 'news-empty';
-      note.style.paddingTop = '6px';
-      note.textContent = `Mostrando ${lastFive.length} notícia(s).`;
-      listEl.appendChild(note);
-    }
   }
-
-  // ==========================================
-  // 2. CONTROLE DO MODAL DE NOTÍCIAS
-  // ==========================================
-  (function(){
-    if (!window._newsModalInit) {
-      window._newsModalInit = true;
-
-      window.openNewsModal = function(item, imageUrl, imagePercent){
-        const overlay = qs('newsModalOverlay');
-        const titleEl = qs('newsModalTitle');
-        const tsEl = qs('newsModalTs');
-        const bodyElM = qs('newsModalBody');
-        const mediaEl = qs('newsModalMedia');
-
-        if (!overlay || !titleEl || !bodyElM || !mediaEl) {
-          console.error('Modal elements missing: verifique IDs do modal.');
-          return;
-        }
-
-        const modalBox = overlay.querySelector('.news-modal');
-        if (modalBox) {
-          modalBox.style.width = '100%';
-          modalBox.style.maxWidth = '100vw';
-          modalBox.style.height = '80vh';
-          modalBox.style.maxHeight = '80vh';
-          modalBox.style.boxSizing = 'border-box';
-          modalBox.style.padding = '20px';
-          modalBox.style.display = 'flex';
-          modalBox.style.flexDirection = 'column';
-          modalBox.style.overflow = 'hidden';
-        }
-
-        let mainWrapper = modalBox ? modalBox.querySelector('.news-modal-layout') : null;
-        let textWrapper = modalBox ? modalBox.querySelector('.news-modal-text-layout') : null;
-
-        if (modalBox && !mainWrapper) {
-          mainWrapper = document.createElement('div');
-          mainWrapper.className = 'news-modal-layout';
-          mainWrapper.style.display = 'flex';
-          mainWrapper.style.width = '100%';
-          mainWrapper.style.height = '100%';
-          mainWrapper.style.gap = '20px';
-
-          textWrapper = document.createElement('div');
-          textWrapper.className = 'news-modal-text-layout';
-          textWrapper.style.flex = '1';
-          textWrapper.style.display = 'flex';
-          textWrapper.style.flexDirection = 'column';
-
-          if (titleEl) textWrapper.appendChild(titleEl);
-          if (tsEl) textWrapper.appendChild(tsEl);
-          if (bodyElM) textWrapper.appendChild(bodyElM);
-
-          mainWrapper.appendChild(mediaEl);
-          mainWrapper.appendChild(textWrapper);
-          modalBox.appendChild(mainWrapper);
-        }
-
-        titleEl.innerHTML = parseCustomTags(item.title) || '(Sem título)';
-        tsEl.textContent = item.timestamp ? 'Publicado: ' + item.timestamp : '';
-        bodyElM.innerHTML = parseCustomTags(item.body) || '(Sem conteúdo)';
-
-        mediaEl.innerHTML = '';
-        if (imageUrl) {
-          mediaEl.style.display = 'flex';
-          mediaEl.style.alignItems = 'center';
-          mediaEl.style.justifyContent = 'center';
-
-          const img = document.createElement('img');
-          img.src = imageUrl;
-          img.alt = item.title || 'Imagem notícia';
-
-          img.onload = function(){
-            const isLandscape = img.naturalWidth > img.naturalHeight;
-
-            if (isLandscape) {
-              if (mainWrapper) {
-                mainWrapper.style.flexDirection = 'column';
-                mainWrapper.style.overflowY = 'auto';
-                if (textWrapper) textWrapper.style.overflowY = 'visible';
-                mainWrapper.insertBefore(mediaEl, textWrapper);
-              }
-
-              mediaEl.style.width = '100%';
-              mediaEl.style.flex = '0 0 auto';
-
-              img.style.width = '100%';
-              img.style.maxWidth = '100%';
-              img.style.maxHeight = '45vh';
-              img.style.objectFit = 'contain';
-              img.style.display = 'block';
-              img.style.margin = '0 auto 10px auto';
-
-            } else {
-              if (mainWrapper) {
-                mainWrapper.style.flexDirection = 'row';
-                mainWrapper.style.overflowY = 'hidden';
-                if (textWrapper) textWrapper.style.overflowY = 'auto';
-                mainWrapper.insertBefore(mediaEl, textWrapper);
-              }
-
-              mediaEl.style.flex = '0 0 45%';
-              mediaEl.style.maxWidth = '50%';
-              mediaEl.style.height = '100%';
-
-              img.style.width = '100%';
-              img.style.height = '100%';
-              img.style.maxHeight = '100%';
-              img.style.objectFit = 'contain';
-              img.style.display = 'block';
-            }
-          };
-
-          img.addEventListener('error', function(){
-            try { 
-              mediaEl.innerHTML = ''; 
-              mediaEl.style.display = 'none';
-              if (mainWrapper) {
-                mainWrapper.style.flexDirection = 'column';
-                mainWrapper.style.overflowY = 'auto';
-              }
-            } catch(e){}
-          });
-
-          mediaEl.appendChild(img);
-        } else {
-          mediaEl.style.display = 'none';
-          if (mainWrapper) {
-            mainWrapper.style.flexDirection = 'column';
-            mainWrapper.style.overflowY = 'auto';
-          }
-          if (textWrapper) textWrapper.style.overflowY = 'visible';
-        }
-
-        overlay.style.display = 'flex';
-        overlay.setAttribute('aria-hidden','false');
-        if (modalBox) {
-          try { modalBox.focus(); } catch(e){}
-        }
-
-        const closeBtn = qs('newsModalClose');
-        if (closeBtn && !closeBtn._newsCloseAttached) {
-          closeBtn.addEventListener('click', closeNewsModal);
-          closeBtn._newsCloseAttached = true;
-        }
-        if (!overlay._overlayClickAttached) {
-          overlay.addEventListener('click', function(ev){
-            if (ev.target === overlay) closeNewsModal();
-          });
-          overlay._overlayClickAttached = true;
-        }
-        if (!window._newsEscAttached) {
-          window.addEventListener('keydown', function(ev){
-            if (ev.key === 'Escape') closeNewsModal();
-          });
-          window._newsEscAttached = true;
-        }
-      };
-
-      window.closeNewsModal = function(){
-        const overlay = qs('newsModalOverlay');
-        if (!overlay) return;
-        overlay.style.display = 'none';
-        overlay.setAttribute('aria-hidden','true');
-        const mediaEl = qs('newsModalMedia');
-        if (mediaEl) mediaEl.innerHTML = '';
-      };
-    }
-  })();
 
   // --- BADGES ---
   function addOrUpdateBadge(buttonId, count) {
