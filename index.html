@@ -1638,35 +1638,7 @@
 })();
 
 
-  function salvarSessao(nome, acessos, matricula) {
-    try { persistSession(nome, acessos, matricula); } catch(e){}
-    window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
-
-    try {
-      const lo = qs('loginOverlay'); if (lo) lo.style.display = 'none';
-      const hu = qs('headerUser'); if (hu) hu.textContent = (nome||'').split(' ')[0] || '';
-    } catch(e){}
-
-    const botoes = {
-      'btncarregamentoOp': '0', 'btndescargaOp': '1', 'btnAcessoSeparação': '2',
-      'btnPitStop': '3', 'btnadmin': '4', 'btnptlControle': '5', 'btnptlLinha': '6',
-      'btnbuscarProduto': '7', 'btnRanking': '8', 'btnMoviCONF': '9', 'btnAtendimento': '10',
-      'btnMoviApp': '11', 'btnAlocarSelo': '12', 'btnRelatorio':'13', 'btnFeFoCompat':'14',
-      'btnSeloAcess':'15', 'btnRecebidosP1':'16', 'btnContagem':'17', 'btnSepManual':'18', 'btnSimulator3D':'19'
-    };
-
-    for (const [id, nivel] of Object.entries(botoes)) {
-      const btn = qs(id);
-      if (btn) {
-        if (window.APP_SESSION.acesso.includes(String(nivel))) {
-          btn.style.display = 'flex'; btn.style.background = '#000000'; btn.disabled = false; btn.style.opacity = 1;
-        } else {
-          btn.disabled = true; btn.style.background = 'gray'; btn.style.opacity = 0.3;
-        }
-      }
-    }
-
-    setTimeout(updateBadges, 250);
+ 
 
     (function openLastPageAfterLogin() {
       if (matricula && typeof google !== 'undefined' && google.script && google.script.run) {
