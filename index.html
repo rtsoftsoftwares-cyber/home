@@ -3,11 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
-<title>OUTLOG | Launcher</title>
+<title>OUTLOG — Launcher</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -31,6 +30,7 @@
     --radius: 10px;
     --radius-lg: 14px;
     --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.7);
+    --shadow-glow: 0 0 15px var(--accent-glow);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
@@ -74,6 +74,12 @@
   }
   .iconBtn:hover { background: rgba(0, 191, 255, 0.1); color: #ffffff; box-shadow: 0 0 8px var(--accent-glow); }
 
+  .sideBadge {
+    position: absolute !important; top: 6px; right: 12px; background-color: #e74c3c;
+    color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; font-weight: bold;
+    line-height: 1; min-width: 16px; text-align: center;
+  }
+
   #sideBar {
     position: fixed; left: 0; top: var(--header-h); bottom: var(--footer-h); width: 280px;
     background: var(--panel); border-right: 1px solid var(--panel-border); padding: 14px;
@@ -114,6 +120,7 @@
     cursor: pointer; font-weight: 600; font-size: 12px; display: flex; align-items: center; gap: 10px; transition: all 0.2s ease; position: relative;
   }
   .sideButtons .botao:hover { border-color: var(--accent); background: var(--primary-hover); box-shadow: 0 0 10px var(--primary-glow); }
+  .sideButtons .botao:active { transform: scale(0.98); }
   .sideButtons .botao i { width: 20px; text-align: center; color: var(--accent); font-size: 14px; }
 
   .sidebar-footer { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--panel-border); }
@@ -121,56 +128,99 @@
   .botao.btn-logout:hover { border-color: var(--danger); background: rgba(239, 68, 68, 0.25); box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
   .botao.btn-logout i { color: var(--danger); }
 
-  .sideBadge {
-    position: absolute; top: 6px; right: 10px; min-width: 18px; height: 18px; line-height: 18px;
-    padding: 0 5px; border-radius: 9px; background: var(--danger); color: #fff; font-size: 10px;
-    font-weight: 800; text-align: center; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); display: inline-block; pointer-events: none;
-  }
-
   #appContent { position: fixed; left: 0; right: 0; top: var(--header-h); bottom: var(--footer-h); overflow: hidden; display: flex; }
-  #contentContainer { flex: 1; padding: 0; overflow: hidden; position: relative; width: 100%; height: 100%; }
+  #contentContainer { flex: 1; padding: 0; overflow: hidden; position: relative; width: 100%; height: 100%; margin-left: 0; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
   #loadedContent { width: 100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 18px; }
 
-  #loginOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; }
-  #loginBox {
-    width: 100%; max-width: 350px; padding: 30px 25px; background: var(--panel); border-radius: var(--radius-lg);
-    border: 1px solid var(--panel-border); text-align: center; box-shadow: var(--shadow-card), 0 0 25px var(--accent-glow);
-    display: flex; flex-direction: column; align-items: center; margin-bottom: 100px;
-  }
-
-  #loginBrand img { width: 100%; height: 120px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 0 12px var(--accent-glow)); }
-  #loginBox input {
-    width: 100%; padding: 12px; margin-bottom: 12px; background: var(--bg); border: 1px solid var(--panel-border);
-    border-radius: var(--radius-sm); color: #fff; outline: none; text-align: center; font-size: 16px; font-family: inherit;
-  }
-  #loginBox button {
-    width: 120px; height: 35px; padding: 0; background: linear-gradient(90deg, var(--primary), var(--primary-hover));
-    border: none; border-radius: var(--radius-sm); color: #fff; font-weight: 700; cursor: pointer; font-size: 12px;
-    font-family: inherit; letter-spacing: 0.5px; box-shadow: 0 0 12px var(--primary-glow);
-  }
-
-  footer#appFooter {
-    position: fixed; left: 0; right: 0; bottom: 0; height: var(--footer-h); background: var(--panel);
-    border-top: 1px solid var(--panel-border); display: flex; align-items: center; justify-content: center;
-    font-size: 20px; color: #1d8fd1; font-family: 'Great Vibes', cursive; z-index: 1200;
-  }
-  
-  #loader {
-    position: absolute; inset: 0; background: rgba(9, 13, 18, 0.95); display: none;
-    flex-direction: column; align-items: center; justify-content: center; color: var(--accent); font-size: 14px; z-index: 1500;
-  }
-
-  /* Estilos Notícias */
   .news-wrap { max-width: 1100px; margin: 0 auto; padding: 14px; color: var(--text); }
   .news-list { column-count: 2; column-gap: 20px; }
   .news-card {
     display: inline-block; width: 100%; margin: 0 0 18px; vertical-align: top; border-radius: var(--radius);
     background: var(--panel); border: 1px solid var(--panel-border); box-shadow: var(--shadow-card); padding: 14px;
-    break-inside: avoid;
+    break-inside: avoid; transition: border-color 0.2s, transform 0.2s;
   }
+  .news-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .news-media { width: 100%; height: auto; display: block; overflow: hidden; border-radius: var(--radius-sm); background: #000; margin-bottom: 12px; }
+  .news-media img { width: 100%; height: auto; object-fit: cover; display: block; border-radius: var(--radius-sm); }
   .news-title { font-size: 1.05rem; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
+  .news-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
   .news-body { font-size: 14px; color: var(--text); line-height: 1.5; white-space: pre-wrap; }
+  .news-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .btn-small {
+    padding: 6px 12px; border-radius: var(--radius-sm); background: transparent; border: 1px solid var(--panel-border);
+    color: var(--muted); cursor: pointer; font-family: inherit; transition: all 0.2s ease;
+  }
+  .btn-small:hover { color: var(--text); border-color: var(--accent); background: var(--panel-hover); }
   @media (max-width: 960px) { .news-list { column-count: 1; } }
+
+  #newsModalOverlay {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center; z-index: 4000;
+  }
+  #newsModalOverlay[aria-hidden="false"] { display: flex; }
+  .news-modal-container { display: flex; flex-direction: row; align-items: center; gap: 20px; width: 100%; }
+  #newsModalMedia { flex: 0 0 40%; display: flex; justify-content: center; align-items: center; }
+  #newsModalMedia img { max-width: 100%; height: auto; border-radius: var(--radius-sm); box-shadow: 0 0 15px rgba(0,0,0,0.5); }
+  .news-modal-text-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; }
+  @media (max-width: 600px) { .news-modal-container { flex-direction: column; } #newsModalMedia { flex: 100%; width: 100%; } }
+  .news-modal {
+    width: 90%; max-width: 720px; max-height: 85vh; overflow-y: auto; background: var(--panel);
+    border-radius: var(--radius-lg); padding: 24px; border: 1px solid var(--panel-border);
+    box-shadow: var(--shadow-card), 0 0 20px var(--accent-glow); position: relative; outline: none;
+  }
+  .news-modal h3 { margin-top: 0; color: var(--accent); font-size: 1.2rem; letter-spacing: 0.5px; }
+  #newsModalClose {
+    position: absolute; top: 12px; right: 14px; background: transparent; border: none;
+    color: var(--accent); font-size: 22px; cursor: pointer; transition: transform 0.2s, opacity 0.2s;
+  }
+  #newsModalClose:hover { opacity: 0.8; transform: scale(1.1); }
+
+  footer#appFooter {
+    position: fixed; left: 0; right: 0; bottom: 0; height: var(--footer-h); background: var(--panel);
+    border-top: 1px solid var(--panel-border); display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--muted); letter-spacing: 0.5px; z-index: 1200;
+  }
+
+  #loginOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+  #loginBox {
+    width: 100%; max-width: 350px; padding: 30px 25px; background: var(--panel); border-radius: var(--radius-lg);
+    border: 1px solid var(--panel-border); text-align: center; box-shadow: var(--shadow-card), 0 0 25px var(--accent-glow);
+    display: flex; flex-direction: column; align-items: center; margin-bottom: 180px; height: 300px;
+  }
+  #loginBrand img { width: 100%; height: 120px; object-fit: contain; margin-bottom: 25px; filter: drop-shadow(0 0 12px var(--accent-glow)); }
+  #loginBox input {
+    width: 100%; padding: 12px; margin-bottom: 12px; background: var(--bg); border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm); color: #fff; outline: none; text-align: center; font-size: 18px; font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  #loginBox input:focus { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+  #loginBox button {
+    width: 100%; padding: 12px; background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+    border: none; border-radius: var(--radius-sm); color: #fff; font-weight: 700; cursor: pointer; font-size: 15px;
+    font-family: inherit; letter-spacing: 0.5px; transition: all 0.2s ease; box-shadow: 0 0 12px var(--primary-glow);
+  }
+  #loginBox button:hover { filter: brightness(1.15); box-shadow: 0 0 18px var(--primary-glow); }
+
+  #loader {
+    position: absolute; inset: 0; background: rgba(9, 13, 18, 0.95); display: none;
+    flex-direction: column; align-items: center; justify-content: center; color: var(--accent); font-size: 14px; z-index: 1500;
+  }
+  #loader i { font-size: 32px; margin-bottom: 15px; text-shadow: 0 0 10px var(--accent-glow); }
+
+  .stayLoggedContainer { display: flex; align-items: center; justify-content: center; margin: 12px 0; width: 60%; }
+  .stayLoggedContainer input[type="checkbox"] { margin: 0; cursor: pointer; accent-color: var(--accent); }
+  .stayLoggedContainer label { margin: 0; font-size: 13px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+
+  #tituloDesc { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 2px; color: var(--text); }
+
+  @media (min-width: 900px) {
+    #sideBar { transform: translateX(-100%); }
+    #sideBar.active { transform: translateX(0); }
+    #contentContainer { margin-left: 0; }
+    #sideBar.active ~ #contentContainer { margin-left: 280px; }
+    #menuToggle { display: block; }
+    #sidebarOverlay { display: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -202,47 +252,49 @@
       <!-- MENU 1: OPERADORES -->
       <div class="menu-dropdown">
         <button class="menu-trigger" onclick="toggleMenu(this)">
-          <div><i class="fa-solid fa-helmet-safety"></i>MACROMAQ | OPERADORES</div>
+          <div><i class="fa-solid fa-helmet-safety"></i>MACROMAQ| OPERADORES</div>
           <i class="fa-solid fa-chevron-down arrow-icon"></i>
         </button>
         <div class="menu-content">
-          <button id="btncarregamentoOp" class="botao" onclick="abrirLink('SEPARACAO.html')"><i class="fa-solid fa-forklift"></i> CARREGAMENTO</button>
-          <button id="btndescargaOp" class="botao" onclick="abrirLink('DescV2.html')"><i class="fa-solid fa-truck-ramp-box"></i> DESCARGA</button>
-          <button id="btnptlLinha" class="botao" onclick="abrirLink('PTL Operadores.html')"><i class="fa-solid fa-list-check"></i> PTL DE LINHA</button>
-          <button id="btnSepManual" class="botao" onclick="abrirLink('SEP_MANUAL.html')"><i class="fa-solid fa-pen"></i> SEP.MANUAL</button>
-          <button id="btnMoviApp" class="botao" onclick="abrirLink('MoviOp.html')"><i class="fa-solid fa-arrows-turn-to-dots"></i> MOVIMENTAÇÕES</button>
-          <button id="btnbuscarProduto" class="botao" onclick="abrirLink('FeFoBox.html')"><i class="fa-solid fa-magnifying-glass"></i> FEFOBOX</button>
-          <button id="btnPitStop" class="botao" onclick="abrirLink('Pitstop.html')"><i class="fa-solid fa-gas-pump"></i> PIT-STOP</button>
-          <button id="btnSimulator3D" class="botao" onclick="abrirLink('simulador3D.html')"><i class="fa-solid fa-rotate"></i> 3D Out-SIMULATOR</button>
+          <button id="btncarregamentoOp" class="botao" style="color:white" onclick="abrirLink('SEPARACAO.html')">
+            <img src="https://images.icon-icons.com/2248/PNG/512/forklift_icon_135595.png" style="width: 20px; height: 21px; filter: invert(31%) sepia(94%) saturate(3135%) hue-rotate(201deg) brightness(101%) contrast(105%);color:white;">CARREGAMENTO
+          </button>
+          <button id="btndescargaOp" class="botao" style="color:white" onclick="abrirLink('DescV2.html')"><img src="https://i.imgur.com/3I75QTh.png" style="width: 20px; height: 21px; filter: invert(31%) sepia(94%) saturate(3135%) hue-rotate(201deg) brightness(101%) contrast(105%)"> DESCARGA</button>
+          <button style="color:white;" id="btnptlLinha" class="botao" onclick="abrirLink('PTL Operadores.html')"><i class="fa-solid fa-list-check"></i> PTL DE LINHA</button>
+          <button style="color:white;" id="btnSepManual" class="botao" onclick="abrirLink('SEP_MANUAL.html')"><i class="fa-solid fa-pen"></i> SEP.MANUAL</button>
+          <button style="color:white;" id="btnMoviApp" class="botao" onclick="abrirLink('MoviOp.html')"><i class="fa-solid fa-arrows-turn-to-dots"></i> MOVIMENTAÇÕES</button>
+          <button style="color:white;" id="btnbuscarProduto" class="botao" onclick="abrirLink('FeFoBox.html')"><i class="fa-solid fa-magnifying-glass"></i> FEFOBOX</button>
+          <button style="color:white;" id="btnPitStop" class="botao" onclick="abrirLink('Pitstop.html')"><i class="fa-solid fa-gas-pump"></i> PIT-STOP</button>
+          <button style="color:white;" id="btnSimulator3D" class="botao" onclick="abrirLink('simulador3D.html')"><i class="fa-solid fa-rotate"></i> 3D Out-SIMULATOR</button>
         </div>
       </div>
 
       <!-- MENU 2: CONFERENTES -->
       <div class="menu-dropdown">
         <button class="menu-trigger" onclick="toggleMenu(this)">
-          <div><i class="fa-solid fa-clipboard-check"></i>AMBEV | CONFERENTES</div>
+          <div><i class="fa-solid fa-clipboard-check"></i>AMBEV| CONFERENTES</div>
           <i class="fa-solid fa-chevron-down arrow-icon"></i>
         </button>
         <div class="menu-content">
-          <button id="btnRecebidosP1" class="botao" onclick="abrirLink('RecebimentoP1.html')"><i class="fa-solid fa-rotate"></i> P1-RECEBIMENTO</button>
-          <button id="btnAtendimento" class="botao" onclick="abrirLink('Atendimento - OUTLOG.html')"><i class="fa-solid fa-boxes-packing"></i> ATENDIMENTO</button>
-          <button id="btnMoviCONF" class="botao" onclick="abrirLink('Movimentações.html')"><i class="fa-solid fa-arrows-turn-to-dots"></i> NOVA MOVIMENTAÇÃO</button>
-          <button id="btnAlocarSelo" class="botao" onclick="abrirLink('ArmazenamentoSelo.html')"><i class="fa-solid fa-arrows-spin"></i> ALOCAR SELO</button>
+          <button style="color:white;" id="btnRecebidosP1" class="botao" onclick="abrirLink('RecebimentoP1.html')"><i class="fa-solid fa-rotate"></i>P1-RECEBIMENTO</button>
+          <button style="color:white;" id="btnAtendimento" class="botao" onclick="abrirLink('Atendimento - OUTLOG.html')"><i class="fa-solid fa-boxes-packing"></i>ATENDIMENTO</button>
+          <button style="color:white;" id="btnMoviCONF" class="botao" onclick="abrirLink('Movimentações.html')"><i class="fa-solid fa-arrows-turn-to-dots"></i>NOVA MOVIMENTAÇÃO</button>
+          <button style="color:white;" id="btnAlocarSelo" class="botao" onclick="abrirLink('ArmazenamentoSelo.html')"><i class="fa-solid fa-arrows-spin"></i>ALOCAR SELO</button>
         </div>
       </div>
 
       <!-- MENU 3: ADM -->
-      <div class="menu-dropdown">
+      <div id="menuAdm" class="menu-dropdown" style="display: none;">
         <button class="menu-trigger" onclick="toggleMenu(this)">
           <div><i class="fa-solid fa-unlock-keyhole"></i> ADM</div>
           <i class="fa-solid fa-chevron-down arrow-icon"></i>
         </button>
         <div class="menu-content">
-          <button id="btnadmin" class="botao" onclick="abrirLink('ADM.html')"><i class="fa-solid fa-users-gear"></i> ADMIN</button>
-          <button id="btnptlControle" class="botao" onclick="abrirLink('PTL_CONTROL.html')"><i class="fa-solid fa-chart-pie"></i> FAROL DE PTL</button>
-          <button id="btnRanking" class="botao" onclick="abrirLink('RANKING.html')"><i class="fa-solid fa-chart-line"></i> PRODUTIVIDADES</button>
-          <button id="btnContagem" class="botao" onclick="abrirLink('NovaContagem.html')"><i class="fa-solid fa-rotate"></i> CONTAGEM</button>
-          <button id="btnSeloAcess" class="botao" onclick="abrirLink('SELO.html')"><i class="fa-solid fa-hammer"></i> SELO</button>
+          <button style="color:white;" id="btnadmin" class="botao" onclick="abrirLink('ADM.html')"><i class="fa-solid fa-users-gear"></i>ADMIN</button>
+          <button style="color:white;" id="btnptlControle" class="botao" onclick="abrirLink('PTL_CONTROL.html')"><i class="fa-solid fa-chart-pie"></i>FAROL DE PTL</button>
+          <button style="color:white;" id="btnRanking" class="botao" onclick="abrirLink('RANKING.html')"><i class="fa-solid fa-chart-line"></i>PRODUTIVIDADES</button>
+          <button style="color:white;" id="btnContagem" class="botao" onclick="abrirLink('NovaContagem.html')"><i class="fa-solid fa-rotate"></i>CONTAGEM</button>
+          <button style="color:white;" id="btnSeloAcess" class="botao" style="color:white;background:#000000;" onclick="abrirLink('SELO.html')"><i class="fa-solid fa-hammer"></i>SELO</button>
         </div>
       </div>
     </nav>
@@ -250,6 +302,9 @@
     <div class="sidebar-footer">
       <button class="botao btn-logout" onclick="logout()" title="Sair do Sistema">
         <i class="fa-solid fa-right-from-bracket"></i> Sair da Conta
+      </button>
+      <button class="iconBtn" onclick="abrirModalCustomizacaoCores()" title="Customizar Cores do Tema">
+        <i class="fa-solid fa-paint-roller"></i>
       </button>
     </div>
   </aside>
@@ -263,43 +318,538 @@
   </section>
 </div>
 
-<footer id="appFooter">Richard Ferreira</footer>
+<footer style="color:#1d8fd1;font-size:20px;font-family:'Great Vibes', cursive;" id="appFooter">Richard Ferreira</footer>
 
 <div id="loginOverlay" aria-hidden="false">
-  <div id="loginBox" role="dialog" aria-modal="true" aria-label="Login">
+  <div id="loginBox" style="margin-bottom:180px;height:300px;" role="dialog" aria-modal="true" aria-label="Login">
     <div id="loginBrand">
-       <img src="https://i.imgur.com/Mcgrop4.png" alt="Logo OUTLOG">
+       <img style="width:100%;height:120px" src="https://i.imgur.com/Mcgrop4.png" alt="Logo OUTLOG">
+       <div style="display: none;" class="phrase">..:: Bem-vindo ao OUTLOG ::.. </div>
     </div>
-    <input type="number" id="usuario" placeholder="MATRÍCULA / ID" inputmode="numeric" aria-label="Campo matrícula" />
-    <button id="btnLogin" onclick="fazerLogin()">Login</button>
+    <input type="text" id="usuario" placeholder="MATRÍCULA / ID" inputmode="numeric" aria-label="Campo matrícula" />
+    <button id="btnLogin" onclick="fazerLogin()" style="font-size:12px;height:35px;width:120px">Login</button>
+    <div class="stayLoggedContainer">
+      <input style="display: none;" type="checkbox" id="stayLogged">
+      <label style="display: none;" for="stayLogged">Manter Login [Beta]</label>
+    </div> 
   </div>
 </div>
 
 <script>
+  // =========================================================================
+  // PONTE DE COMPATIBILIDADE GITHUB <-> GOOGLE APPS SCRIPT (GAS WEB APP)
+  // =========================================================================
   const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSGJihV_x_eFA1-yzJisl6naV8deqknfylzwoqWkd_7Cnwry8KS6xYeVxL1glsfXMy/exec';
-  const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
-  const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
+
+  window.google = window.google || {};
+  window.google.script = window.google.script || {};
+
+  window.google.script.run = (function() {
+    function createRunner(successHandler, failureHandler) {
+      return new Proxy({}, {
+        get(target, methodName) {
+          if (methodName === 'withSuccessHandler') {
+            return function(cb) { return createRunner(cb, failureHandler); };
+          }
+          if (methodName === 'withFailureHandler') {
+            return function(cb) { return createRunner(successHandler, cb); };
+          }
+          
+          return function(...args) {
+            fetch(GAS_WEB_APP_URL, {
+              method: 'POST',
+              mode: 'cors',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify({ acao: methodName, payload: args })
+            })
+            .then(response => response.text())
+            .then(text => {
+              let res;
+              try {
+                res = JSON.parse(text);
+              } catch (e) {
+                res = { error: text };
+              }
+
+              if (res && res.error) {
+                if (typeof failureHandler === 'function') failureHandler(res.error);
+              } else {
+                let data = res;
+                if (res && typeof res === 'object') {
+                  if ('data' in res) data = res.data;
+                  else if ('success' in res && Object.keys(res).length === 1) data = res.success;
+                }
+                if (typeof successHandler === 'function') successHandler(data);
+              }
+            })
+            .catch(err => {
+              if (typeof failureHandler === 'function') failureHandler(err);
+              else console.error('Erro na requisição GAS [' + methodName + ']:', err);
+            });
+          };
+        }
+      });
+    }
+
+    return new Proxy({}, {
+      get(target, methodName) {
+        if (methodName === 'withSuccessHandler') {
+          return function(cb) { return createRunner(cb, null); };
+        }
+        if (methodName === 'withFailureHandler') {
+          return function(cb) { return createRunner(null, cb); };
+        }
+        const runner = createRunner(null, null);
+        return runner[methodName];
+      }
+    });
+  })();
+
+  // --- MONITORAMENTO DE MENSAGENS (H1) ---
+  (function() {
+    const INTERVALO_MS = 1 * 60 * 1000;
+
+    function iniciarMonitoramento() {
+      checarMensagemH1();
+      setInterval(checarMensagemH1, INTERVALO_MS);
+    }
+
+    function checarMensagemH1() {
+      if (typeof google === 'undefined' || !google.script || !google.script.run) return;
+
+      google.script.run
+        .withSuccessHandler(function(mensagem) {
+          if (!mensagem) return;
+          const msgSalva = localStorage.getItem('h1_msg_lida');
+          if (msgSalva === mensagem) return;
+          exibirBotaoNotificacao(mensagem);
+        })
+        .verificarMensagemH1();
+    }
+
+    function exibirBotaoNotificacao(mensagem) {
+      const footer = document.getElementById('appFooter');
+      if (!footer) return;
+
+      footer.innerHTML = `
+        <button id="btnNotifMsg" style="
+          background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ffffff;
+          padding: 4px 12px; border-radius: 20px; font-family: 'Inter', sans-serif;
+          font-size: 13px; font-weight: bold; cursor: pointer; display: inline-flex;
+          align-items: center; gap: 8px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        ">
+          <i class="fa-solid fa-envelope" style="color: #ef4444;"></i> Nova Mensagem
+          <span style="background: #ef4444; color: #ffffff; border-radius: 10px; padding: 1px 6px; font-size: 11px; font-weight: 800;">1</span>
+        </button>
+      `;
+
+      const btn = document.getElementById('btnNotifMsg');
+      if (btn) {
+        btn.onclick = function() {
+          exibirToastCentral(mensagem);
+          localStorage.setItem('h1_msg_lida', mensagem);
+          footer.textContent = 'Richard Ferreira';
+        };
+      }
+    }
+
+    function exibirToastCentral(mensagem) {
+      const toastExistente = document.getElementById('toast-central-h1');
+      if (toastExistente) toastExistente.remove();
+
+      const overlay = document.createElement('div');
+      overlay.id = 'toast-central-h1';
+      overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(3px);
+        display: flex; align-items: center; justify-content: center; z-index: 10000;
+      `;
+
+      overlay.innerHTML = `
+        <div style="
+          background: var(--panel, #1e293b); border: 1px solid var(--accent, #36b8f2);
+          color: var(--white, #ffffff); padding: 20px 24px; border-radius: 12px;
+          max-width: 420px; width: 85%; box-shadow: 0 0 20px rgba(54, 184, 242, 0.3);
+          text-align: center; font-family: 'Inter', sans-serif;
+        ">
+          <div style="font-size: 24px; color: #36b8f2; margin-bottom: 8px;"><i class="fa-solid fa-bell"></i></div>
+          <h4 style="margin: 0 0 10px 0; color: #36b8f2; font-size: 16px;">Comunicado</h4>
+          <p style="font-size: 14px; line-height: 1.5; color: #e2e8f0; margin-bottom: 20px;">${mensagem}</p>
+          <button id="btnCloseToastH1" style="
+            background: #36b8f2; color: #0f172a; border: none; padding: 8px 22px;
+            border-radius: 6px; font-weight: bold; cursor: pointer;
+          ">Entendido</button>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+      document.getElementById('btnCloseToastH1').onclick = function() { overlay.remove(); };
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', iniciarMonitoramento);
+    } else {
+      iniciarMonitoramento();
+    }
+  })();
+
+  // --- VERIFICAÇÃO DE ACESSO ADM ---
+  (function verifyAdmAccess() {
+    const checkPermission = () => {
+      const menuAdm = document.getElementById('menuAdm');
+      const operadorNome = sessionStorage.getItem('operadorNome') || localStorage.getItem('operadorNome');
+      if (menuAdm && (operadorNome === '[Administrador]' || operadorNome === 'Marcos Barnabe')) {
+        menuAdm.style.display = 'block';
+      }
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', checkPermission);
+    } else {
+      checkPermission();
+    }
+  })();
+
+  // --- MODO CAMPO / GPS ---
+  var idWatchGps = null;
+  var cronometroEnvio = null;
+  var bufferLocalPontos = [];
+
+  function executarModoCampo() {
+    const nomeUsuario = sessionStorage.getItem('operadorNome') || localStorage.getItem('operadorNome');
+    if (typeof idWatchGps !== 'undefined' && idWatchGps !== null) navigator.geolocation.clearWatch(idWatchGps);
+    if (typeof cronometroEnvio !== 'undefined' && cronometroEnvio !== null) clearInterval(cronometroEnvio);
+
+    if (!document.getElementById("estilosModoCampoGps")) {
+      var estilo = document.createElement("style");
+      estilo.id = "estilosModoCampoGps";
+      estilo.innerHTML = `
+        .mini-botao-gps {
+          position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+          height: 32px; background-color: #121214; color: #ffffff; 
+          border: 1px solid #29292e; border-radius: 6px; z-index: 999999;
+          display: inline-flex; align-items: center; justify-content: center;
+          padding: 0 12px; font-size: 13px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        .status-satelite { display: flex; align-items: center; font-weight: 500; }
+      `;
+      document.head.appendChild(estilo);
+    }
+
+    var footerApp = document.getElementById("appFooter");
+    var containerPai = footerApp || document.body;
+    if (footerApp) {
+      footerApp.style.textAlign = "center";
+      if (window.getComputedStyle(footerApp).position === "static") footerApp.style.position = "relative";
+    }
+
+    var barraGps = document.getElementById("painelModoCampoGps");
+    if (!barraGps) {
+      barraGps = document.createElement("div");
+      barraGps.id = "painelModoCampoGps";
+      barraGps.className = "mini-botao-gps";
+      containerPai.appendChild(barraGps);
+    }
+
+    barraGps.innerHTML = `<div class="status-satelite"><span id="txtGpsStatus">⚪ Buscando sinal...</span></div>`;
+
+    function analisarEProcessarPonto(p) {
+      var latAtual = p.coords.latitude;
+      var lngAtual = p.coords.longitude;
+      var precisao = p.coords.accuracy ? p.coords.accuracy : 999;
+      var agora = new Date();
+      var tsAtual = p.timestamp || agora.getTime();
+      var textoStatus = "", tipoLocalizacao = "";
+
+      if (precisao <= 15.0) { textoStatus = "🟢 Local: Exato"; tipoLocalizacao = "Exata"; }
+      else if (precisao <= 18.0) { textoStatus = "🟡 Local: Deslocando"; tipoLocalizacao = "Deslocando"; }
+      else if (precisao <= 29.0) { textoStatus = "🟠 Local: Perímetro"; tipoLocalizacao = "Perímetro"; }
+      else { textoStatus = "🔴 Local: Oscilando"; tipoLocalizacao = "Oscilando"; }
+
+      const txtStatusEl = document.getElementById("txtGpsStatus");
+      if (txtStatusEl) txtStatusEl.innerHTML = textoStatus;
+
+      if (precisao > 30.0) return;
+
+      var dia = String(agora.getDate()).padStart(2, '0');
+      var mes = String(agora.getMonth() + 1).padStart(2, '0');
+      var ano = agora.getFullYear();
+      var h = String(agora.getHours()).padStart(2, '0');
+      var m = String(agora.getMinutes()).padStart(2, '0');
+      var s = String(agora.getSeconds()).padStart(2, '0');
+      
+      bufferLocalPontos.push({
+        lat: latAtual.toString(), lng: lngAtual.toString(),
+        precisao: precisao.toFixed(1) + "m", tipo: tipoLocalizacao,
+        timestamp: tsAtual.toString(), data: dia + "/" + mes + "/" + ano,
+        hora: h + ":" + m + ":" + s, dataHora: dia + "/" + mes + "/" + ano + " " + h + ":" + m + ":" + s
+      });
+    }
+
+    if (!navigator.geolocation) {
+      const txtStatusEl = document.getElementById("txtGpsStatus");
+      if (txtStatusEl) txtStatusEl.innerHTML = "🔴 Sem GPS";
+      return;
+    }
+
+    var geoOptions = { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 };
+
+    navigator.geolocation.getCurrentPosition(
+      function(posInicial) {
+        analisarEProcessarPonto(posInicial);
+        idWatchGps = navigator.geolocation.watchPosition(analisarEProcessarPonto, null, geoOptions);
+      },
+      function() {
+        const txtStatusEl = document.getElementById("txtGpsStatus");
+        if (txtStatusEl) txtStatusEl.innerHTML = "🔴 Erro no Sinal";
+      },
+      geoOptions
+    );
+
+    cronometroEnvio = setInterval(function() {
+      if (!bufferLocalPontos.length) return;
+      var pacoteParaEnviar = [...bufferLocalPontos];
+      bufferLocalPontos = [];
+
+      google.script.run
+        .withSuccessHandler(function() {})
+        .withFailureHandler(function(e) {
+          console.error("Falha no envio batch GPS:", e);
+          bufferLocalPontos = pacoteParaEnviar.concat(bufferLocalPontos);
+        })
+        .salvarLocalizacaoBatch(nomeUsuario, JSON.stringify(pacoteParaEnviar));
+    }, 7000);
+  }
+
+  // --- CONTROLE DE MENUS E SIDEBAR ---
+  function lidarCliqueMenu(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    var dropdown = (this.closest) ? this.closest('.menu-dropdown') : this.parentElement;
+    if (dropdown && dropdown.classList) {
+      var vaiAbrir = !dropdown.classList.contains('open');
+      if (vaiAbrir) {
+        var sideBar = document.getElementById('sideBar');
+        var todosDropdowns = sideBar ? sideBar.querySelectorAll('.menu-dropdown') : document.querySelectorAll('.menu-dropdown');
+        todosDropdowns.forEach(function(item) { item.classList.remove('open'); });
+      }
+      dropdown.classList.toggle('open');
+    }
+  }
+
+  function toggleSidebar() {
+    if (typeof updateBadges === 'function') updateBadges();
+    var sideBar = document.getElementById('sideBar');
+    var overlay = document.getElementById('sidebarOverlay');
+    var labelSidebar = document.getElementById('sidebarUserName');
+
+    if (sideBar && !sideBar.classList.contains('active')) {
+      const operador = sessionStorage.getItem("operadorNome") || localStorage.getItem("operadorNome");
+      if (labelSidebar) {
+        labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
+      }
+
+      var dropdowns = sideBar.querySelectorAll('.menu-dropdown');
+      dropdowns.forEach(function(menu) {
+        var trigger = menu.querySelector('.menu-trigger');
+        if (trigger) {
+          trigger.removeAttribute('onclick');
+          trigger.onclick = null;
+          trigger.removeEventListener('click', lidarCliqueMenu);
+          trigger.addEventListener('click', lidarCliqueMenu);
+        }
+      });
+    }
+
+    if (sideBar) {
+      sideBar.classList.toggle('active');
+      if (overlay) {
+        var isOpened = sideBar.classList.contains('active');
+        if (isOpened) {
+          overlay.style.display = 'block';
+          setTimeout(function() { overlay.style.opacity = '1'; }, 10);
+        } else {
+          overlay.style.opacity = '0';
+          setTimeout(function() { overlay.style.display = 'none'; }, 300);
+        }
+      }
+    }
+  }
+  window.toggleSidebar = toggleSidebar;
+
+  function closeSidebar() {
+    var sideBar = document.getElementById('sideBar');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (sideBar) sideBar.classList.remove('active');
+    if (overlay) { overlay.style.opacity = '0'; setTimeout(function() { overlay.style.display = 'none'; }, 300); }
+  }
+  window.closeSidebar = closeSidebar;
+
+  function toggleMenu(element) {
+    if (!element) return;
+    var dropdown = element.closest('.menu-dropdown') || element.parentElement;
+    if (dropdown && dropdown.classList) dropdown.classList.toggle('open');
+  }
+  window.toggleMenu = toggleMenu;
+
+  // --- DIGITAÇÃO INTELIGENTE E VALIDAÇÃO DE LOGIN ---
+  (function(){
+    function inicializarEventosMenu() {
+      const triggers = document.querySelectorAll('.menu-trigger');
+      triggers.forEach(button => {
+        button.removeEventListener('click', lidarCliqueMenu);
+        button.addEventListener('click', lidarCliqueMenu);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', inicializarEventosMenu);
+    } else {
+      inicializarEventosMenu();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputUsuario = document.getElementById('usuario');
+      let typingTimeout;
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        const originalWithSuccess = google.script.run.withSuccessHandler;
+        google.script.run.withSuccessHandler = function(originalSuccessCallback) {
+          const inputUser = document.getElementById('usuario');
+          const valorEnviado = inputUser ? inputUser.value.trim().replace(/\D/g, '') : '';
+
+          const customSuccessCallback = function(res) {
+            const currentInput = document.getElementById('usuario');
+            const valorAtual = currentInput ? currentInput.value.trim().replace(/\D/g, '') : '';
+            if (valorAtual !== valorEnviado) return;
+            originalSuccessCallback(res);
+          };
+          return originalWithSuccess.call(this, customSuccessCallback);
+        };
+      }
+
+      if (inputUsuario) {
+        inputUsuario.addEventListener('input', function() {
+          const valor = this.value.trim().replace(/\D/g, '');
+          clearTimeout(typingTimeout);
+
+          const btn = document.getElementById('btnLogin');
+          if (btn && btn.disabled) return;
+
+          if (valor.length === 8) {
+            fazerLogin();
+          } else if (valor.length >= 6 && valor.length < 8) {
+            typingTimeout = setTimeout(() => {
+              const btnCheck = document.getElementById('btnLogin');
+              if (btnCheck && !btnCheck.disabled) {
+                fazerLogin();
+              }
+            }, 900);
+          }
+        });
+      }
+    });
+  })();
+
+  const OPENING_GIF = 'https://i.imgur.com/v0xrFKm.gif';
+  const OPENING_GIF_DURATION = 1800;
+
+  function qs(id){ try { return document.getElementById(id); } catch(e){ return null; } }
+  function setAttr(el, name, value){ if(!el) return; el.setAttribute(name, value); }
+  function show(el){ if(!el) return; el.style.display = ''; setAttr(el,'aria-hidden','false'); }
+  function hide(el){ if(!el) return; el.style.display = 'none'; setAttr(el,'aria-hidden','true'); }
+
+  function setCookie(name, value, days){
+    try {
+      let expires = '';
+      if (typeof days === 'number') {
+        const d = new Date();
+        d.setTime(d.getTime() + (days*24*60*60*1000));
+        expires = '; expires=' + d.toUTCString();
+      }
+      document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/';
+      return true;
+    } catch(e){ return false; }
+  }
+  function getCookie(name){
+    try {
+      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return v ? decodeURIComponent(v.pop()) : '';
+    } catch(e){ return ''; }
+  }
+  function delCookie(name){
+    try { document.cookie = name + '=; Max-Age=0; path=/'; } catch(e){}
+  }
+
+  function showOpeningGifOverlay(url, duration, onDone){
+    if(!url){ if(typeof onDone === 'function') onDone(); return; }
+    let overlay = qs('openingGifOverlay');
+    if(!overlay){
+      overlay = document.createElement('div');
+      overlay.id = 'openingGifOverlay';
+      Object.assign(overlay.style, {
+        position: 'fixed', left:'0', top:'0', right:'0', bottom:'0',
+        display: 'flex', alignItems:'center', justifyContent:'center',
+        background:'#000', zIndex:999999, cursor:'pointer'
+      });
+      document.body.appendChild(overlay);
+    } else {
+      overlay.innerHTML = '';
+      overlay.style.display = 'flex';
+      overlay.style.opacity = '1';
+    }
+
+    const img = document.createElement('img');
+    img.src = url;
+    Object.assign(img.style, { maxWidth:'100%', maxHeight:'100%', objectFit:'contain', display:'block' });
+    overlay.appendChild(img);
+
+    let finished = false;
+    function finish(){
+      if(finished) return;
+      finished = true;
+      overlay.style.opacity = '0';
+      setTimeout(()=> {
+        overlay.style.display = 'none';
+        overlay.innerHTML = '';
+        if(typeof onDone === 'function') onDone();
+      }, 300);
+    }
+    overlay.addEventListener('click', finish, { once:true });
+    setTimeout(finish, Math.max(300, duration || OPENING_GIF_DURATION));
+  }
 
   window.APP_SESSION = window.APP_SESSION || { nome: 'Visitante', acesso: [], matricula: '' };
 
-  // --- HELPERS BÁSICOS ---
-  function qs(id){ try { return document.getElementById(id); } catch(e){ return null; } }
-  function toggleSidebar() { 
-    const s = qs('sideBar'); 
-    const o = qs('sidebarOverlay');
-    if(s) s.classList.toggle('active');
-    if(o) o.style.display = s.classList.contains('active') ? 'block' : 'none';
-    if(s.classList.contains('active')) updateBadges();
-  }
-  function closeSidebar() { 
-    const s = qs('sideBar'); 
-    const o = qs('sidebarOverlay');
-    if(s) s.classList.remove('active');
-    if(o) o.style.display = 'none';
-  }
-  function toggleMenu(el) { if(el) { const d = el.closest('.menu-dropdown'); if(d) d.classList.toggle('open'); } }
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = sessionStorage.getItem('outlog_matricula') || localStorage.getItem('outlog_matricula') || getCookie('outlog_matricula') || '';
+    if (user) {
+      restaurarSessao(user);
+    } else {
+      const lo = qs('loginOverlay');
+      if (lo) lo.style.display = 'flex';
+    }
+    setTimeout(updateBadges, 400);
+  });
 
-  // --- GERENCIAMENTO DE SESSÃO E LOCALSTORAGE ---
+  function ocultarCabecalhosEMenus() {
+    ['header', 'nav', '.header', '.sidebar', '#header', '#sidebar', '#loginBox'].forEach(seletor => {
+      document.querySelectorAll(seletor).forEach(el => el.style.display = 'none');
+    });
+  }
+
+  function exibirModalBoasVindasLicenca(mensagem, tempoMs, callback) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; justify-content:center; align-items:center; z-index:999999; font-family:sans-serif;';
+    const modalBox = document.createElement('div');
+    modalBox.style.cssText = 'background:#28a745; color:#fff; padding:20px 35px; border-radius:10px; font-size:18px; font-weight:600; text-align:center;';
+    modalBox.innerText = mensagem;
+    overlay.appendChild(modalBox);
+    document.body.appendChild(overlay);
+    setTimeout(() => { overlay.remove(); if (typeof callback === 'function') callback(); }, tempoMs || 1500);
+  }
+
+  const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
+  const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
+
   function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
     try {
       const dadosSessao = { usuario, ip, nome, acesso: Array.isArray(acesso) ? acesso.map(String) : [], timestamp: Date.now() };
@@ -311,9 +861,7 @@
       if (window.AppInventor && window.AppInventor.setWebViewString) {
         window.AppInventor.setWebViewString(usuario);
       }
-    } catch (e) {
-      console.error('Erro ao guardar sessão localmente:', e);
-    }
+    } catch (e) {}
   }
   window.salvarSessaoLocalmente = salvarSessaoLocalmente;
 
@@ -333,53 +881,9 @@
   }
   window.limparSessaoLocal = limparSessaoLocal;
 
-  function logout() {
-    try { localStorage.clear(); sessionStorage.clear(); } catch(e){}
-    window.APP_SESSION = { nome: 'Visitante', acesso: [], matricula: '' };
-    const lo = qs('loginOverlay'); if (lo) { lo.style.display = 'flex'; lo.setAttribute('aria-hidden', 'false'); }
-    const loaded = qs('loadedContent'); if (loaded) loaded.innerHTML = '';
-    closeSidebar();
-  }
-  window.logout = logout;
-
-  // --- APLICAR PERMISSÕES E EXIBIR BOTÕES DO MENU ---
-  function salvarSessao(nome, acessos, matricula) {
-    window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
-
-    try {
-      const lo = qs('loginOverlay'); if (lo) lo.style.display = 'none';
-      const labelSidebar = qs('sidebarUserName');
-      if (labelSidebar) labelSidebar.innerText = nome ? nome.trim() : 'Usuário';
-    } catch(e){}
-
-    const botoes = {
-      'btncarregamentoOp': '0', 'btndescargaOp': '1', 'btnAcessoSeparação': '2',
-      'btnPitStop': '3', 'btnadmin': '4', 'btnptlControle': '5', 'btnptlLinha': '6',
-      'btnbuscarProduto': '7', 'btnRanking': '8', 'btnMoviCONF': '9', 'btnAtendimento': '10',
-      'btnMoviApp': '11', 'btnAlocarSelo': '12', 'btnRelatorio':'13', 'btnFeFoCompat':'14',
-      'btnSeloAcess':'15', 'btnRecebidosP1':'16', 'btnContagem':'17', 'btnSepManual':'18', 'btnSimulator3D':'19'
-    };
-
-    for (const [id, nivel] of Object.entries(botoes)) {
-      const btn = qs(id);
-      if (btn) {
-        if (window.APP_SESSION.acesso.includes(String(nivel))) {
-          btn.style.display = 'flex'; btn.style.background = 'rgba(0, 0, 0, 0.4)'; btn.disabled = false; btn.style.opacity = 1;
-        } else {
-          btn.style.display = 'none';
-          btn.disabled = true;
-        }
-      }
-    }
-
-    showNews();
-    executarModoCampo();
-  }
-  window.salvarSessao = salvarSessao;
-
   // --- FUNÇÃO PRINCIPAL DE LOGIN ---
   async function fazerLogin(autoLogin = false) {
-    const inputUser = qs('usuario');
+    const inputUser = document.getElementById('usuario');
     let valorBruto = inputUser ? inputUser.value : '';
     if (!valorBruto) {
       valorBruto = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
@@ -390,7 +894,7 @@
       inputUser.value = usuario;
     }
 
-    const regexMatricula = /^\d{6}$\vert{}^\d{8}$/;
+    const regexMatricula = /^\d{6}$|^\d{8}$/;
     if (!usuario || !regexMatricula.test(usuario)) {
       if (!autoLogin) {
         alert('A matrícula informada é inválida. Ela deve conter exatamente 6 ou 8 dígitos numéricos.');
@@ -398,8 +902,8 @@
       return;
     }
 
-    try { 
-      localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario); 
+    try {
+      localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
       if (window.AppInventor && window.AppInventor.setWebViewString) {
         window.AppInventor.setWebViewString(usuario);
       }
@@ -423,57 +927,162 @@
       }
     } catch (err) {}
 
+    const exibirModalCustomizado = (mensagem) => {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; justify-content:center; align-items:center; z-index:99999; font-family:sans-serif;';
+      const modalBox = document.createElement('div');
+      modalBox.style.cssText = 'background:#ffffff; padding:30px; border-radius:12px; box-shadow:0 10px 25px rgba(0,0,0,0.25); max-width:400px; width:85%; text-align:center; border-top:6px solid #dc3545;';
+      const textoMsg = document.createElement('p');
+      textoMsg.innerText = mensagem;
+      textoMsg.style.cssText = 'font-size:16px; color:#333333; line-height:1.6; margin:0 0 25px 0; font-weight:500;';
+      const btnFechar = document.createElement('button');
+      btnFechar.innerText = 'OK';
+      btnFechar.style.cssText = 'background:#dc3545; color:#ffffff; border:none; padding:10px 35px; font-size:14px; border-radius:6px; cursor:pointer; font-weight:bold;';
+      btnFechar.onclick = () => overlay.remove();
+      modalBox.appendChild(textoMsg);
+      modalBox.appendChild(btnFechar);
+      overlay.appendChild(modalBox);
+      document.body.appendChild(overlay);
+    };
+
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       google.script.run.withSuccessHandler(res => {
         restaurarBotao();
         if (res && res.success) {
           salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
-          salvarSessao(res.nome, res.acesso, usuario);
+          google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
+
+          google.script.run.withSuccessHandler(licRes => {
+            if (licRes && licRes.expirado) {
+              ocultarCabecalhosEMenus();
+              if (typeof abrirLink === 'function') abrirLink("LICENÇA");
+            } else {
+              const dias = licRes ? licRes.diasRestantes : 0;
+              const msgBoasVindas = `Licença Ativa ( ${dias} dias restantes )`;
+
+              const prosseguirAcesso = () => {
+                const proceed = function(){
+                  try { salvarSessao(res.nome, res.acesso, usuario); } catch(e){}
+                };
+                if(typeof OPENING_GIF !== 'undefined' && OPENING_GIF){ 
+                  showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, proceed); 
+                } else { proceed(); }
+              };
+
+              if (autoLogin) prosseguirAcesso();
+              else exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
+            }
+          }).withFailureHandler(e => {
+            alert('Erro ao validar licença: ' + e);
+          }).verificarLicenca();
+
         } else {
           limparSessaoLocal(true);
-          alert('Matrícula incorreta ou sem acesso liberado.');
+          exibirModalCustomizado("Senha incorreta ou acesso indisponível.");
         }
       }).withFailureHandler(e => {
         restaurarBotao();
-        alert('Erro de conexão: ' + e);
+        alert('Erro de conexão com o GAS: ' + e);
       }).validarLogin(usuario);
     } else {
-      // Modo local/demo para testes de desenvolvimento
       setTimeout(() => {
         restaurarBotao();
-        const nomeDemo = 'Operador Teste';
-        const acessosDemo = ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19'];
-        salvarSessaoLocalmente(usuario, userIp, nomeDemo, acessosDemo);
-        salvarSessao(nomeDemo, acessosDemo, usuario);
-      }, 400);
+        salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
+        const prosseguirDemo = () => {
+          try { salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario); } catch(e){}
+        };
+        prosseguirDemo();
+      }, 500);
     }
   }
   window.fazerLogin = fazerLogin;
 
-  // --- CARREGAR NOTÍCIAS / TELA INICIAL ---
-  function showNews() {
-    const contentDiv = qs('loadedContent');
-    if (!contentDiv) return;
-    contentDiv.innerHTML = `
-      <div class="news-wrap">
-        <h2>Mural de Avisos e Notícias</h2>
-        <div class="news-list">
-          <article class="news-card">
-            <div class="news-title">Bem-vindo ao Sistema OutLog</div>
-            <div class="news-body">Selecione um dos módulos disponíveis no menu lateral para iniciar suas atividades operacionais.</div>
-          </article>
-        </div>
-      </div>
-    `;
-  }
-  window.showNews = showNews;
+  function salvarSessao(nome, acessos, matricula) {
+    window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
 
-  // --- MODO CAMPO / GPS ---
-  function executarModoCampo() {
-    // Mantém a estrutura de GPS ativa caso integrada
-  }
+    try {
+      const lo = qs('loginOverlay'); if (lo) lo.style.display = 'none';
+      const labelSidebar = qs('sidebarUserName');
+      if (labelSidebar) labelSidebar.innerText = nome ? nome.trim() : 'Usuário';
+    } catch(e){}
 
-  // --- ABRIR MÓDULOS (LINKS) ---
+    const botoes = {
+      'btncarregamentoOp': '0', 'btndescargaOp': '1', 'btnAcessoSeparação': '2',
+      'btnPitStop': '3', 'btnadmin': '4', 'btnptlControle': '5', 'btnptlLinha': '6',
+      'btnbuscarProduto': '7', 'btnRanking': '8', 'btnMoviCONF': '9', 'btnAtendimento': '10',
+      'btnMoviApp': '11', 'btnAlocarSelo': '12', 'btnRelatorio':'13', 'btnFeFoCompat':'14',
+      'btnSeloAcess':'15', 'btnRecebidosP1':'16', 'btnContagem':'17', 'btnSepManual':'18', 'btnSimulator3D':'19'
+    };
+
+    for (const [id, nivel] of Object.entries(botoes)) {
+      const btn = qs(id);
+      if (btn) {
+        if (window.APP_SESSION.acesso.includes(String(nivel))) {
+          btn.style.display = 'flex'; btn.style.background = '#000000'; btn.disabled = false; btn.style.opacity = 1;
+        } else {
+          btn.style.display = 'none'; btn.disabled = true;
+        }
+      }
+    }
+
+    setTimeout(updateBadges, 250);
+
+    (function openLastPageAfterLogin() {
+      if (matricula && typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(function(serverSalvo){
+          if (serverSalvo && String(serverSalvo).trim() !== '') abrirLink(serverSalvo);
+          else { showNews(); toggleSidebar(); }
+        }).withFailureHandler(function(){ showNews(); toggleSidebar(); }).getLastOpenedPage(matricula);
+      } else { showNews(); toggleSidebar(); }
+    })();
+
+    executarModoCampo();
+  }
+  window.salvarSessao = salvarSessao;
+
+  function restaurarSessao(matricula) {
+    function doRestore(){
+      try {
+        const nome = sessionStorage.getItem('operadorNome') || localStorage.getItem('operadorNome') || 'Usuário';
+        const acessosRaw = sessionStorage.getItem('acesso') || localStorage.getItem('acesso') || '[]';
+        const acessos = JSON.parse(acessosRaw);
+        window.APP_SESSION = { nome, acesso: acessos, matricula };
+        salvarSessao(nome, acessos, matricula);
+      } catch(e){
+        const lo = qs('loginOverlay'); if (lo) lo.style.display = 'flex';
+      }
+    }
+
+    function prosseguir() {
+      if (OPENING_GIF) showOpeningGifOverlay(OPENING_GIF, OPENING_GIF_DURATION, doRestore);
+      else doRestore();
+      executarModoCampo();
+    }
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run.withSuccessHandler(function(status) {
+        if (Number(status) === 0) {
+          abrirLink("resetarLogin.html");
+        } else {
+          prosseguir();
+        }
+      }).verificarStatusNoAcess(matricula);
+    } else {
+      prosseguir();
+    }
+  }
+  window.restaurarSessao = restaurarSessao;
+
+  function logout() {
+    try { localStorage.clear(); sessionStorage.clear(); } catch(e){}
+    window.APP_SESSION = { nome: 'Visitante', acesso: [], matricula: '' };
+    const lo = qs('loginOverlay'); if (lo) { lo.style.display = 'flex'; lo.setAttribute('aria-hidden', 'false'); }
+    const loaded = qs('loadedContent'); if (loaded) loaded.innerHTML = '';
+    closeSidebar();
+  }
+  window.logout = logout;
+
+  // --- ABRIR MÓDULOS ---
   async function abrirLink(nomeArquivo) {
     closeSidebar();
     const contentDiv = qs('loadedContent');
@@ -483,11 +1092,19 @@
     contentDiv.innerHTML = '';
     loader.style.display = 'flex';
 
+    try {
+      const matricula = window.APP_SESSION?.matricula || sessionStorage.getItem('outlog_matricula') || localStorage.getItem('outlog_matricula') || '';
+      if (matricula && nomeArquivo && typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withFailureHandler(()=>{}) .saveLastOpenedPage(nomeArquivo, matricula);
+      }
+      window._botoesCarregados = true;
+    } catch(e){}
+
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       google.script.run
         .withSuccessHandler(html => {
           loader.style.display = 'none';
-          contentDiv.innerHTML = html;
+          injetarHTMLSeguro(html, contentDiv);
         })
         .withFailureHandler(e => {
           loader.style.display = 'none';
@@ -496,72 +1113,251 @@
         .carregarConteudo(nomeArquivo);
     } else {
       loader.style.display = 'none';
-      contentDiv.innerHTML = `<div style="padding:20px;color:#aaa;text-align:center"><h3>Módulo Local: ${nomeArquivo}</h3></div>`;
+      contentDiv.innerHTML = `<div style="padding:20px;color:#aaa;text-align:center"><h3>Modo Local: ${nomeArquivo}</h3></div>`;
     }
   }
   window.abrirLink = abrirLink;
 
-  // --- EVENTOS AO CARREGAR A PÁGINA (DOM) ---
-  document.addEventListener('DOMContentLoaded', () => {
-    const inputUser = qs('usuario');
+  function injetarHTMLSeguro(html, container) {
+    container.innerHTML = '';
+    const scriptDados = document.createElement('script');
+    const dados = window.APP_SESSION || { nome: '', acesso: [], matricula: '' };
+    const acessoJSON = JSON.stringify(dados.acesso || []);
+    scriptDados.textContent = `
+      window.OPERADOR_NOME = "${(dados.nome||'').replace(/(["\\])/g,'\\$1')}";
+      window.OPERADOR_MATRICULA = "${(dados.matricula||'').replace(/(["\\])/g,'\\$1')}";
+      window.OPERADOR_ACESSO = ${acessoJSON};
+    `;
+    container.appendChild(scriptDados);
 
-    // 1. Captura do WebViewString do App Inventor
-    if (window.AppInventor && window.AppInventor.getWebViewString) {
-      const matriculaApp = window.AppInventor.getWebViewString();
-      if (matriculaApp && matriculaApp.trim() !== '') {
-        const limpoApp = matriculaApp.trim().replace(/\D/g, '');
-        if (inputUser) inputUser.value = limpoApp;
-        try { localStorage.setItem(LOCAL_STORAGE_MATRICULA, limpoApp); } catch(e) {}
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const scripts = Array.from(temp.querySelectorAll('script'));
+    scripts.forEach(s => s.remove());
+
+    while (temp.firstChild) {
+      container.appendChild(temp.firstChild);
+    }
+
+    let scriptsPendentes = scripts.filter(s => s.src).length;
+    const tentarInicializar = () => {
+      if (scriptsPendentes <= 0) {
+        setTimeout(() => {
+          if (typeof window.inicializarPagina === 'function') {
+            try { window.inicializarPagina(); } catch(err) { console.error(err); }
+          }
+        }, 300);
       }
+    };
+
+    scripts.forEach(oldScript => {
+      const newScript = document.createElement('script');
+      Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+      if (oldScript.src) {
+        newScript.async = false;
+        newScript.onload = () => { scriptsPendentes--; tentarInicializar(); };
+        newScript.onerror = () => { scriptsPendentes--; tentarInicializar(); };
+        newScript.src = oldScript.src;
+      } else {
+        newScript.textContent = oldScript.textContent;
+      }
+      container.appendChild(newScript);
+    });
+
+    if (scriptsPendentes === 0) tentarInicializar();
+  }
+
+  function showNews() {
+    try { closeSidebar && closeSidebar(); } catch(e){}
+    const contentDiv = qs('loadedContent');
+    if (!contentDiv) return;
+    contentDiv.innerHTML = '';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'news-wrap';
+    const list = document.createElement('div');
+    list.className = 'news-list';
+    wrapper.appendChild(list);
+
+    const empty = document.createElement('div');
+    empty.className = 'news-empty';
+    empty.textContent = 'Carregando notícias...';
+    list.appendChild(empty);
+
+    contentDiv.appendChild(wrapper);
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run.withSuccessHandler(function(res){
+        renderNews(res, list);
+      }).withFailureHandler(function(err){
+        renderNews(null, list, err);
+      }).getNews();
+    } else {
+      setTimeout(()=> {
+        const demo = [
+          { title: 'Comunicação: Atualização de Sistema', body: 'Iremos realizar manutenção hoje à noite das 22h às 23h.', image: '' , timestamp: new Date().toLocaleString() }
+        ];
+        renderNews(demo, list);
+      }, 300);
+    }
+  }
+  window.showNews = showNews;
+
+  function parseCustomTags(str) {
+    if (!str) return '';
+    let safeText = String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+
+    safeText = safeText.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<b>$1</b>');
+    safeText = safeText.replace(/&lt;color:(.*?)&gt;(.*?)&lt;\/color&gt;/gi, '<span style="color: $1;">$2</span>');
+    return safeText.replace(/\n/g, '<br>');
+  }
+
+  function renderNews(res, listEl, err) {
+    listEl.innerHTML = '';
+    if (err) {
+      listEl.innerHTML = '<div class="news-empty">Erro ao carregar notícias.</div>';
+      return;
     }
 
-    // 2. Restaura matrícula salva no storage
-    const matriculaSalva = localStorage.getItem(LOCAL_STORAGE_MATRICULA);
-    if (matriculaSalva && inputUser && !inputUser.value) {
-      inputUser.value = matriculaSalva;
+    const itemsRaw = Array.isArray(res) ? res.slice() : [];
+    const normalized = itemsRaw.map(it => {
+      if (!it) return null;
+      if (Array.isArray(it)) {
+        return { title: String(it[0]||'').trim(), body: String(it[1]||'').trim(), image: String(it[2]||''), timestamp: String(it[3]||'') };
+      }
+      return { title: String(it.title||it.titulo||''), body: String(it.body||it.noticia||''), image: String(it.image||''), timestamp: String(it.timestamp||'') };
+    }).filter(Boolean);
+
+    if (normalized.length === 0) {
+      listEl.innerHTML = '<div class="news-empty">Nenhuma notícia encontrada.</div>';
+      return;
     }
 
-    // 3. Verifica sessão ativa para auto-login imediato
-    const sessao = obterSessaoLocal();
-    if (sessao && sessao.usuario && sessao.acesso) {
-      if (inputUser && !inputUser.value) inputUser.value = sessao.usuario;
-      salvarSessao(sessao.nome || 'Usuário', sessao.acesso, sessao.usuario);
-    }
-
-    // 4. Digitação inteligente (Dispara ao completar 8 dígitos ou pausa nos 6/7)
-    if (inputUser) {
-      let typingTimeout;
-      inputUser.addEventListener('input', function() {
-        const valor = this.value.trim().replace(/\D/g, '');
-        clearTimeout(typingTimeout);
-
-        const btn = qs('btnLogin');
-        if (btn && btn.disabled) return;
-
-        if (valor.length === 8) {
-          fazerLogin();
-        } else if (valor.length >= 6 && valor.length < 8) {
-          typingTimeout = setTimeout(() => {
-            const btnCheck = qs('btnLogin');
-            if (btnCheck && !btnCheck.disabled) {
-              fazerLogin();
-            }
-          }, 800);
-        }
-      });
-    }
-  });
+    normalized.slice(-5).reverse().forEach(item => {
+      const card = document.createElement('article');
+      card.className = 'news-card';
+      card.innerHTML = `
+        <div class="news-title">${parseCustomTags(item.title)}</div>
+        ${item.timestamp ? `<div class="news-meta">Publicado: ${item.timestamp}</div>` : ''}
+        <div class="news-body">${parseCustomTags(item.body)}</div>
+      `;
+      listEl.appendChild(card);
+    });
+  }
 
   // --- BADGES ---
+  function addOrUpdateBadge(buttonId, count) {
+    var btn = qs(buttonId);
+    if (!btn) return;
+    var existing = btn.querySelector('.sideBadge');
+    if (!count || count <= 0) { if (existing) existing.remove(); return; }
+    if (existing) { existing.textContent = String(count); }
+    else {
+      var span = document.createElement('span');
+      span.className = 'sideBadge';
+      span.textContent = String(count);
+      btn.appendChild(span);
+    }
+  }
+
   function updateBadges() {
     if (typeof google === 'undefined' || !google.script || !google.script.run) return;
     google.script.run.withSuccessHandler(function(res){
       try {
-        // Atualizações de contadores pendentes se houver
+        var sep = Number(res.separacao) || 0;
+        var desc = Number(res.descarga) || 0;
+        var alt = Number(res.filtroFalse) || 0;
+        var mov = Number(res.movimentacoes) || 0;
+        var chat = Number(res.chat) || 0;
+        var total = sep + desc + mov;
+
+        addOrUpdateBadge('btncarregamentoOp', sep);
+        addOrUpdateBadge('btndescargaOp', desc);
+        addOrUpdateBadge('btnAtendimento', alt);
+        addOrUpdateBadge('btnMoviApp', mov);
+        addOrUpdateBadge('btnPitStop', chat);
+        addOrUpdateBadge('menuToggle', total);
       } catch(e){}
     }).getPendingCounts();
   }
+  setInterval(updateBadges, 60000);
   window.updateBadges = updateBadges;
+
+  // --- CUSTOMIZADOR DE CORES ---
+  function rgbaToHex(rgba) {
+    if (!rgba) return '#000000';
+    if (rgba.startsWith('#')) return rgba.substring(0, 7);
+    const match = rgba.match(/[\d.]+/g);
+    if (!match || match.length < 3) return '#000000';
+    const r = parseInt(match[0]).toString(16).padStart(2, '0');
+    const g = parseInt(match[1]).toString(16).padStart(2, '0');
+    const b = parseInt(match[2]).toString(16).padStart(2, '0');
+    return `#${r}${g}${b}`;
+  }
+
+  (function aplicarCoresSalvas() {
+    const customCores = JSON.parse(localStorage.getItem('app_custom_colors') || '{}');
+    if (Object.keys(customCores).length > 0) aplicarVariaveisGlobais(customCores);
+  })();
+
+  function aplicarVariaveisGlobais(coresObj) {
+    let styleTag = document.getElementById('dynamic-theme-overrides');
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = 'dynamic-theme-overrides';
+      document.head.appendChild(styleTag);
+    }
+    let cssRules = ':root, body, * {\n';
+    for (const [varName, value] of Object.entries(coresObj)) {
+      cssRules += `  ${varName}: ${value} !important;\n`;
+    }
+    cssRules += '}';
+    styleTag.innerHTML = cssRules;
+  }
+
+  window.abrirModalCustomizacaoCores = function() {
+    const modalAntigo = document.getElementById('colorCustomizerModal');
+    if (modalAntigo) modalAntigo.remove();
+
+    const rootStyles = getComputedStyle(document.documentElement);
+    const variaveisCores = [
+      { name: '--bg', label: 'Fundo Principal' },
+      { name: '--panel', label: 'Cor dos Painéis' },
+      { name: '--accent', label: 'Cor de Destaque' },
+      { name: '--text', label: 'Cor do Texto' },
+      { name: '--danger', label: 'Cor de Alerta' }
+    ];
+
+    const overlay = document.createElement('div');
+    overlay.id = 'colorCustomizerModal';
+    overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:5000;';
+
+    const modalBox = document.createElement('div');
+    modalBox.style.cssText = 'width:90%; max-width:400px; background:var(--panel); border:1px solid var(--panel-border); border-radius:12px; padding:20px; color:var(--text);';
+    
+    let htmlContent = `<h3>Personalizar Cores</h3><div style="display:flex; flex-direction:column; gap:8px;">`;
+    variaveisCores.forEach(item => {
+      let hexValue = rgbaToHex(rootStyles.getPropertyValue(item.name).trim());
+      htmlContent += `<label>${item.label}: <input type="color" data-var="${item.name}" value="${hexValue}"></label>`;
+    });
+    htmlContent += `</div><button id="saveColorsBtn" style="margin-top:15px; width:100%; padding:10px; background:var(--primary); border:none; color:#fff; border-radius:6px; cursor:pointer;">Salvar</button>`;
+    
+    modalBox.innerHTML = htmlContent;
+    overlay.appendChild(modalBox);
+    document.body.appendChild(overlay);
+
+    modalBox.querySelector('#saveColorsBtn').onclick = () => {
+      const novasCores = {};
+      modalBox.querySelectorAll('input[type="color"]').forEach(inp => {
+        novasCores[inp.getAttribute('data-var')] = inp.value;
+      });
+      localStorage.setItem('app_custom_colors', JSON.stringify(novasCores));
+      aplicarVariaveisGlobais(novasCores);
+      overlay.remove();
+    };
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  };
 </script>
 
 </body>
