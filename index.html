@@ -1452,21 +1452,29 @@
     }
   }
 
-  // --- FUNÇÃO PRINCIPAL DE LOGIN ---
+  // --- FUNÇÃO PRINCIPAL DE LOGIN CORRIGIDA ---
   async function fazerLogin(autoLogin = false) {
     const inputUser = document.getElementById('usuario');
     
-    let usuario = inputUser ? inputUser.value.trim() : '';
-    if (!usuario) {
-      usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
-      if (usuario && inputUser) inputUser.value = usuario;
+    // Tenta pegar o valor do input ou do storage
+    let valorBruto = inputUser ? inputUser.value : '';
+    if (!valorBruto) {
+      valorBruto = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
     }
 
-    // [CORRIGIDO] Regex corrigido para validar exatamente 6 ou 8 dígitos numéricos
+    // LIMPEZA CRUCIAL: Remove espaços e mantém APENAS os dígitos numéricos (resolve espaços invisíveis ou hífens)
+    let usuario = String(valorBruto).trim().replace(/\D/g, '');
+
+    // Se houver valor limpo e o input existir, atualiza o campo visualmente com o valor limpo
+    if (usuario && inputUser) {
+      inputUser.value = usuario;
+    }
+
+    // Validação estrita: aceita exatamente 6 ou 8 dígitos numéricos limpos
     const regexMatricula = /^\d{6}$\vert{}^\d{8}$/;
     if (!usuario || !regexMatricula.test(usuario)) {
       if (!autoLogin) {
-        alert('A matrícula deve conter exatamente 6 ou 8 dígitos.');
+        alert('A matrícula informada é inválida. Ela deve conter exatamente 6 ou 8 dígitos numéricos.');
       }
       return;
     }
@@ -1631,20 +1639,25 @@
     }
   }
 
-  // --- [NOVO] AUTO-LOGIN AO CARREGAR A PÁGINA ---
+  // --- AUTO-LOGIN E CARREGAMENTO DO STORAGE AO ABRIR A PÁGINA ---
   document.addEventListener("DOMContentLoaded", () => {
     ensureStayLoggedCheckbox();
     const matriculaSalva = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
     const inputUser = document.getElementById('usuario');
 
     if (matriculaSalva) {
+      // Limpa eventuais sujeiras do storage também
+      const matriculaLimpa = String(matriculaSalva).trim().replace(/\D/g, '');
       if (inputUser) {
-        inputUser.value = matriculaSalva;
+        inputUser.value = matriculaLimpa;
       }
-      // Executa o login automaticamente utilizando o valor salvo no storage
-      fazerLogin(true);
+      if (matriculaLimpa.length === 6 || matriculaLimpa.length === 8) {
+        // Executa o login automático direto com o valor do storage
+        fazerLogin(true);
+      }
     }
   });
+
 
   function salvarSessao(nome, acessos, matricula) {
     try { persistSession(nome, acessos, matricula); } catch(e){}
