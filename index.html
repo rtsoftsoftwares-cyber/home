@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
 
 <style>
   :root {
@@ -30,7 +31,6 @@
     --radius: 10px;
     --radius-lg: 14px;
     --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.7);
-    --shadow-glow: 0 0 15px var(--accent-glow);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
@@ -42,12 +42,8 @@
   ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
   html, body {
-    height: 100%;
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    -webkit-font-smoothing: antialiased;
-    overflow: hidden;
+    height: 100%; margin: 0; background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased; overflow: hidden;
   }
 
   header#appHeader {
@@ -132,14 +128,14 @@
   }
 
   #appContent { position: fixed; left: 0; right: 0; top: var(--header-h); bottom: var(--footer-h); overflow: hidden; display: flex; }
-  #contentContainer { flex: 1; padding: 0; overflow: hidden; position: relative; width: 100%; height: 100%; margin-left: 0; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  #contentContainer { flex: 1; padding: 0; overflow: hidden; position: relative; width: 100%; height: 100%; }
   #loadedContent { width: 100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 18px; }
 
   #loginOverlay { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; align-items: center; justify-content: center; }
   #loginBox {
     width: 100%; max-width: 350px; padding: 30px 25px; background: var(--panel); border-radius: var(--radius-lg);
     border: 1px solid var(--panel-border); text-align: center; box-shadow: var(--shadow-card), 0 0 25px var(--accent-glow);
-    display: flex; flex-direction: column; align-items: center; margin-bottom: 200px; height: 300px;
+    display: flex; flex-direction: column; align-items: center; margin-bottom: 100px;
   }
 
   #loginBrand img { width: 100%; height: 120px; object-fit: contain; margin-bottom: 15px; filter: drop-shadow(0 0 12px var(--accent-glow)); }
@@ -163,6 +159,18 @@
     position: absolute; inset: 0; background: rgba(9, 13, 18, 0.95); display: none;
     flex-direction: column; align-items: center; justify-content: center; color: var(--accent); font-size: 14px; z-index: 1500;
   }
+
+  /* Estilos Notícias */
+  .news-wrap { max-width: 1100px; margin: 0 auto; padding: 14px; color: var(--text); }
+  .news-list { column-count: 2; column-gap: 20px; }
+  .news-card {
+    display: inline-block; width: 100%; margin: 0 0 18px; vertical-align: top; border-radius: var(--radius);
+    background: var(--panel); border: 1px solid var(--panel-border); box-shadow: var(--shadow-card); padding: 14px;
+    break-inside: avoid;
+  }
+  .news-title { font-size: 1.05rem; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
+  .news-body { font-size: 14px; color: var(--text); line-height: 1.5; white-space: pre-wrap; }
+  @media (max-width: 960px) { .news-list { column-count: 1; } }
 </style>
 </head>
 <body>
@@ -191,14 +199,50 @@
     </div>
 
     <nav class="sideButtons" style="flex: 1;">
+      <!-- MENU 1: OPERADORES -->
       <div class="menu-dropdown">
         <button class="menu-trigger" onclick="toggleMenu(this)">
-          <div><i class="fa-solid fa-helmet-safety"></i>MACROMAQ| OPERADORES</div>
+          <div><i class="fa-solid fa-helmet-safety"></i>MACROMAQ | OPERADORES</div>
           <i class="fa-solid fa-chevron-down arrow-icon"></i>
         </button>
         <div class="menu-content">
-          <button id="btncarregamentoOp" class="botao" onclick="abrirLink('SEPARACAO.html')">CARREGAMENTO</button>
-          <button id="btndescargaOp" class="botao" onclick="abrirLink('DescV2.html')">DESCARGA</button>
+          <button id="btncarregamentoOp" class="botao" onclick="abrirLink('SEPARACAO.html')"><i class="fa-solid fa-forklift"></i> CARREGAMENTO</button>
+          <button id="btndescargaOp" class="botao" onclick="abrirLink('DescV2.html')"><i class="fa-solid fa-truck-ramp-box"></i> DESCARGA</button>
+          <button id="btnptlLinha" class="botao" onclick="abrirLink('PTL Operadores.html')"><i class="fa-solid fa-list-check"></i> PTL DE LINHA</button>
+          <button id="btnSepManual" class="botao" onclick="abrirLink('SEP_MANUAL.html')"><i class="fa-solid fa-pen"></i> SEP.MANUAL</button>
+          <button id="btnMoviApp" class="botao" onclick="abrirLink('MoviOp.html')"><i class="fa-solid fa-arrows-turn-to-dots"></i> MOVIMENTAÇÕES</button>
+          <button id="btnbuscarProduto" class="botao" onclick="abrirLink('FeFoBox.html')"><i class="fa-solid fa-magnifying-glass"></i> FEFOBOX</button>
+          <button id="btnPitStop" class="botao" onclick="abrirLink('Pitstop.html')"><i class="fa-solid fa-gas-pump"></i> PIT-STOP</button>
+          <button id="btnSimulator3D" class="botao" onclick="abrirLink('simulador3D.html')"><i class="fa-solid fa-rotate"></i> 3D Out-SIMULATOR</button>
+        </div>
+      </div>
+
+      <!-- MENU 2: CONFERENTES -->
+      <div class="menu-dropdown">
+        <button class="menu-trigger" onclick="toggleMenu(this)">
+          <div><i class="fa-solid fa-clipboard-check"></i>AMBEV | CONFERENTES</div>
+          <i class="fa-solid fa-chevron-down arrow-icon"></i>
+        </button>
+        <div class="menu-content">
+          <button id="btnRecebidosP1" class="botao" onclick="abrirLink('RecebimentoP1.html')"><i class="fa-solid fa-rotate"></i> P1-RECEBIMENTO</button>
+          <button id="btnAtendimento" class="botao" onclick="abrirLink('Atendimento - OUTLOG.html')"><i class="fa-solid fa-boxes-packing"></i> ATENDIMENTO</button>
+          <button id="btnMoviCONF" class="botao" onclick="abrirLink('Movimentações.html')"><i class="fa-solid fa-arrows-turn-to-dots"></i> NOVA MOVIMENTAÇÃO</button>
+          <button id="btnAlocarSelo" class="botao" onclick="abrirLink('ArmazenamentoSelo.html')"><i class="fa-solid fa-arrows-spin"></i> ALOCAR SELO</button>
+        </div>
+      </div>
+
+      <!-- MENU 3: ADM -->
+      <div class="menu-dropdown">
+        <button class="menu-trigger" onclick="toggleMenu(this)">
+          <div><i class="fa-solid fa-unlock-keyhole"></i> ADM</div>
+          <i class="fa-solid fa-chevron-down arrow-icon"></i>
+        </button>
+        <div class="menu-content">
+          <button id="btnadmin" class="botao" onclick="abrirLink('ADM.html')"><i class="fa-solid fa-users-gear"></i> ADMIN</button>
+          <button id="btnptlControle" class="botao" onclick="abrirLink('PTL_CONTROL.html')"><i class="fa-solid fa-chart-pie"></i> FAROL DE PTL</button>
+          <button id="btnRanking" class="botao" onclick="abrirLink('RANKING.html')"><i class="fa-solid fa-chart-line"></i> PRODUTIVIDADES</button>
+          <button id="btnContagem" class="botao" onclick="abrirLink('NovaContagem.html')"><i class="fa-solid fa-rotate"></i> CONTAGEM</button>
+          <button id="btnSeloAcess" class="botao" onclick="abrirLink('SELO.html')"><i class="fa-solid fa-hammer"></i> SELO</button>
         </div>
       </div>
     </nav>
@@ -236,19 +280,34 @@
   const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
   const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
 
+  window.APP_SESSION = window.APP_SESSION || { nome: 'Visitante', acesso: [], matricula: '' };
+
   // --- HELPERS BÁSICOS ---
   function qs(id){ try { return document.getElementById(id); } catch(e){ return null; } }
-  function toggleSidebar() { const s = qs('sideBar'); if(s) s.classList.toggle('active'); }
-  function closeSidebar() { const s = qs('sideBar'); if(s) s.classList.remove('active'); }
+  function toggleSidebar() { 
+    const s = qs('sideBar'); 
+    const o = qs('sidebarOverlay');
+    if(s) s.classList.toggle('active');
+    if(o) o.style.display = s.classList.contains('active') ? 'block' : 'none';
+    if(s.classList.contains('active')) updateBadges();
+  }
+  function closeSidebar() { 
+    const s = qs('sideBar'); 
+    const o = qs('sidebarOverlay');
+    if(s) s.classList.remove('active');
+    if(o) o.style.display = 'none';
+  }
   function toggleMenu(el) { if(el) { const d = el.closest('.menu-dropdown'); if(d) d.classList.toggle('open'); } }
 
-  // --- FUNÇÕES DE SESSÃO GLOBAIS ---
+  // --- GERENCIAMENTO DE SESSÃO E LOCALSTORAGE ---
   function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
     try {
-      const dadosSessao = { usuario, ip, nome, acesso, timestamp: Date.now() };
+      const dadosSessao = { usuario, ip, nome, acesso: Array.isArray(acesso) ? acesso.map(String) : [], timestamp: Date.now() };
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dadosSessao));
       localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
       sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
+      sessionStorage.setItem('operadorNome', nome);
+      sessionStorage.setItem('acesso', JSON.stringify(dadosSessao.acesso));
       if (window.AppInventor && window.AppInventor.setWebViewString) {
         window.AppInventor.setWebViewString(usuario);
       }
@@ -283,7 +342,42 @@
   }
   window.logout = logout;
 
-  // --- FUNÇÃO PRINCIPAL DE LOGIN (GLOBAL) ---
+  // --- APLICAR PERMISSÕES E EXIBIR BOTÕES DO MENU ---
+  function salvarSessao(nome, acessos, matricula) {
+    window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
+
+    try {
+      const lo = qs('loginOverlay'); if (lo) lo.style.display = 'none';
+      const labelSidebar = qs('sidebarUserName');
+      if (labelSidebar) labelSidebar.innerText = nome ? nome.trim() : 'Usuário';
+    } catch(e){}
+
+    const botoes = {
+      'btncarregamentoOp': '0', 'btndescargaOp': '1', 'btnAcessoSeparação': '2',
+      'btnPitStop': '3', 'btnadmin': '4', 'btnptlControle': '5', 'btnptlLinha': '6',
+      'btnbuscarProduto': '7', 'btnRanking': '8', 'btnMoviCONF': '9', 'btnAtendimento': '10',
+      'btnMoviApp': '11', 'btnAlocarSelo': '12', 'btnRelatorio':'13', 'btnFeFoCompat':'14',
+      'btnSeloAcess':'15', 'btnRecebidosP1':'16', 'btnContagem':'17', 'btnSepManual':'18', 'btnSimulator3D':'19'
+    };
+
+    for (const [id, nivel] of Object.entries(botoes)) {
+      const btn = qs(id);
+      if (btn) {
+        if (window.APP_SESSION.acesso.includes(String(nivel))) {
+          btn.style.display = 'flex'; btn.style.background = 'rgba(0, 0, 0, 0.4)'; btn.disabled = false; btn.style.opacity = 1;
+        } else {
+          btn.style.display = 'none';
+          btn.disabled = true;
+        }
+      }
+    }
+
+    showNews();
+    executarModoCampo();
+  }
+  window.salvarSessao = salvarSessao;
+
+  // --- FUNÇÃO PRINCIPAL DE LOGIN ---
   async function fazerLogin(autoLogin = false) {
     const inputUser = qs('usuario');
     let valorBruto = inputUser ? inputUser.value : '';
@@ -296,8 +390,7 @@
       inputUser.value = usuario;
     }
 
-    // [CORRIGIDO] Regex ajustada perfeitamente sem caracteres inválidos
-    const regexMatricula = /^\d{6}$|^\d{8}$/;
+    const regexMatricula = /^\d{6}$\vert{}^\d{8}$/;
     if (!usuario || !regexMatricula.test(usuario)) {
       if (!autoLogin) {
         alert('A matrícula informada é inválida. Ela deve conter exatamente 6 ou 8 dígitos numéricos.');
@@ -305,7 +398,12 @@
       return;
     }
 
-    try { localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario); } catch(e) {}
+    try { 
+      localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario); 
+      if (window.AppInventor && window.AppInventor.setWebViewString) {
+        window.AppInventor.setWebViewString(usuario);
+      }
+    } catch(e) {}
 
     const btn = qs('btnLogin');
     const txtOriginal = btn ? btn.innerText : 'Login';
@@ -315,7 +413,8 @@
       if (btn) { btn.innerText = txtOriginal; btn.disabled = false; }
     };
 
-    let userIp = 'IP não identificado';
+    const sessaoExistente = obterSessaoLocal();
+    let userIp = sessaoExistente ? (sessaoExistente.ip || 'IP não identificado') : 'IP não identificado';
     try {
       const responseIp = await fetch('https://api.ipify.org?format=json');
       if (responseIp.ok) {
@@ -324,46 +423,89 @@
       }
     } catch (err) {}
 
-    // Simulação ou chamada real via GAS
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       google.script.run.withSuccessHandler(res => {
         restaurarBotao();
         if (res && res.success) {
           salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
-          const lo = qs('loginOverlay'); if (lo) lo.style.display = 'none';
-          showNews();
+          salvarSessao(res.nome, res.acesso, usuario);
         } else {
           limparSessaoLocal(true);
-          alert('Matrícula não encontrada ou acesso negado.');
+          alert('Matrícula incorreta ou sem acesso liberado.');
         }
       }).withFailureHandler(e => {
         restaurarBotao();
         alert('Erro de conexão: ' + e);
       }).validarLogin(usuario);
     } else {
-      // Modo local/demo para testes
+      // Modo local/demo para testes de desenvolvimento
       setTimeout(() => {
         restaurarBotao();
-        salvarSessaoLocalmente(usuario, userIp, 'Usuário Teste', ['0','1','2']);
-        const lo = qs('loginOverlay'); if (lo) lo.style.display = 'none';
-        showNews();
+        const nomeDemo = 'Operador Teste';
+        const acessosDemo = ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19'];
+        salvarSessaoLocalmente(usuario, userIp, nomeDemo, acessosDemo);
+        salvarSessao(nomeDemo, acessosDemo, usuario);
       }, 400);
     }
   }
   window.fazerLogin = fazerLogin;
 
+  // --- CARREGAR NOTÍCIAS / TELA INICIAL ---
   function showNews() {
     const contentDiv = qs('loadedContent');
     if (!contentDiv) return;
-    contentDiv.innerHTML = '<div style="padding:20px; text-align:center;"><h3>Bem-vindo ao Sistema OutLog</h3><p>Selecione um módulo no menu lateral.</p></div>';
+    contentDiv.innerHTML = `
+      <div class="news-wrap">
+        <h2>Mural de Avisos e Notícias</h2>
+        <div class="news-list">
+          <article class="news-card">
+            <div class="news-title">Bem-vindo ao Sistema OutLog</div>
+            <div class="news-body">Selecione um dos módulos disponíveis no menu lateral para iniciar suas atividades operacionais.</div>
+          </article>
+        </div>
+      </div>
+    `;
   }
   window.showNews = showNews;
 
-  // --- EVENTOS AO CARREGAR A PÁGINA ---
+  // --- MODO CAMPO / GPS ---
+  function executarModoCampo() {
+    // Mantém a estrutura de GPS ativa caso integrada
+  }
+
+  // --- ABRIR MÓDULOS (LINKS) ---
+  async function abrirLink(nomeArquivo) {
+    closeSidebar();
+    const contentDiv = qs('loadedContent');
+    const loader = qs('loader');
+    if(!contentDiv || !loader) return;
+    
+    contentDiv.innerHTML = '';
+    loader.style.display = 'flex';
+
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(html => {
+          loader.style.display = 'none';
+          contentDiv.innerHTML = html;
+        })
+        .withFailureHandler(e => {
+          loader.style.display = 'none';
+          contentDiv.innerHTML = `<div style="padding:20px;color:#f55;text-align:center"><strong>Erro ao carregar módulo.</strong><br><small>${e}</small></div>`;
+        })
+        .carregarConteudo(nomeArquivo);
+    } else {
+      loader.style.display = 'none';
+      contentDiv.innerHTML = `<div style="padding:20px;color:#aaa;text-align:center"><h3>Módulo Local: ${nomeArquivo}</h3></div>`;
+    }
+  }
+  window.abrirLink = abrirLink;
+
+  // --- EVENTOS AO CARREGAR A PÁGINA (DOM) ---
   document.addEventListener('DOMContentLoaded', () => {
     const inputUser = qs('usuario');
 
-    // 1. Recupera do App Inventor se disponível
+    // 1. Captura do WebViewString do App Inventor
     if (window.AppInventor && window.AppInventor.getWebViewString) {
       const matriculaApp = window.AppInventor.getWebViewString();
       if (matriculaApp && matriculaApp.trim() !== '') {
@@ -373,17 +515,17 @@
       }
     }
 
-    // 2. Restaura o input do localStorage se existir
+    // 2. Restaura matrícula salva no storage
     const matriculaSalva = localStorage.getItem(LOCAL_STORAGE_MATRICULA);
     if (matriculaSalva && inputUser && !inputUser.value) {
       inputUser.value = matriculaSalva;
     }
 
-    // 3. Auto-login se houver sessão ativa
+    // 3. Verifica sessão ativa para auto-login imediato
     const sessao = obterSessaoLocal();
-    if (sessao && sessao.usuario) {
+    if (sessao && sessao.usuario && sessao.acesso) {
       if (inputUser && !inputUser.value) inputUser.value = sessao.usuario;
-      fazerLogin(true);
+      salvarSessao(sessao.nome || 'Usuário', sessao.acesso, sessao.usuario);
     }
 
     // 4. Digitação inteligente (Dispara ao completar 8 dígitos ou pausa nos 6/7)
@@ -409,6 +551,17 @@
       });
     }
   });
+
+  // --- BADGES ---
+  function updateBadges() {
+    if (typeof google === 'undefined' || !google.script || !google.script.run) return;
+    google.script.run.withSuccessHandler(function(res){
+      try {
+        // Atualizações de contadores pendentes se houver
+      } catch(e){}
+    }).getPendingCounts();
+  }
+  window.updateBadges = updateBadges;
 </script>
 
 </body>
