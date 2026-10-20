@@ -1412,29 +1412,7 @@
   const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
   const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
 
-  // --- INICIALIZAÇÃO E CONFIGURAÇÃO DO CAMPO (Sem prompt automático ao clicar) ---
-  document.addEventListener('DOMContentLoaded', () => {
-    ensureStayLoggedCheckbox();
-
-    const inputUser = qs('usuario');
-    const persistedMatricula = loadPersistedSession();
-
-    if (inputUser && persistedMatricula) {
-      inputUser.value = persistedMatricula;
-    }
-
-    try {
-      if (persistedMatricula) {
-        restaurarSessao(persistedMatricula);
-      } else {
-        const lo = qs('loginOverlay');
-        if (lo) lo.style.display = 'flex';
-      }
-    } catch(e) {
-      const lo = qs('loginOverlay'); if (lo) lo.style.display = 'flex';
-    }
-    setTimeout(updateBadges, 400);
-  });
+  
 
   // --- FUNÇÃO AUXILIAR PARA PERGUNTAR SE DESEJA SALVAR A MATRÍCULA ---
   function verificarEPerguntarSalvamento(usuarioLogado) {
