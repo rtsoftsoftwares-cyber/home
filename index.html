@@ -1578,7 +1578,7 @@
     // 2. Verifica se há sessão ativa para auto-login inicial
     const sessao = obterSessaoLocal();
     if (sessao && sessao.usuario) {
-      fazerLogin(true);
+      fazerLogin();
     }
 
     // =========================================================================
