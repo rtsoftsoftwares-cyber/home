@@ -920,36 +920,12 @@
 
 
 <script>
-
-  // --- INICIALIZAÇÃO E CONFIGURAÇÃO DO CAMPO (Validação de 6 ou 8 dígitos e Auto-Login) ---
-  document.addEventListener('DOMContentLoaded', () => {
-    
-
-    const inputUser = qs('usuario');
-    const persistedMatricula = loadPersistedSession();
-    const regexMatricula = /^\d{6}$|^\d{8}$/;
-
-    // Verifica se existe matrícula no storage e se é válida (6 ou 8 dígitos)
-    if (persistedMatricula && regexMatricula.test(persistedMatricula)) {
-      if (inputUser) {
-        inputUser.value = persistedMatricula;
-      }
-      // Valida e faz login automaticamente ao carregar a página
-      fazerLogin();
-    } else {
-      // Se não tem nada ou é inválido, aguarda o usuário digitar
-      const lo = qs('loginOverlay');
-      if (lo) lo.style.display = 'flex';
-    }
-    setTimeout(updateBadges, 400);
-  });
-
- // =========================================================================
+  // =========================================================================
   // CONFIGURAÇÃO DA URL DO WEB APP DO GOOGLE APPS SCRIPT
   // =========================================================================
   const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzSGJihV_x_eFA1-yzJisl6naV8deqknfylzwoqWkd_7Cnwry8KS6xYeVxL1glsfXMy/exec';
 
-  // --- SHIM UNIVERSAL DE COMPATIBILIDADE (Comunicação Robusta com o GAS)[cite: 1] ---
+  // --- SHIM UNIVERSAL DE COMPATIBILIDADE (Comunicação Robusta com o GAS) ---
   window.google = window.google || {};
   window.google.script = window.google.script || {};
 
@@ -1014,13 +990,13 @@
     });
   })();
 
-  // --- HELPERS BÁSICOS[cite: 1] ---
+  // --- HELPERS BÁSICOS ---
   function qs(id){ try { return document.getElementById(id); } catch(e){ return null; } }
   function setAttr(el, name, value){ if(!el) return; el.setAttribute(name, value); }
   function show(el){ if(!el) return; el.style.display = ''; setAttr(el,'aria-hidden','false'); }
   function hide(el){ if(!el) return; el.style.display = 'none'; setAttr(el,'aria-hidden','true'); }
 
-  // Cookie helpers[cite: 1]
+  // Cookie helpers
   function setCookie(name, value, days){
     try {
       let expires = '';
@@ -1043,7 +1019,7 @@
     try { document.cookie = name + '=; Max-Age=0; path=/'; } catch(e){}
   }
 
-  // --- MONITORAMENTO DE MENSAGENS (H1)[cite: 1] ---
+  // --- MONITORAMENTO DE MENSAGENS (H1) ---
   (function() {
     const INTERVALO_MS = 1 * 60 * 1000;
 
@@ -1131,7 +1107,7 @@
     }
   })();
 
-  // --- MODO CAMPO / GPS[cite: 1] ---
+  // --- MODO CAMPO / GPS ---
   var idWatchGps = null;
   var cronometroEnvio = null;
   var bufferLocalPontos = [];
@@ -1242,7 +1218,7 @@
     }, 7000);
   }
 
-  // --- CONTROLE DE MENUS E SIDEBAR[cite: 1] ---
+  // --- CONTROLE DE MENUS E SIDEBAR ---
   function lidarCliqueMenu(event) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     var dropdown = (this.closest) ? this.closest('.menu-dropdown') : this.parentElement;
@@ -1314,7 +1290,7 @@
   }
   window.toggleMenu = toggleMenu;
 
-  // --- LOGIN E DIGITAÇÃO INTELIGENTE[cite: 1] ---
+  // --- LOGIN E DIGITAÇÃO INTELIGENTE ---
   const OPENING_GIF = 'https://i.imgur.com/v0xrFKm.gif';
   const OPENING_GIF_DURATION = 1200;
 
@@ -1388,8 +1364,6 @@
     } catch(e){ return ''; }
   }
 
-  
-
   function ocultarCabecalhosEMenus() {
     ['header', 'nav', '.header', '.sidebar', '#header', '#sidebar'].forEach(seletor => {
       document.querySelectorAll(seletor).forEach(el => el.style.display = 'none');
@@ -1412,7 +1386,33 @@
   const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
   const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
 
-  
+  // --- INICIALIZAÇÃO AUTOMÁTICA AO CARREGAR A PÁGINA ---
+  document.addEventListener('DOMContentLoaded', () => {
+    ensureStayLoggedCheckbox();
+
+    const inputUser = qs('usuario');
+    const persistedMatricula = loadPersistedSession();
+    const regexMatricula = /^\d{6}$\vert{}^\d{8}$/;
+
+    // Se houver uma matrícula válida de 6 ou 8 dígitos no storage ou no campo
+    let matriculaParaValidar = persistedMatricula;
+    if (inputUser && inputUser.value.trim()) {
+      matriculaParaValidar = inputUser.value.trim();
+    }
+
+    if (matriculaParaValidar && regexMatricula.test(matriculaParaValidar)) {
+      if (inputUser) {
+        inputUser.value = matriculaParaValidar;
+      }
+      // Valida e faz login automaticamente ao carregar a página
+      fazerLogin(true);
+    } else {
+      // Caso contrário, limpa o campo (se inválido) e aguarda o usuário digitar
+      const lo = qs('loginOverlay');
+      if (lo) lo.style.display = 'flex';
+    }
+    setTimeout(updateBadges, 400);
+  });
 
   // --- FUNÇÃO AUXILIAR PARA PERGUNTAR SE DESEJA SALVAR A MATRÍCULA ---
   function verificarEPerguntarSalvamento(usuarioLogado) {
@@ -1420,12 +1420,10 @@
       let ignoradas = JSON.parse(localStorage.getItem('outlog_matriculas_ignoradas') || '[]');
       let salvaAtual = localStorage.getItem(LOCAL_STORAGE_MATRICULA);
 
-      // Se já está salva ou o usuário marcou para ignorar esta matrícula, não pergunta nada
       if (salvaAtual === usuarioLogado || ignoradas.includes(usuarioLogado)) {
         return;
       }
 
-      // Cria um modal customizado limpo perguntando se deseja salvar
       const overlay = document.createElement('div');
       overlay.style.cssText = `
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -1483,13 +1481,12 @@
   }
 
   // --- FUNÇÃO PRINCIPAL DE LOGIN ---
-  // --- FUNÇÃO PRINCIPAL DE LOGIN ---
   async function fazerLogin(autoLogin = false) {
     const inputUser = document.getElementById('usuario');
     
     let usuario = inputUser ? inputUser.value.trim() : '';
     if (!usuario) {
-      usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
+      usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || getCookie(LOCAL_STORAGE_MATRICULA) || '';
       if (usuario && inputUser) inputUser.value = usuario;
     }
 
@@ -1755,7 +1752,7 @@
   }
   window.logout = logout;
 
-  // --- ABRIR LINK / INJETAR HTML SEGURO[cite: 1] ---
+  // --- ABRIR LINK / INJETAR HTML SEGURO ---
   async function abrirLink(nomeArquivo) {
     closeSidebar();
     const contentDiv = qs('loadedContent');
@@ -1839,88 +1836,78 @@
     if (scriptsPendentes === 0) tentarInicializar();
   }
 
-  
-
   function showNews() {
-  try { closeSidebar && closeSidebar(); } catch(e){}
-  const contentDiv = qs('loadedContent');
-  if (!contentDiv) return;
-  contentDiv.innerHTML = '';
+    try { closeSidebar && closeSidebar(); } catch(e){}
+    const contentDiv = qs('loadedContent');
+    if (!contentDiv) return;
+    contentDiv.innerHTML = '';
 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'news-wrap';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'news-wrap';
 
-  const list = document.createElement('div');
-  list.className = 'news-list';
-  wrapper.appendChild(list);
+    const list = document.createElement('div');
+    list.className = 'news-list';
+    wrapper.appendChild(list);
 
-  const empty = document.createElement('div');
-  empty.className = 'news-empty';
-  empty.textContent = 'Carregando notícias...';
-  list.appendChild(empty);
+    const empty = document.createElement('div');
+    empty.className = 'news-empty';
+    empty.textContent = 'Carregando notícias...';
+    list.appendChild(empty);
 
-  contentDiv.appendChild(wrapper);
+    contentDiv.appendChild(wrapper);
 
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    google.script.run.withSuccessHandler(function(res){
-      renderNews(res, list);
-    }).withFailureHandler(function(err){
-      console.error('Erro getNews', err);
-      renderNews(null, list, err);
-    }).getNews();
-  } else {
-    setTimeout(()=> {
-      const demo = [
-        { title: 'Comunicação: Atualização de Sistema', body: 'Iremos realizar manutenção hoje à noite das 22h às 23h. Esperamos breve interrupção.', image: '' , timestamp: new Date().toLocaleString() },
-        { title: 'Novo Procedimento', body: 'O procedimento X foi atualizado. Consulte o manual anexo.', image: '' },
-        { title: 'Boletim Rápido', body: 'Teste de envio contendo imagem.', image: 'https://via.placeholder.com/320x180.png?text=Not%C3%ADcia' }
-      ];
-      renderNews(demo, list);
-    }, 300);
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run.withSuccessHandler(function(res){
+        renderNews(res, list);
+      }).withFailureHandler(function(err){
+        console.error('Erro getNews', err);
+        renderNews(null, list, err);
+      }).getNews();
+    } else {
+      setTimeout(()=> {
+        const demo = [
+          { title: 'Comunicação: Atualização de Sistema', body: 'Iremos realizar maintenance hoje à noite das 22h às 23h. Esperamos breve interrupção.', image: '' , timestamp: new Date().toLocaleString() },
+          { title: 'Novo Procedimento', body: 'O procedimento X foi atualizado. Consulte o manual anexo.', image: '' },
+          { title: 'Boletim Rápido', body: 'Teste de envio contendo imagem.', image: 'https://via.placeholder.com/320x180.png?text=Not%C3%ADcia' }
+        ];
+        renderNews(demo, list);
+      }, 300);
+    }
   }
-}
-
   window.showNews = showNews;
 
   function refreshNews(){ showNews(); }
 
   // ==========================================
-// FUNÇÃO AUXILIAR DE FORMATAÇÃO (Compartilhada)
-// ==========================================
-function parseCustomTags(str) {
-  if (!str) return '';
+  // FUNÇÃO AUXILIAR DE FORMATAÇÃO (Compartilhada)
+  // ==========================================
+  function parseCustomTags(str) {
+    if (!str) return '';
 
-  // 1. Sanitiza o texto contra XSS
-  let safeText = String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
+    let safeText = String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
 
-  // 2. Transforma <b>Texto</b> em negrito
-  safeText = safeText.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<b>$1</b>');
+    safeText = safeText.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<b>$1</b>');
+    safeText = safeText.replace(/&lt;color:(.*?)&gt;(.*?)&lt;\/color&gt;/gi, '<span style="color: $1;">$2</span>');
+    safeText = safeText.replace(/&lt;link&gt;(.*?)&lt;\/link&gt;/gi, (match, url) => {
+      let href = url.trim();
+      if (!/^https?:\/\//i.test(href)) {
+        href = 'https://' + href;
+      }
+      return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${url}</a>`;
+    });
 
-  // 3. Transforma <color:red>Texto</color> em texto colorido
-  safeText = safeText.replace(/&lt;color:(.*?)&gt;(.*?)&lt;\/color&gt;/gi, '<span style="color: $1;">$2</span>');
+    return safeText.replace(/\n/g, '<br>');
+  }
 
-  // 4. Transforma <link>url</link> em link clicável (abre em nova aba)
-  safeText = safeText.replace(/&lt;link&gt;(.*?)&lt;\/link&gt;/gi, (match, url) => {
-    let href = url.trim();
-    if (!/^https?:\/\//i.test(href)) {
-      href = 'https://' + href;
-    }
-    return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color: #0066cc; text-decoration: underline;">${url}</a>`;
-  });
-
-  // 5. Converte quebras de linha em <br>
-  return safeText.replace(/\n/g, '<br>');
-}
-
-// ==========================================
-// 1. RENDERIZADOR DAS NOTÍCIAS (Cards)
-// ==========================================
-function renderNews(res, listEl, err) {
+  // ==========================================
+  // 1. RENDERIZADOR DAS NOTÍCIAS (Cards)
+  // ==========================================
+  function renderNews(res, listEl, err) {
     listEl.innerHTML = '';
 
     if (err) {
@@ -2050,12 +2037,12 @@ function renderNews(res, listEl, err) {
       note.textContent = `Mostrando ${lastFive.length} notícia(s).`;
       listEl.appendChild(note);
     }
-}
+  }
 
-// ==========================================
-// 2. CONTROLE DO MODAL DE NOTÍCIAS
-// ==========================================
-(function(){
+  // ==========================================
+  // 2. CONTROLE DO MODAL DE NOTÍCIAS
+  // ==========================================
+  (function(){
     if (!window._newsModalInit) {
       window._newsModalInit = true;
 
@@ -2071,7 +2058,6 @@ function renderNews(res, listEl, err) {
           return;
         }
 
-        // 1. Ajusta o container principal do modal (100% largura, 80% altura)
         const modalBox = overlay.querySelector('.news-modal');
         if (modalBox) {
           modalBox.style.width = '100%';
@@ -2085,7 +2071,6 @@ function renderNews(res, listEl, err) {
           modalBox.style.overflow = 'hidden';
         }
 
-        // 2. Cria/Organiza wrappers de layout dinâmico (Imagem + Texto)
         let mainWrapper = modalBox ? modalBox.querySelector('.news-modal-layout') : null;
         let textWrapper = modalBox ? modalBox.querySelector('.news-modal-text-layout') : null;
 
@@ -2103,7 +2088,6 @@ function renderNews(res, listEl, err) {
           textWrapper.style.display = 'flex';
           textWrapper.style.flexDirection = 'column';
 
-          // Agrupa título, timestamp e corpo no container de texto
           if (titleEl) textWrapper.appendChild(titleEl);
           if (tsEl) textWrapper.appendChild(tsEl);
           if (bodyElM) textWrapper.appendChild(bodyElM);
@@ -2113,12 +2097,10 @@ function renderNews(res, listEl, err) {
           modalBox.appendChild(mainWrapper);
         }
 
-        // 3. Preenche os textos com suporte a tags customizadas
         titleEl.innerHTML = parseCustomTags(item.title) || '(Sem título)';
         tsEl.textContent = item.timestamp ? 'Publicado: ' + item.timestamp : '';
         bodyElM.innerHTML = parseCustomTags(item.body) || '(Sem conteúdo)';
 
-        // 4. Processa e posiciona a imagem conforme suas proporções
         mediaEl.innerHTML = '';
         if (imageUrl) {
           mediaEl.style.display = 'flex';
@@ -2133,7 +2115,6 @@ function renderNews(res, listEl, err) {
             const isLandscape = img.naturalWidth > img.naturalHeight;
 
             if (isLandscape) {
-              // --- MODO PAISAGEM (Largura > Altura): Imagem maior acima do texto ---
               if (mainWrapper) {
                 mainWrapper.style.flexDirection = 'column';
                 mainWrapper.style.overflowY = 'auto';
@@ -2152,7 +2133,6 @@ function renderNews(res, listEl, err) {
               img.style.margin = '0 auto 10px auto';
 
             } else {
-              // --- MODO RETRATO (Altura >= Largura): Imagem ampliada à esquerda do texto ---
               if (mainWrapper) {
                 mainWrapper.style.flexDirection = 'row';
                 mainWrapper.style.overflowY = 'hidden';
@@ -2193,7 +2173,6 @@ function renderNews(res, listEl, err) {
           if (textWrapper) textWrapper.style.overflowY = 'visible';
         }
 
-        // 5. Exibe o modal
         overlay.style.display = 'flex';
         overlay.setAttribute('aria-hidden','false');
         if (modalBox) {
@@ -2228,7 +2207,7 @@ function renderNews(res, listEl, err) {
         if (mediaEl) mediaEl.innerHTML = '';
       };
     }
-})();
+  })();
 
   // --- BADGES ---
   function addOrUpdateBadge(buttonId, count) {
