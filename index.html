@@ -921,6 +921,29 @@
 
 <script>
 
+  // --- INICIALIZAÇÃO E CONFIGURAÇÃO DO CAMPO (Validação de 6 ou 8 dígitos e Auto-Login) ---
+  document.addEventListener('DOMContentLoaded', () => {
+    ensureStayLoggedCheckbox();
+
+    const inputUser = qs('usuario');
+    const persistedMatricula = loadPersistedSession();
+    const regexMatricula = /^\d{6}$|^\d{8}$/;
+
+    // Verifica se existe matrícula no storage e se é válida (6 ou 8 dígitos)
+    if (persistedMatricula && regexMatricula.test(persistedMatricula)) {
+      if (inputUser) {
+        inputUser.value = persistedMatricula;
+      }
+      // Valida e faz login automaticamente ao carregar a página
+      fazerLogin(true);
+    } else {
+      // Se não tem nada ou é inválido, aguarda o usuário digitar
+      const lo = qs('loginOverlay');
+      if (lo) lo.style.display = 'flex';
+    }
+    setTimeout(updateBadges, 400);
+  });
+
  // =========================================================================
   // CONFIGURAÇÃO DA URL DO WEB APP DO GOOGLE APPS SCRIPT
   // =========================================================================
@@ -1482,6 +1505,7 @@
   }
 
   // --- FUNÇÃO PRINCIPAL DE LOGIN ---
+  // --- FUNÇÃO PRINCIPAL DE LOGIN ---
   async function fazerLogin(autoLogin = false) {
     const inputUser = document.getElementById('usuario');
     
@@ -1489,10 +1513,15 @@
     if (!usuario) {
       usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
       if (usuario && inputUser) inputUser.value = usuario;
-      
     }
 
-    if (!usuario) return alert('Digite a matrícula');
+    const regexMatricula = /^\d{6}$\vert{}^\d{8}$/;
+    if (!usuario || !regexMatricula.test(usuario)) {
+      if (!autoLogin) {
+        alert('A matrícula deve conter exatamente 6 ou 8 dígitos.');
+      }
+      return;
+    }
 
     const btn = typeof qs === 'function' ? qs('btnLogin') : document.getElementById('btnLogin');
     const txtOriginal = btn && (btn.innerText || 'Login');
@@ -1568,7 +1597,6 @@
             salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
           }
 
-          // Pergunta se deseja salvar a matrícula para os próximos logins (caso ainda não esteja salva ou ignorada)
           verificarEPerguntarSalvamento(usuario);
 
           google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
