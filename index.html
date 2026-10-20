@@ -1219,6 +1219,9 @@
   }
 
   // --- CONTROLE DE MENUS E SIDEBAR[cite: 1] ---
+ (function(){
+
+  // --- CONFIGURAÇÃO DE EVENTOS DO MENU ---
   function lidarCliqueMenu(event) {
     if (event) { event.preventDefault(); event.stopPropagation(); }
     var dropdown = (this.closest) ? this.closest('.menu-dropdown') : this.parentElement;
@@ -1233,244 +1236,111 @@
     }
   }
 
-  function toggleSidebar() {
-    updateBadges();
-
-    var sideBar = document.getElementById('sideBar');
-    var labelSidebar = document.getElementById('sidebarUserName');
-    var overlay = document.getElementById('sidebarOverlay');
-
-    if (sideBar && !sideBar.classList.contains('active')) {
-      const operador = sessionStorage.getItem("operadorNome");
-      if (labelSidebar) {
-        labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
-      }
-
-      var dropdowns = sideBar.querySelectorAll('.menu-dropdown');
-      dropdowns.forEach(function(menu) {
-        var trigger = menu.querySelector('.menu-trigger');
-        if (trigger) {
-          trigger.removeAttribute('onclick');
-          trigger.onclick = null;
-          trigger.removeEventListener('click', lidarCliqueMenu);
-          trigger.addEventListener('click', lidarCliqueMenu);
-        }
-      });
-    }
-
-    if (sideBar) {
-      sideBar.classList.toggle('active');
-      
-      if (overlay) {
-        var isOpened = sideBar.classList.contains('active');
-        if (isOpened) {
-          overlay.style.display = 'block';
-          setTimeout(function() { overlay.style.opacity = '1'; }, 10);
-        } else {
-          overlay.style.opacity = '0';
-          setTimeout(function() { overlay.style.display = 'none'; }, 300);
-        }
-      }
-    }
-  }
-  window.toggleSidebar = toggleSidebar;
-
-  function closeSidebar() {
-    var sideBar = document.getElementById('sideBar');
-    var overlay = document.getElementById('sidebarOverlay');
-    if (sideBar) sideBar.classList.remove('active');
-    if (overlay) { overlay.style.opacity = '0'; overlay.style.display = 'none'; }
-  }
-  window.closeSidebar = closeSidebar;
-
-  function toggleMenu(element) {
-    if (!element) return;
-    var dropdown = element.closest('.menu-dropdown') || element.parentElement;
-    if (dropdown && dropdown.classList) dropdown.classList.toggle('open');
-  }
-  window.toggleMenu = toggleMenu;
-
-  // --- LOGIN E DIGITAÇÃO INTELIGENTE[cite: 1] ---
-  const OPENING_GIF = 'https://i.imgur.com/v0xrFKm.gif';
-  const OPENING_GIF_DURATION = 1200;
-
-  function showOpeningGifOverlay(url, duration, onDone){
-    if(!url){ if(typeof onDone === 'function') onDone(); return; }
-    let overlay = qs('openingGifOverlay');
-    if(!overlay){
-      overlay = document.createElement('div');
-      overlay.id = 'openingGifOverlay';
-      Object.assign(overlay.style, {
-        position: 'fixed', left:'0', top:'0', right:'0', bottom:'0',
-        display: 'flex', alignItems:'center', justifyContent:'center',
-        background:'#000', zIndex:999999, cursor:'pointer'
-      });
-      document.body.appendChild(overlay);
-    } else {
-      overlay.innerHTML = '';
-      overlay.style.display = 'flex';
-      overlay.style.opacity = '1';
-    }
-
-    const img = document.createElement('img');
-    img.src = url;
-    Object.assign(img.style, { maxWidth:'100%', maxHeight:'100%', objectFit:'contain' });
-    overlay.appendChild(img);
-
-    let finished = false;
-    function finish(){
-      if(finished) return;
-      finished = true;
-      overlay.style.opacity = '0';
-      setTimeout(()=> {
-        overlay.style.display = 'none';
-        overlay.innerHTML = '';
-        if(typeof onDone === 'function') onDone();
-      }, 300);
-    }
-    overlay.addEventListener('click', finish, { once:true });
-    setTimeout(finish, Math.max(300, duration || OPENING_GIF_DURATION));
-  }
-
-  window.APP_SESSION = window.APP_SESSION || { nome: 'Visitante', acesso: [], matricula: '' };
-
-  function ensureStayLoggedCheckbox(){
-    try {
-      const usuario = qs('usuario');
-      if(!usuario || qs('stayLogged')) return;
-      const container = document.createElement('div');
-      container.id = 'stayLoggedContainer';
-      container.style.cssText = 'display:flex; align-items:center; justify-content:center; margin:12px 0; width:100%;';
-      container.innerHTML = `<input type="checkbox" id="stayLogged" style="margin:0 4px 0 0; cursor:pointer;"><label for="stayLogged" style="cursor:pointer;">Manter-se Logado</label>`;
-      usuario.parentNode.insertBefore(container, usuario.nextSibling);
-    } catch(e){}
-  }
-
-  function persistSession(nome, acessos, matricula){
-    const stay = (qs('stayLogged') && qs('stayLogged').checked);
-    const data = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
-    window.APP_SESSION = data;
-    try {
-      sessionStorage.setItem('operadorNome', nome);
-      sessionStorage.setItem('acesso', JSON.stringify(data.acesso));
-      localStorage.setItem('outlog_matricula', matricula);
-      if(stay) localStorage.setItem('ptl_stay', '1');
-    } catch(e){}
-  }
-
-  function loadPersistedSession(){
-    try {
-      return sessionStorage.getItem('outlog_matricula') || localStorage.getItem('outlog_matricula') || getCookie('outlog_matricula') || '';
-    } catch(e){ return ''; }
-  }
-
-  function ocultarCabecalhosEMenus() {
-    ['header', 'nav', '.header', '.sidebar', '#header', '#sidebar'].forEach(seletor => {
-      document.querySelectorAll(seletor).forEach(el => el.style.display = 'none');
+  function inicializarEventosMenu() {
+    const triggers = document.querySelectorAll('.menu-trigger');
+    triggers.forEach(button => {
+      button.removeEventListener('click', lidarCliqueMenu);
+      button.addEventListener('click', lidarCliqueMenu);
     });
-    const lo = document.getElementById('loginOverlay');
-    if (lo) lo.style.display = 'none';
   }
 
-  function exibirModalBoasVindasLicenca(mensagem, tempoMs, callback) {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.65); display:flex; justify-content:center; align-items:center; z-index:999999;';
-    const modalBox = document.createElement('div');
-    modalBox.style.cssText = 'background:#28a745; color:#fff; padding:20px 35px; border-radius:10px; font-size:18px; font-weight:600; text-align:center;';
-    modalBox.innerText = mensagem;
-    overlay.appendChild(modalBox);
-    document.body.appendChild(overlay);
-    setTimeout(() => { overlay.remove(); if (typeof callback === 'function') callback(); }, tempoMs || 1500);
-  }
-
+  // --- GERENCIADOR DO CAMPO DE MATRÍCULA ---
   const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
   const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
 
-  // --- FUNÇÃO AUXILIAR PARA PERGUNTAR SE DESEJA SALVAR A MATRÍCULA ---
-  function verificarEPerguntarSalvamento(usuarioLogado) {
-    try {
-      let ignoradas = JSON.parse(localStorage.getItem('outlog_matriculas_ignoradas') || '[]');
-      let salvaAtual = localStorage.getItem(LOCAL_STORAGE_MATRICULA);
+  function inicializarCampoMatricula() {
+    const inputUser = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
+    if (!inputUser) return;
 
-      if (salvaAtual === usuarioLogado || ignoradas.includes(usuarioLogado)) {
-        return;
+    // 1. Restaura a matrícula salva (se existir) ao recarregar
+    const matriculaSalva = localStorage.getItem(LOCAL_STORAGE_MATRICULA);
+    const lo = document.getElementById('loginBox') || document.getElementById('loginOverlay');
+    if (matriculaSalva) {
+      inputUser.value = matriculaSalva;
+      if (lo) lo.style.display = 'none';
+    }
+
+    // 2. Monitora mudanças: se o usuário digitar, salva. Se apagar tudo, remove.
+    inputUser.addEventListener('input', () => {
+      const valor = inputUser.value.trim();
+      if (valor === '') {
+        localStorage.removeItem(LOCAL_STORAGE_MATRICULA);
+        if (lo) lo.style.display = 'flex';
+      } else {
+        localStorage.setItem(LOCAL_STORAGE_MATRICULA, valor);
       }
+    });
+  }
 
-      const overlay = document.createElement('div');
-      overlay.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center;
-        align-items: center; z-index: 999999; font-family: 'Segoe UI', Roboto, sans-serif;
-      `;
-
-      const modalBox = document.createElement('div');
-      modalBox.style.cssText = `
-        background: #ffffff; padding: 25px; border-radius: 12px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.25); max-width: 380px;
-        width: 85%; text-align: center; border-top: 6px solid #36b8f2;
-      `;
-
-      const textoMsg = document.createElement('p');
-      textoMsg.innerText = `Deseja salvar a matrícula ${usuarioLogado} para os próximos logins neste dispositivo?`;
-      textoMsg.style.cssText = `font-size: 15px; color: #333333; line-height: 1.5; margin: 0 0 20px 0; font-weight: 500;`;
-
-      const divBotoes = document.createElement('div');
-      divBotoes.style.cssText = `display: flex; gap: 10px; justify-content: center;`;
-
-      const btnSim = document.createElement('button');
-      btnSim.innerText = 'Sim, salvar';
-      btnSim.style.cssText = `background: #28a745; color: #fff; border: none; padding: 10px 20px; font-size: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1;`;
-      
-      const btnNao = document.createElement('button');
-      btnNao.innerText = 'Não perguntar';
-      btnNao.style.cssText = `background: #6c757d; color: #fff; border: none; padding: 10px 20px; font-size: 14px; border-radius: 6px; cursor: pointer; font-weight: bold; flex: 1;`;
-
-      btnSim.onclick = () => {
-        localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuarioLogado);
-        sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, usuarioLogado);
-        if (window.AppInventor && window.AppInventor.setWebViewString) {
-          window.AppInventor.setWebViewString(usuarioLogado);
-        }
-        overlay.remove();
+  // --- FUNÇÃO PARA SALVAR A SESSÃO LOCALMENTE ---
+  function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
+    try {
+      const dadosSessao = {
+        usuario: usuario,
+        ip: ip,
+        nome: nome,
+        acesso: acesso,
+        timestamp: Date.now()
       };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dadosSessao));
+      localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
+      sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
+      if (window.AppInventor && window.AppInventor.setWebViewString) {
+        window.AppInventor.setWebViewString(usuario);
+      }
+    } catch (e) {
+      console.error('Erro ao guardar sessão localmente:', e);
+    }
+  }
+  window.salvarSessaoLocalmente = salvarSessaoLocalmente;
 
-      btnNao.onclick = () => {
-        ignoradas.push(usuarioLogado);
-        localStorage.setItem('outlog_matriculas_ignoradas', JSON.stringify(ignoradas));
-        overlay.remove();
-      };
+  // --- FUNÇÃO PARA OBTER A SESSÃO GUARDADA LOCALMENTE ---
+  function obterSessaoLocal() {
+    try {
+      const sessao = localStorage.getItem(LOCAL_STORAGE_KEY);
+      return sessao ? JSON.parse(sessao) : null;
+    } catch (e) {
+      console.error('Erro ao ler sessão local:', e);
+      return null;
+    }
+  }
+  window.obterSessaoLocal = obterSessaoLocal;
 
-      divBotoes.appendChild(btnNao);
-      divBotoes.appendChild(btnSim);
-      modalBox.appendChild(textoMsg);
-      modalBox.appendChild(divBotoes);
-      overlay.appendChild(modalBox);
-      document.body.appendChild(overlay);
+  // --- FUNÇÃO PARA LIMPAR A SESSÃO (LOGOUT) ---
+  function limparSessaoLocal(manterMatricula = true) {
+    try {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      if (!manterMatricula) {
+        localStorage.removeItem(LOCAL_STORAGE_MATRICULA);
+      }
+    } catch (e) {
+      console.error('Erro ao remover sessão local:', e);
+    }
+  }
+  window.limparSessaoLocal = limparSessaoLocal;
 
-    } catch(e) {
-      console.warn('Erro ao gerenciar prompt de salvamento:', e);
+  function enviarMatriculaParaApp(matricula) {
+    if (window.AppInventor && window.AppInventor.setWebViewString) {
+      window.AppInventor.setWebViewString(matricula);
     }
   }
 
-  // --- FUNÇÃO PRINCIPAL DE LOGIN CORRIGIDA ---
+  // --- FUNÇÃO PRINCIPAL DE LOGIN ---
   async function fazerLogin(autoLogin = false) {
-    const inputUser = document.getElementById('usuario');
+    const inputUser = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
     
-    // Tenta pegar o valor do input ou do storage
+    // Limpeza rigorosa: remove espaços e garante apenas dígitos para evitar falhas de tamanho
     let valorBruto = inputUser ? inputUser.value : '';
     if (!valorBruto) {
-      valorBruto = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
+      valorBruto = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
     }
-
-    // LIMPEZA CRUCIAL: Remove espaços e mantém APENAS os dígitos numéricos (resolve espaços invisíveis ou hífens)
     let usuario = String(valorBruto).trim().replace(/\D/g, '');
 
-    // Se houver valor limpo e o input existir, atualiza o campo visualmente com o valor limpo
     if (usuario && inputUser) {
       inputUser.value = usuario;
     }
 
-    // Validação estrita: aceita exatamente 6 ou 8 dígitos numéricos limpos
+    // Validação estrita de 6 ou 8 dígitos numéricos
     const regexMatricula = /^\d{6}$\vert{}^\d{8}$/;
     if (!usuario || !regexMatricula.test(usuario)) {
       if (!autoLogin) {
@@ -1478,6 +1348,11 @@
       }
       return;
     }
+
+    enviarMatriculaParaApp(usuario);
+    try {
+      localStorage.setItem('outlog_matricula', usuario);
+    } catch(e) {}
 
     const btn = typeof qs === 'function' ? qs('btnLogin') : document.getElementById('btnLogin');
     const txtOriginal = btn && (btn.innerText || 'Login');
@@ -1491,7 +1366,7 @@
 
     if (btn) { btn.innerText = "Validando..."; btn.disabled = true; }
 
-    const sessaoExistente = typeof obterSessaoLocal === 'function' ? obterSessaoLocal() : null;
+    const sessaoExistente = obterSessaoLocal();
     let userIp = sessaoExistente ? (sessaoExistente.ip || 'IP não identificado') : 'IP não identificado';
     try {
       const responseIp = await fetch('https://api.ipify.org?format=json');
@@ -1549,17 +1424,13 @@
         restaurarBotao();
 
         if (res && res.success) {
-          if (typeof salvarSessaoLocalmente === 'function') {
-            salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
-          }
-
-          verificarEPerguntarSalvamento(usuario);
+          salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
 
           google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
 
           google.script.run.withSuccessHandler(licRes => {
             if (licRes && licRes.expirado) {
-              ocultarCabecalhosEMenus();
+              if (typeof ocultarCabecalhosEMenus === 'function') ocultarCabecalhosEMenus();
               if (typeof abrirLink === 'function') {
                 abrirLink("LICENÇA");
               } else if (typeof abrirPagina === 'function') {
@@ -1587,7 +1458,11 @@
               if (autoLogin) {
                 prosseguirAcesso();
               } else {
-                exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
+                if (typeof exibirModalBoasVindasLicenca === 'function') {
+                  exibirModalBoasVindasLicenca(msgBoasVindas, 1500, prosseguirAcesso);
+                } else {
+                  prosseguirAcesso();
+                }
               }
             }
           }).withFailureHandler(e => {
@@ -1596,7 +1471,7 @@
           }).verificarLicenca();
 
         } else {
-          if (typeof limparSessaoLocal === 'function') limparSessaoLocal(true);
+          limparSessaoLocal(true);
           const stringResposta = res ? String(res.status || res.motivo || res.error || res.mensagem || '').toUpperCase() : '';
           const mensagemLog = `Usuario tentou acesso Ambev | IP: ${userIp}`;
           google.script.run.registrarLog(mensagemLog, usuario);
@@ -1615,12 +1490,8 @@
     } else {
       setTimeout(() => {
         restaurarBotao();
-        if (typeof salvarSessaoLocalmente === 'function') {
-          salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
-        }
+        salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
         
-        verificarEPerguntarSalvamento(usuario);
-
         const prosseguirDemo = () => {
           const proceed = function(){
             try { salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario); } catch(e){}
@@ -1633,30 +1504,138 @@
         if (autoLogin) {
           prosseguirDemo();
         } else {
-          exibirModalBoasVindasLicenca("Licença Ativa ( Demo - 30 dias restantes )", 1500, prosseguirDemo);
+          if (typeof exibirModalBoasVindasLicenca === 'function') {
+            exibirModalBoasVindasLicenca("Licença Ativa ( Demo - 30 dias restantes )", 1500, prosseguirDemo);
+          } else {
+            prosseguirDemo();
+          }
         }
       }, 500);
     }
   }
+  window.fazerLogin = fazerLogin;
 
-  // --- AUTO-LOGIN E CARREGAMENTO DO STORAGE AO ABRIR A PÁGINA ---
-  document.addEventListener("DOMContentLoaded", () => {
-    ensureStayLoggedCheckbox();
-    const matriculaSalva = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
-    const inputUser = document.getElementById('usuario');
+  // --- FUNÇÃO SALVAR SESSÃO ---
+  function salvarSessao(nome, acessos, matricula) {
+    window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
 
-    if (matriculaSalva) {
-      // Limpa eventuais sujeiras do storage também
-      const matriculaLimpa = String(matriculaSalva).trim().replace(/\D/g, '');
-      if (inputUser) {
-        inputUser.value = matriculaLimpa;
-      }
-      if (matriculaLimpa.length === 6 || matriculaLimpa.length === 8) {
-        // Executa o login automático direto com o valor do storage
-        fazerLogin(true);
+    try {
+      const lo = qs('loginOverlay') || qs('loginBox'); if (lo) lo.style.display = 'none';
+      const hu = qs('headerUser'); if (hu) hu.textContent = (nome||'').split(' ')[0] || '';
+    } catch(e){}
+
+    const botoes = {
+      'btncarregamentoOp': '0', 'btndescargaOp': '1', 'btnAcessoSeparação': '2',
+      'btnPitStop': '3', 'btnadmin': '4', 'btnptlControle': '5', 'btnptlLinha': '6', 
+      'btnbuscarProduto': '7', 'btnRanking': '8', 'btnMoviCONF': '9', 'btnAtendimento': '10', 
+      'btnMoviApp': '11', 'btnAlocarSelo': '12', 'btnRelatorio':'13', 'btnFeFoCompat':'14',
+      'btnSeloAcess':'15', 'btnRecebidosP1':'16', 'btnContagem':'17', 'btnSepManual':'18', 'btnSimulator3D':'19'
+    };
+
+    for (const [id, nivel] of Object.entries(botoes)) {
+      const btn = qs(id);
+      if (btn) {
+        try {
+          if (window.APP_SESSION.acesso && window.APP_SESSION.acesso.includes(String(nivel))) {
+            btn.style.display = 'flex';
+            btn.style.background = '#000000';
+            btn.disabled = false;
+            btn.style.opacity = 1;
+          } else {
+            btn.disabled = true;
+            btn.style.background = 'gray';
+            btn.style.opacity = 0.3;
+          }
+        } catch(e){}
       }
     }
+  }
+  window.salvarSessao = salvarSessao;
+
+  // --- EXECUÇÃO INICIAL E INTERCEPTADORES AO CARREGAR O DOM ---
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof inicializarEventosMenu === 'function') {
+      inicializarEventosMenu();
+    }
+    if (typeof inicializarCampoMatricula === 'function') {
+      inicializarCampoMatricula();
+    }
+
+    const inputUsuario = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
+
+    // 1. CAPTURA DO MIT APP INVENTOR (WebViewString)
+    if (window.AppInventor && window.AppInventor.getWebViewString) {
+      const matriculaApp = window.AppInventor.getWebViewString();
+      if (matriculaApp && matriculaApp.trim() !== '') {
+        const limpoApp = matriculaApp.trim().replace(/\D/g, '');
+        if (inputUsuario) inputUsuario.value = limpoApp;
+        try {
+          localStorage.setItem(LOCAL_STORAGE_MATRICULA, limpoApp);
+        } catch(e) {}
+      }
+    }
+
+    // 2. Verifica se há sessão ativa para auto-login inicial
+    const sessao = obterSessaoLocal();
+    if (sessao && sessao.usuario) {
+      fazerLogin(true);
+    }
+
+    // =========================================================================
+    // 3. INTERCEPTADOR SEGURO CONTRA RESPOSTAS ATRASADAS (RACE CONDITIONS)
+    // =========================================================================
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      const originalWithSuccess = google.script.run.withSuccessHandler;
+
+      google.script.run.withSuccessHandler = function(originalSuccessCallback) {
+        const inputUser = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
+        const valorEnviado = inputUser ? inputUser.value.trim().replace(/\D/g, '') : '';
+
+        const customSuccessCallback = function(res) {
+          const currentInput = document.getElementById('usuario') || (typeof qs === 'function' ? qs('usuario') : null);
+          const valorAtual = currentInput ? currentInput.value.trim().replace(/\D/g, '') : '';
+
+          if (valorAtual !== valorEnviado) {
+            return; // Aborta se o usuário continuou digitando
+          }
+
+          originalSuccessCallback(res);
+        };
+
+        return originalWithSuccess.call(this, customSuccessCallback);
+      };
+    }
+
+    // =========================================================================
+    // 4. MONITOR DE DIGITAÇÃO INTELIGENTE (6 A 8 DÍGITOS COM TOLERÂNCIA)
+    // =========================================================================
+    if (inputUsuario) {
+      let typingTimeout;
+      inputUsuario.addEventListener('input', function() {
+        const valor = this.value.trim().replace(/\D/g, '');
+        clearTimeout(typingTimeout);
+
+        const btn = document.getElementById('btnLogin') || (typeof qs === 'function' ? qs('btnLogin') : null);
+        if (btn && btn.disabled) return;
+
+        // Se atingir 8 dígitos, valida imediatamente
+        if (valor.length === 8) {
+          fazerLogin();
+        } 
+        // Se estiver entre 6 e 7 dígitos, aguarda uma breve pausa de 900ms para o usuário terminar
+        else if (valor.length >= 6 && valor.length < 8) {
+          typingTimeout = setTimeout(() => {
+            const btnCheck = document.getElementById('btnLogin') || (typeof qs === 'function' ? qs('btnLogin') : null);
+            if (btnCheck && !btnCheck.disabled) {
+              fazerLogin();
+            }
+          }, 900);
+        }
+      });
+    }
   });
+
+})();
 
 
   function salvarSessao(nome, acessos, matricula) {
