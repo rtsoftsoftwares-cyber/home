@@ -923,7 +923,7 @@
 
   // --- INICIALIZAÇÃO E CONFIGURAÇÃO DO CAMPO (Validação de 6 ou 8 dígitos e Auto-Login) ---
   document.addEventListener('DOMContentLoaded', () => {
-    ensureStayLoggedCheckbox();
+    
 
     const inputUser = qs('usuario');
     const persistedMatricula = loadPersistedSession();
@@ -935,7 +935,7 @@
         inputUser.value = persistedMatricula;
       }
       // Valida e faz login automaticamente ao carregar a página
-      fazerLogin(true);
+      fazerLogin();
     } else {
       // Se não tem nada ou é inválido, aguarda o usuário digitar
       const lo = qs('loginOverlay');
