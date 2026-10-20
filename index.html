@@ -1405,7 +1405,7 @@
         inputUser.value = matriculaParaValidar;
       }
       // Valida e faz login automaticamente ao carregar a página
-      fazerLogin(true);
+      fazerLogin();
     } else {
       // Caso contrário, limpa o campo (se inválido) e aguarda o usuário digitar
       const lo = qs('loginOverlay');
@@ -1487,13 +1487,18 @@
     let usuario = inputUser ? inputUser.value.trim() : '';
     if (!usuario) {
       usuario = sessionStorage.getItem(LOCAL_STORAGE_MATRICULA) || localStorage.getItem(LOCAL_STORAGE_MATRICULA) || getCookie(LOCAL_STORAGE_MATRICULA) || '';
-      if (usuario && inputUser) inputUser.value = usuario;
+    }
+
+    // Limpa a matrícula deixando apenas os números (remove espaços, traços, etc.)
+    usuario = String(usuario).replace(/\D/g, '');
+    if (usuario && inputUser) {
+      inputUser.value = usuario;
     }
 
     const regexMatricula = /^\d{6}$\vert{}^\d{8}$/;
     if (!usuario || !regexMatricula.test(usuario)) {
       if (!autoLogin) {
-        alert('A matrícula deve conter exatamente 6 ou 8 dígitos.');
+        alert('A matrícula deve conter exatamente 6 ou 8 dígitos numéricos.');
       }
       return;
     }
