@@ -642,7 +642,7 @@
     var labelSidebar = document.getElementById('sidebarUserName');
 
     if (sideBar && !sideBar.classList.contains('active')) {
-      const operador = sessionStorage.getItem("operadorNome") || localStorage.getItem("operadorNome");
+      const operador = sessionStorage.getItem("operadorNome") ?? localStorage.getItem("operadorNome");
       if (labelSidebar) {
         labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
       }
@@ -856,6 +856,8 @@
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dadosSessao));
       localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
       sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
+      localStorage.setItem('operadorNome', nome);
+      localStorage.setItem('acesso', JSON.stringify(dadosSessao.acesso));
       sessionStorage.setItem('operadorNome', nome);
       sessionStorage.setItem('acesso', JSON.stringify(dadosSessao.acesso));
       if (window.AppInventor && window.AppInventor.setWebViewString) {
