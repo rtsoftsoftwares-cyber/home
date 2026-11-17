@@ -2,19 +2,76 @@
 <html lang="pt-BR">
 
 <head>
+
 <meta charset="utf-8" />
+
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"/>
+
 <title>OUTLOG — Launcher</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<!-- Three.js e Cannon.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+ <!-- Three.js e Cannon.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cannon.js/0.6.2/cannon.min.js"></script>
+
+<!-- ==========================================================================
+     ADAPTADOR COMPATÍVEL COM GITHUB PAGES <-> GOOGLE APPS SCRIPT (.GS)
+     ========================================================================== -->
+<script>
+  // COLE AQUI A URL DO SEU WEB APP DO APPS SCRIPT (Terminada em /exec)
+  const URL_WEB_APP = "https://script.google.com/macros/s/SEU_ID_DE_DEPLOY_AQUI/exec";
+
+  if (typeof google === 'undefined' || !google.script || !google.script.run) {
+    window.google = {
+      script: {
+        run: new Proxy({}, {
+          get(target, funcaoNome) {
+            return function(...args) {
+              let successHandler = null;
+              let failureHandler = null;
+
+              const chainable = {
+                withSuccessHandler(fn) { successHandler = fn; return chainable; },
+                withFailureHandler(fn) { failureHandler = fn; return chainable; }
+              };
+
+              (async () => {
+                try {
+                  const response = await fetch(URL_WEB_APP, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ function: funcaoNome, args: args })
+                  });
+                  const json = await response.json();
+                  if (json.status === "success") {
+                    if (successHandler) successHandler(json.data);
+                  } else {
+                    throw new Error(json.error || "Erro desconhecido no servidor GAS.");
+                  }
+                } catch (err) {
+                  console.error(`Erro ao chamar ${funcaoNome} via GitHub:`, err);
+                  if (failureHandler) failureHandler(err);
+                  else if (successHandler) successHandler(null);
+                }
+              })();
+
+              return chainable;
+            };
+          }
+        })
+      }
+    };
+  }
+</script>
 
 <style>
+  
   :root {
     --bg: #090d12;
     --panel: #121721;
@@ -40,12 +97,24 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
-  * { box-sizing: border-box; }
+  * {
+    box-sizing: border-box;
+  }
 
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
 
   html, body {
     height: 100%;
@@ -58,7 +127,9 @@
 
   header#appHeader {
     position: fixed;
-    left: 0; right: 0; top: 0;
+    left: 0;
+    right: 0;
+    top: 0;
     height: var(--header-h);
     z-index: 1200;
     background: black;
@@ -78,9 +149,26 @@
     white-space: nowrap;
   }
 
-  .header-left { display: flex; align-items: center; gap: 10px; justify-content: flex-start; }
-  .header-center { text-align: center; display: flex; align-items: center; justify-content: center; }
-  .header-right { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
+  }
+
+  .header-center {
+    text-align:center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+  }
 
   .app-title {
     font-weight: 700;
@@ -95,7 +183,9 @@
     text-shadow: 0 0 10px var(--accent-glow);
     transition: opacity 0.2s;
   }
-  .app-title:active { opacity: 0.7; }
+  .app-title:active {
+    opacity: 0.7;
+  }
 
   .iconBtn {
     background: transparent;
@@ -116,10 +206,29 @@
     color: #ffffff;
     box-shadow: 0 0 8px var(--accent-glow);
   }
+  .sideBadge {
+  position: absolute !important;
+  top: 6px;
+  right: 12px;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+  min-width: 16px;
+  text-align: center;
+}
 
+  /* ==========================================================================
+     BARRA LATERAL (SIDEBAR)
+     ========================================================================== */
   #sideBar {
     position: fixed;
-    left: 0; top: var(--header-h); bottom: var(--footer-h);
+    left: 0;
+    top: var(--header-h);
+    bottom: var(--footer-h);
     width: 200px;
     background: var(--panel);
     border-right: 1px solid var(--panel-border);
@@ -132,7 +241,9 @@
     display: flex;
     flex-direction: column;
   }
-  #sideBar.active { transform: translateX(0); }
+  #sideBar.active {
+    transform: translateX(0);
+  }
 
   #sidebarOverlay {
     position: fixed;
@@ -153,10 +264,22 @@
     align-items: center;
     gap: 10px;
   }
-  .sidebar-user-box i { color: var(--accent); font-size: 14px; }
-  .sidebar-user-name { font-size: 13px; font-weight: 700; color: var(--text); letter-spacing: 0.5px; }
+  .sidebar-user-box i {
+    color: var(--accent);
+    font-size: 14px;
+  }
+  .sidebar-user-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.5px;
+  }
 
-  .menu-dropdown { margin-bottom: 8px; width: 100%; display: block; }
+  .menu-dropdown {
+    margin-bottom: 8px;
+    width: 100%;
+    display: block;
+  }
 
   .menu-trigger {
     width: 100%;
@@ -180,7 +303,12 @@
     background: var(--panel-hover);
     box-shadow: inset 0 0 10px var(--accent-glow);
   }
-  .menu-trigger div { display: flex; align-items: center; gap: 8px; pointer-events: none; }
+  .menu-trigger div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+  }
   .menu-trigger i.arrow-icon {
     font-size: 11px;
     color: var(--muted);
@@ -188,9 +316,18 @@
     pointer-events: none;
   }
 
-  .menu-dropdown .menu-content { display: none; padding: 6px 0 2px 6px; width: 100%; }
-  .menu-dropdown.open > .menu-content { display: block !important; }
-  .menu-dropdown.open .menu-trigger i.arrow-icon { transform: rotate(180deg); color: var(--accent); }
+  .menu-dropdown .menu-content {
+    display: none;
+    padding: 6px 0 2px 6px;
+    width: 100%;
+  }
+  .menu-dropdown.open > .menu-content {
+    display: block !important;
+  }
+  .menu-dropdown.open .menu-trigger i.arrow-icon {
+    transform: rotate(180deg);
+    color: var(--accent);
+  }
 
   .sideButtons .botao {
     width: 100%;
@@ -215,23 +352,49 @@
     background: var(--primary-hover);
     box-shadow: 0 0 10px var(--primary-glow);
   }
-  .sideButtons .botao i { width: 20px; text-align: center; color: var(--accent); font-size: 14px; }
+  .sideButtons .botao:active {
+    transform: scale(0.98);
+  }
+  .sideButtons .botao i {
+    width: 20px;
+    text-align: center;
+    color: var(--accent);
+    font-size: 14px;
+  }
 
-  .sidebar-footer { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--panel-border); }
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--panel-border);
+  }
 
-  .botao.btn-logout { background: var(--danger-bg); border: 1px solid var(--danger-border); color: #ffc0c0; }
-  .botao.btn-logout:hover { border-color: var(--danger); background: rgba(239, 68, 68, 0.25); box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
-  .botao.btn-logout i { color: var(--danger); }
+  .botao.btn-logout {
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    color: #ffc0c0;
+  }
+  .botao.btn-logout:hover {
+    border-color: var(--danger);
+    background: rgba(239, 68, 68, 0.25);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+  .botao.btn-logout i {
+    color: var(--danger);
+  }
 
   .sideBadge {
     position: absolute;
-    top: -5px; right: -8px;
-    min-width: 18px; height: 18px;
-    line-height: 13px; padding: 0 5px;
+    top: -5px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    line-height: 13px;
+    padding: 0 5px;
     border-radius: 9px;
     background: var(--danger);
     color: #fff;
-    font-size: 10px; font-weight: 800;
+    font-size: 10px;
+    font-weight: 800;
     text-align: center;
     box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
     display: inline-block;
@@ -239,307 +402,519 @@
   }
 
   #appContent {
-    position: fixed; left: 0; right: 0; top: var(--header-h); bottom: var(--footer-h);
-    overflow: hidden; display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: var(--header-h);
+    bottom: var(--footer-h);
+    overflow: hidden;
+    display: flex;
   }
 
   #contentContainer {
-    flex: 1; padding: 0; overflow: hidden; position: relative; width: 100%; height: 100%;
-    margin-left: 0; transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex: 1;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin-left: 0;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  #loadedContent { width: 100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 18px; }
+  #loadedContent {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 18px;
+  }
 
-  .news-wrap { max-width: 1100px; margin: 0 auto; padding: 14px; color: var(--text); }
-  .news-header { display: flex; justifyContent: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
-  .news-header h2 { margin: 0; color: var(--accent); font-size: 1.1rem; letter-spacing: 1px; text-shadow: 0 0 8px var(--accent-glow); }
+  .news-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 14px;
+    color: var(--text);
+  }
+  .news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .news-header h2 {
+    margin: 0;
+    color: var(--accent);
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    text-shadow: 0 0 8px var(--accent-glow);
+  }
 
-  .news-list { column-count: 2; column-gap: 20px; }
+  .news-list {
+    column-count: 2;
+    column-gap: 20px;
+  }
   .news-card {
-    display: inline-block; width: 100%; margin: 0 0 18px; vertical-align: top;
-    border-radius: var(--radius); background: var(--panel); border: 1px solid var(--panel-border);
-    box-shadow: var(--shadow-card); padding: 14px; break-inside: avoid; transition: border-color 0.2s, transform 0.2s;
+    display: inline-block;
+    width: 100%;
+    margin: 0 0 18px;
+    vertical-align: top;
+    border-radius: var(--radius);
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--shadow-card);
+    padding: 14px;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    transition: border-color 0.2s, transform 0.2s;
   }
-  .news-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .news-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
 
-  .news-media { width: 100%; height: auto; display: block; overflow: hidden; border-radius: var(--radius-sm); background: #000; margin-bottom: 12px; }
-  .news-media img { width: 100%; height: auto; object-fit: cover; display: block; border-radius: var(--radius-sm); }
+  .news-media {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: #000;
+    margin-bottom: 12px;
+  }
+  .news-media img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+    border-radius: var(--radius-sm);
+  }
 
-  .news-title { font-size: 1.05rem; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
-  .news-meta { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
-  .news-body { font-size: 14px; color: var(--text); line-height: 1.5; white-space: pre-wrap; }
-  .news-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .news-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .news-meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .news-body {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+  .news-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+  }
 
   .btn-small {
-    padding: 6px 12px; border-radius: var(--radius-sm); background: transparent;
-    border: 1px solid var(--panel-border); color: var(--muted); cursor: pointer;
-    font-family: inherit; transition: all 0.2s ease;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    border: 1px solid var(--panel-border);
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
   }
-  .btn-small:hover { color: var(--text); border-color: var(--accent); background: var(--panel-hover); }
+  .btn-small:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    background: var(--panel-hover);
+  }
 
-  @media (max-width: 960px) { .news-list { column-count: 1; } }
+  @media (max-width: 960px) {
+    .news-list {
+      column-count: 1;
+    }
+  }
 
   #newsModalOverlay {
-    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 4000;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 4000;
   }
-  #newsModalOverlay[aria-hidden="false"] { display: flex; }
+  #newsModalOverlay[aria-hidden="false"] {
+    display: flex;
+  }
 
-  .news-modal-container { display: flex; flex-direction: row; align-items: center; gap: 20px; width: 100%; }
-  #newsModalMedia { flex: 0 0 40%; display: flex; justify-content: center; align-items: center; }
-  #newsModalMedia img { max-width: 100%; height: auto; border-radius: var(--radius-sm); box-shadow: 0 0 15px rgba(0,0,0,0.5); }
-  .news-modal-text-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center; }
+  .news-modal-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+  }
+
+  #newsModalMedia {
+    flex: 0 0 40%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  #newsModalMedia img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  }
+
+  .news-modal-text-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+  }
 
   @media (max-width: 600px) {
-    .news-modal-container { flex-direction: column; }
-    #newsModalMedia { flex: 100%; width: 100%; }
+    .news-modal-container {
+      flex-direction: column;
+    }
+    #newsModalMedia {
+      flex: 100%;
+      width: 100%;
+    }
   }
 
   .news-modal {
-    width: 90%; max-width: 780px; max-height: 85vh; overflow-y: auto;
-    background: var(--panel); border-radius: var(--radius-lg); padding: 24px;
-    border: 1px solid var(--panel-border); box-shadow: var(--shadow-card), 0 0 20px var(--accent-glow);
-    position: relative; outline: none;
+    width: 90%;
+    max-width: 780px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--panel);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--shadow-card), 0 0 20px var(--accent-glow);
+    position: relative;
+    outline: none;
   }
-  .news-modal h3 { margin-top: 0; color: var(--accent); font-size: 1.2rem; letter-spacing: 0.5px; }
+  .news-modal h3 {
+    margin-top: 0;
+    color: var(--accent);
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
+  }
 
   #newsModalClose {
-    position: absolute; top: 12px; right: 14px; background: transparent; border: none;
-    color: var(--accent); font-size: 22px; cursor: pointer; transition: transform 0.2s, opacity 0.2s;
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
   }
-  #newsModalClose:hover { opacity: 0.8; transform: scale(1.1); }
+  #newsModalClose:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
 
   footer#appFooter {
-    position: fixed; left: 0; right: 0; bottom: 0; height: var(--footer-h);
-    background: var(--panel); border-top: 1px solid var(--panel-border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; color: var(--muted); letter-spacing: 0.5px; z-index: 1200;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--footer-h);
+    background: var(--panel);
+    border-top: 1px solid var(--panel-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    z-index: 1200;
   }
 
   #loginOverlay {
-    position: fixed; inset: 0; background: var(--bg); z-index: 2000;
-    display: flex; align-items: center; justify-content: center;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   #loginBox {
-    width: 100%; max-width: 310px; padding: 30px 25px;
-    background: var(--panel); border-radius: var(--radius-lg);
-    border: 1px solid var(--panel-border); text-align: center;
+    width: 100%;
+    max-width: 310px;
+    padding: 30px 25px;
+    background: var(--panel);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--panel-border);
+    text-align: center;
     box-shadow: var(--shadow-card), 0 0 25px #edf505;
-    display: flex; flex-direction: column; align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
-  #loginBrand img { width: 110px; height: 110px; object-fit: contain; margin-bottom: 25px; filter: drop-shadow(0 0 12px #edf505); }
-  #loginBrand .phrase { font-size: 13px; color: #edf505; margin-bottom: 20px; line-height: 1.4; }
+  #loginBrand img {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    margin-bottom: 25px;
+    filter: drop-shadow(0 0 12px #edf505);
+  }
+  #loginBrand .phrase {
+    font-size: 13px;
+    color: #edf505;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
 
   #loginBox input {
-    width: 100%; padding: 12px; margin-bottom: 12px;
-    background: var(--bg); border: 1px solid var(--panel-border);
-    border-radius: var(--radius-sm); color: #fff; outline: none;
-    text-align: center; font-size: 18px; font-family: inherit;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    background: var(--bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-sm);
+    color: #fff;
+    outline: none;
+    text-align: center;
+    font-size: 18px;
+    font-family: inherit;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-  #loginBox input:focus { border-color: #edf505; box-shadow: 0 0 10px var(--accent-glow); }
+  #loginBox input:focus {
+    border-color: #edf505;
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
 
   #loginBox button {
-    width: 100%; padding: 12px; background: linear-gradient(90deg, var(--primary), var(--primary-hover));
-    border: none; border-radius: var(--radius-sm); color: #fff; font-weight: 700;
-    cursor: pointer; font-size: 15px; font-family: inherit; letter-spacing: 0.5px;
-    transition: all 0.2s ease; box-shadow: 0 0 12px var(--primary-glow);
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 15px;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 12px var(--primary-glow);
   }
-  #loginBox button:hover { filter: brightness(1.15); box-shadow: 0 0 18px var(--primary-glow); }
+  #loginBox button:hover {
+    filter: brightness(1.15);
+    box-shadow: 0 0 18px var(--primary-glow);
+  }
 
   #loader {
-    position: absolute; inset: 0; background: rgba(9, 13, 18, 0.95);
-    display: none; flex-direction: column; align-items: center; justify-content: center;
-    color: var(--accent); font-size: 14px; z-index: 1500;
+    position: absolute;
+    inset: 0;
+    background: rgba(9, 13, 18, 0.95);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    font-size: 14px;
+    z-index: 1500;
   }
-  #loader i { font-size: 32px; margin-bottom: 15px; text-shadow: 0 0 10px var(--accent-glow); }
+  #loader i {
+    font-size: 32px;
+    margin-bottom: 15px;
+    text-shadow: 0 0 10px var(--accent-glow);
+  }
 
-  .stayLoggedContainer { display: flex; align-items: center; justify-content: center; width: 60%; }
-  .stayLoggedContainer input[type="checkbox"] { margin-top: 12px; cursor: pointer; accent-color: var(--accent); white-space: nowrap; }
-  .stayLoggedContainer label { margin: 0; font-size: 13px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+  .stayLoggedContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60%;
+  }
+  .stayLoggedContainer input[type="checkbox"] {
+    margin-top: 12px;
+    cursor: pointer;
+    accent-color: var(--accent);
+    white-space: nowrap;
+  }
+  .stayLoggedContainer label {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+  }
 
-  #tituloDesc { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 2px; color: var(--text); }
+  #tituloDesc {
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
 
   @media (min-width: 900px) {
-    #sideBar { transform: translateX(-100%); }
-    #sideBar.active { transform: translateX(0); }
-    #contentContainer { margin-left: 0; }
-    #sideBar.active ~ #contentContainer { margin-left: 200px; }
-    #menuToggle { display: block; }
-    #sidebarOverlay { display: none !important; }
+    #sideBar {
+      transform: translateX(-100%);
+    }
+    #sideBar.active {
+      transform: translateX(0);
+    }
+    #contentContainer {
+      margin-left: 0;
+    }
+    #sideBar.active ~ #contentContainer {
+      margin-left: 200px;
+    }
+    #menuToggle {
+      display: block;
+    }
+    #sidebarOverlay {
+      display: none !important;
+    }
   }
 </style>
+
+
 </head>
-
 <body>
-
-<!-- POLYFILL DO GOOGLE.SCRIPT.RUN PARA GITHUB PAGES -->
-<script>
-  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzSGJihV_x_eFA1-yzJisl6naV8deqknfylzwoqWkd_7Cnwry8KS6xYeVxL1glsfXMy/exec";
-
-  window.google = window.google || {};
-  window.google.script = window.google.script || {};
-
-  window.google.script.run = (function() {
-    let successHandler = null;
-    let failureHandler = null;
-
-    function createProxy() {
-      const handler = {
-        get(target, prop) {
-          if (prop === 'withSuccessHandler') {
-            return function(callback) {
-              successHandler = callback;
-              return createProxy();
-            };
-          }
-          if (prop === 'withFailureHandler') {
-            return function(callback) {
-              failureHandler = callback;
-              return createProxy();
-            };
-          }
-          return function(...args) {
-            const functionName = prop;
-            const payload = {
-              function: functionName,
-              args: args
-            };
-
-            fetch(GAS_WEB_APP_URL, {
-              method: 'POST',
-              mode: 'cors',
-              headers: {
-                'Content-Type': 'text/plain;charset=utf-8'
-              },
-              body: JSON.stringify(payload)
-            })
-            .then(response => response.json())
-            .then(res => {
-              if (res && res.status === 'success') {
-                if (typeof successHandler === 'function') {
-                  successHandler(res.data);
-                }
-              } else {
-                if (typeof failureHandler === 'function') {
-                  failureHandler(res ? res.error : 'Erro desconhecido');
-                } else if (typeof successHandler === 'function') {
-                  successHandler(res ? res.data : null);
-                }
-              }
-              successHandler = null;
-              failureHandler = null;
-            })
-            .catch(err => {
-              if (typeof failureHandler === 'function') {
-                failureHandler(err);
-              } else {
-                console.error("Erro na requisição GAS via GitHub:", err);
-              }
-              successHandler = null;
-              failureHandler = null;
-            });
-          };
-        }
-      };
-      return new Proxy({}, handler);
-    }
-    return createProxy();
-  })();
-</script>
 
 <div id="sidebarOverlay" onclick="closeSidebar()"></div>
 
 <header id="appHeader">
+
   <div class="header-inner">
+
     <div class="header-left">
       <button class="iconBtn" id="menuToggle" style="font-size:12px;color:#edf505;background:black" onclick="toggleSidebar()"> MENU</button>
     </div>
+    
     <div class="header-center">
       <div id="tituloDesc" style="color:#edf505;background:black;width:auto;border:5px;border-color:yellow;border-radius:6px" class="app-title" onclick="showNews()">OUTLOG</div>
     </div>
+    
     <div class="header-right">
       <span onclick="abrirLink('joguin.html')" id="headerUser" style="color:#edf505;font-size:13px; margin-right:5px; display:flex;"></span>
     </div>
   </div>
+
 </header>
 
 <div id="appContent">
   <aside id="sideBar">
+    
     <div class="sidebar-user-box">
       <i class="fa-solid fa-circle-user"></i>
       <span id="sidebarUserName" class="sidebar-user-name">Carregando usuário...</span>
     </div>
 
     <nav class="sideButtons" style="flex: 1;">
-      <!-- MENU 1: OPERADORES -->
+
       <div class="menu-dropdown">
         <button class="menu-trigger" onclick="toggleMenu(this)">
           <div>• OPERADORES</div>
           <i class="fa-solid fa-chevron-down arrow-icon"></i>
         </button>
+
         <div class="menu-content">
+
           <button id="btncarregamentoOp" class="botao" style="color:white" onclick="abrirLink('SEPARACAO.html')">
-            <img src="https://images.icon-icons.com/2248/PNG/512/forklift_icon_135595.png" style="width: 20px; height: 21px; filter: invert(31%) sepia(94%) saturate(3135%) hue-rotate(201deg) brightness(101%) contrast(105%); color:white;">CARREGAMENTO
+            <img src="https://images.icon-icons.com/2248/PNG/512/forklift_icon_135595.png" style="width: 20px; height: 21px;  filter: invert(31%) sepia(94%) saturate(3135%) hue-rotate(201deg) brightness(101%) contrast(105%);color:white;">CARREGAMENTO
           </button>
-          <button id="btndescargaOp" class="botao" style="color:white" onclick="abrirLink('DescV2.html')"><img src="https://i.imgur.com/3I75QTh.png" style="width: 20px; height: 21px; filter: invert(31%) sepia(94%) saturate(3135%) hue-rotate(201deg) brightness(101%) contrast(105%)"> DESCARGA</button>
+
+          <button id="btndescargaOp" class="botao" style="color:white" onclick="abrirLink('DescV2.html')"><img src="https://i.imgur.com/3I75QTh.png" style="width: 20px; height: 21px;  filter: invert(31%) sepia(94%) saturate(3135%) hue-rotate(201deg) brightness(101%) contrast(105%)"> DESCARGA</button>
+
           <button style="color:white;" id="btnptlLinha" class="botao" onclick="abrirLink('PTL Operadores.html')"><i class="fa-solid fa-list-check"></i> PTL DE LINHA</button>
+
           <button style="color:white;" id="btnSepManual" class="botao" onclick="abrirLink('SEP_MANUAL.html')"><i class="fa-solid fa-pen"></i> SEP.MANUAL</button>
+
           <button style="color:white;" id="btnMoviApp" class="botao" onclick="abrirLink('MoviOp.html')"><i class="fa-solid fa-arrows-turn-to-dots"></i> MOVIMENTAÇÕES</button>
+
           <button style="color:white;" id="btnbuscarProduto" class="botao" onclick="abrirLink('FeFoBox.html')"><i class="fa-solid fa-magnifying-glass"></i> FEFOBOX</button>
+
           <button style="color:white;" id="btnPitStop" class="botao" onclick="abrirLink('Pitstop.html')"><i class="fa-solid fa-gas-pump"></i> PIT-STOP</button>
+
           <button style="color:white;" id="btnSimulator3D" class="botao" onclick="abrirLink('simulador3D.html')"><i class="fa-solid fa-rotate"></i> 3D.SIMULATOR</button>
+
         </div>
       </div>
 
-      <!-- MENU 2: CONFERENTES -->
       <div class="menu-dropdown">
         <button class="menu-trigger" onclick="toggleMenu(this)">
           <div>• CONFERENTES</div>
           <i class="fa-solid fa-chevron-down arrow-icon"></i>
         </button>
         <div class="menu-content">
-          <button style="color:white;" id="btnRecebidosP1" class="botao" onclick="abrirLink('RecebimentoP1.html')"><i class="fa-solid fa-rotate"></i>P1-RECEBIMENTO</button>
+          
+          <button style="color:white;" id="btnRecebidosP1"  class="botao" onclick="abrirLink('RecebimentoP1.html')"><i class="fa-solid fa-rotate"></i>P1-RECEBIMENTO</button>
+
           <button style="color:white;" id="btnAtendimento" class="botao" onclick="abrirLink('Atendimento - OUTLOG.html')"><i class="fa-solid fa-boxes-packing"></i> T1-ATENDIMENTO</button>
-          <button style="color:white;" id="btnMoviCONF" class="botao" onclick="abrirLink('Movimentações.html')"><i class="fa-solid fa-arrows-turn-to-dots"></i>MOVIMENTAR BOX</button>
-        </div>
+          
+          <button style="color:white;" id="btnMoviCONF" class="botao" onclick="abrirLink('Movimentações.html')">
+           <i class="fa-solid fa-arrows-turn-to-dots"></i>MOVIMENTAR BOX</button>
+
+          </div>
       </div>
 
-      <!-- MENU 3: ADM -->
       <div id="menuAdm" class="menu-dropdown" style="display: none;">
         <button class="menu-trigger" onclick="toggleMenu(this)">
+
           <div><i class="fa-solid fa-unlock-keyhole"></i>• ADMIN</div>
+
           <i class="fa-solid fa-chevron-down arrow-icon"></i>
         </button>
+
         <div class="menu-content">
           <button style="color:white;" id="btnadmin" class="botao" onclick="abrirLink('ADM.html')"><i class="fa-solid fa-users-gear"></i>USUARIOS</button>
-          <button style="color:white;" id="btnSeloAcess" class="botao" style="color:white;background:#000000;" onclick="abrirLink('SELO.html')"><i class="fa-solid fa-hammer"></i>SELO [RETRABALHOS]</button>
+
+        <button style="color:white;" id="btnSeloAcess" class="botao" style="color:white;background:#000000;"  onclick="abrirLink('SELO.html')"><i class="fa-solid fa-hammer"></i>SELO [RETRABALHOS]</button>
+
         </div>
       </div>
-    </nav>
+      </nav>
 
     <div class="sidebar-footer">
       <button class="botao btn-logout" onclick="logout()" title="Sair do Sistema">
         <i class="fa-solid fa-right-from-bracket"></i> Sair da Conta
       </button>
     </div>
+
   </aside>
 
+  <div id="sidebarOverlay" onclick="closeSidebar()"></div>
+
   <section id="contentContainer">
+
     <div id="loader">
-      <i class="fa-solid fa-circle-notch fa-spin"></i>
-      <span>Carregando...</span>
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        <span>Carregando...</span>
     </div>
+  
     <div id="loadedContent"></div>
   </section>
+
 </div>
 
-<footer style="display:flex;color:#edf505;font-size:15px;" id="appFooter">Software desenvolvido por Richard Ferreira</footer>
+<footer style="display:flex;color:#edf505;font-size:15px;" id="appFooter">Software desenvolvido por Richard Ferreira </footer>
 
 <div id="loginOverlay" aria-hidden="false">
   <div id="loginBox" style="margin-bottom:160px;height:250px;position:relative;" role="dialog" aria-modal="true" aria-label="Login">
+    
     <button id="btnNovoUsuario" title="Novo Usuário" style="position:absolute; top:12px; right:12px; width:15px; height:15px; border-radius:50%; background:#0288d1; color:white; border:none; font-size:18px; font-weight:bold; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.3); transition:background 0.2s;"><i class="fa-solid fa-plus"></i></button>
 
     <div id="loginBrand">
@@ -548,17 +923,17 @@
     </div>
 
     <input style="width:200px" type="user" id="usuario" placeholder="MATRÍCULA / ID" inputmode="numeric" aria-label="Campo matrícula" />
-    <button id="btnLogin" onclick="fazerLogin()" style="color:#0410bf;background:#edf505;font-size:15px;height:40px;width:150px"> LOGIN</button>
+
+    <button id="btnLogin" onclick="fazerLogin()" style="color:#0410bf;background:#edf505;font-size:15px;height:40px;width:150px" > LOGIN</button>
 
     <div class="stayLoggedContainer" style="display:none">
       <input style="display: flex;" type="checkbox" id="stayLogged">
-      <label style="display: flex;" for="stayLogged" onclick="iniciarMonitoramento()">Manter Login [Beta]</label>
+      <label style="display: flex;" for="stayLogged">Manter Login [Beta]</label>
     </div> 
   </div>
 </div>
 
 <script>
-// --- MONITORAMENTO DE MENSAGENS (3 MINUTOS) ---
 (function() {
   const INTERVALO_MS = 1 * 60 * 1000;
 
@@ -575,6 +950,7 @@
         if (!mensagem) return;
         const msgSalvaLocal = localStorage.getItem('h1_msg_lida');
         const msgSalvaSession = sessionStorage.getItem('h1_msg_lida');
+        
         if (msgSalvaLocal === mensagem || msgSalvaSession === mensagem) return;
         exibirBotaoNotificacao(mensagem);
       })
@@ -586,9 +962,17 @@
     footer.innerHTML = `
       <button id="btnNotifMsg" style="
         background: rgba(239, 68, 68, 0.15);
-        border: 1px solid #ef4444; color: #ffffff; padding: 4px 12px;
-        border-radius: 20px; font-family: 'Inter', sans-serif; font-size: 13px;
-        font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+        border: 1px solid #ef4444;
+        color: #ffffff;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: bold;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
       ">
         <i class="fa-solid fa-envelope" style="color: #ef4444;"></i> Nova Mensagem
@@ -620,18 +1004,11 @@
     `;
 
     overlay.innerHTML = `
-      <div style="
-        background: var(--panel, #1e293b); border: 1px solid var(--accent, #36b8f2);
-        color: #ffffff; padding: 20px 24px; border-radius: 12px; max-width: 420px; width: 85%;
-        box-shadow: 0 0 20px rgba(54, 184, 242, 0.3); text-align: center; font-family: 'Inter', sans-serif;
-      ">
+      <div style="background: var(--panel, #1e293b); border: 1px solid var(--accent, #36b8f2); color: #fff; padding: 20px 24px; border-radius: 12px; max-width: 420px; width: 85%; text-align: center;">
         <div style="font-size: 24px; color: #36b8f2; margin-bottom: 8px;"><i class="fa-solid fa-bell"></i></div>
         <h4 style="margin: 0 0 10px 0; color: #36b8f2; font-size: 16px;">Comunicado</h4>
         <p style="font-size: 14px; line-height: 1.5; color: #e2e8f0; margin-bottom: 20px;">${mensagem}</p>
-        <button id="btnCloseToastH1" style="
-          background: #36b8f2; color: #0f172a; border: none; padding: 8px 22px;
-          border-radius: 6px; font-weight: bold; cursor: pointer;
-        ">Entendido</button>
+        <button id="btnCloseToastH1" style="background: #36b8f2; color: #0f172a; border: none; padding: 8px 22px; border-radius: 6px; font-weight: bold; cursor: pointer;">Entendido</button>
       </div>
     `;
 
@@ -678,32 +1055,22 @@ function executarModoCampo() {
       .mini-botao-gps {
         position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
         height: 32px; max-height: 32px; background-color: #121214; color: #ffffff; 
-        border: 1px solid #29292e; border-radius: 6px; z-index: 999999; font-family: sans-serif;
+        border: 1px solid #29292e; border-radius: 6px; z-index: 999999; 
         display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; font-size: 13px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
       }
-      .status-satelite { display: flex; align-items: center; font-weight: 500; }
     `;
     document.head.appendChild(estilo);
   }
 
   var footerApp = document.getElementById("appFooter");
   var containerPai = footerApp || document.body;
-  if (footerApp) {
-    footerApp.style.textAlign = "center";
-    if (window.getComputedStyle(footerApp).position === "static") footerApp.style.position = "relative";
-  }
+  if (footerApp) { footerApp.style.textAlign = "center"; }
 
   var barraGps = document.getElementById("painelModoCampoGps");
-  var bolinhaAntiga = document.getElementById("bolinhaModoCampoGps");
-  if (bolinhaAntiga) bolinhaAntiga.remove();
-
   if (!barraGps) {
     barraGps = document.createElement("div");
     barraGps.id = "painelModoCampoGps";
     barraGps.className = "mini-botao-gps";
-    containerPai.appendChild(barraGps);
-  } else if (barraGps.parentElement !== containerPai) {
     containerPai.appendChild(barraGps);
   }
 
@@ -716,13 +1083,9 @@ function executarModoCampo() {
     var agora = new Date();
     var tsAtual = p.timestamp || agora.getTime();
 
-    var textoStatus = "", tipoLocalizacao = "";
-    if (precisao <= 10.0) { textoStatus = "🟢 Local: Exato"; tipoLocalizacao = "Exata"; }
-    else if (precisao > 11.0 && precisao <= 15.0) { textoStatus = "🟡 Local: Deslocando"; tipoLocalizacao = "Aproximada"; }
-    else if (precisao > 16.0 && precisao <= 19.0) { textoStatus = "🟠 Local: Registrando perímetro"; tipoLocalizacao = "Deslocando"; }
-    else { textoStatus = "🔴 Local: Aproximando"; tipoLocalizacao = "Raio mapeado"; }
-
+    var textoStatus = precisao <= 10.0 ? "🟢 Local: Exato" : "🟡 Local: Deslocando";
     document.getElementById("txtGpsStatus").innerHTML = textoStatus;
+
     if (precisao > 20.0) return;
 
     var dia = String(agora.getDate()).padStart(2, '0');
@@ -732,54 +1095,39 @@ function executarModoCampo() {
     var m = String(agora.getMinutes()).padStart(2, '0');
     var s = String(agora.getSeconds()).padStart(2, '0');
     
-    var dataString = dia + "/" + mes + "/" + ano;
-    var horaString = h + ":" + m + ":" + s;
-
-    if (typeof bufferLocalPontos === 'undefined') window.bufferLocalPontos = [];
-
     bufferLocalPontos.push({
-      lat: latAtual.toString(), lng: lngAtual.toString(), precisao: precisao.toFixed(1) + "m",
-      tipo: tipoLocalizacao, timestamp: tsAtual.toString(), data: dataString, hora: horaString, dataHora: dataString + " " + horaString
+      lat: String(latAtual), lng: String(lngAtual), precisao: precisao.toFixed(1) + "m",
+      tipo: precisao <= 10 ? "Exata" : "Aproximada", timestamp: String(tsAtual),
+      data: `${dia}/${mes}/${ano}`, hora: `${h}:${m}:${s}`, dataHora: `${dia}/${mes}/${ano} ${h}:${m}:${s}`
     });
   }
 
-  if (!navigator.geolocation) {
-    document.getElementById("txtGpsStatus").innerHTML = "🔴 Sem GPS";
-    return;
-  }
-
-  var geoOptions = { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 };
+  if (!navigator.geolocation) return;
 
   navigator.geolocation.getCurrentPosition(
-    function(posicaoInicial) {
-      analisarEProcessarPonto(posicaoInicial);
-      idWatchGps = navigator.geolocation.watchPosition(analisarEProcessarPonto, function(err) {}, geoOptions);
+    function(pos) {
+      analisarEProcessarPonto(pos);
+      idWatchGps = navigator.geolocation.watchPosition(analisarEProcessarPonto, null, { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 });
     },
-    function(errInicial) { document.getElementById("txtGpsStatus").innerHTML = "🔴 Informado ao ADMIN"; },
-    geoOptions
+    null, { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
   );
 
   cronometroEnvio = setInterval(function() {
-    if (typeof bufferLocalPontos === 'undefined' || bufferLocalPontos.length === 0) return;
-    var pacoteParaEnviar = bufferLocalPontos.slice();
+    if (!bufferLocalPontos.length) return;
+    var pacote = [...bufferLocalPontos];
     bufferLocalPontos = [];
-
     google.script.run
-      .withSuccessHandler(function(res) {})
-      .withFailureHandler(function(e) { bufferLocalPontos = pacoteParaEnviar.concat(bufferLocalPontos); })
-      .salvarLocalizacaoBatch(nomeUsuario, JSON.stringify(pacoteParaEnviar));
+      .withFailureHandler(() => { bufferLocalPontos = pacote.concat(bufferLocalPontos); })
+      .salvarLocalizacaoBatch(nomeUsuario, JSON.stringify(pacote));
   }, 7000);
 }
 
 function lidarCliqueMenu(event) {
   if (event) { event.preventDefault(); event.stopPropagation(); }
-  var dropdown = (typeof this.closest === 'function') ? this.closest('.menu-dropdown') : this.parentElement;
-  if (dropdown && dropdown.classList) {
-    var vaiAbrir = !dropdown.classList.contains('open');
-    if (vaiAbrir) {
-      var sideBar = document.getElementById('sideBar');
-      var todosDropdowns = sideBar ? sideBar.querySelectorAll('.menu-dropdown') : document.querySelectorAll('.menu-dropdown');
-      todosDropdowns.forEach(function(item) { item.classList.remove('open'); });
+  var dropdown = this.closest('.menu-dropdown');
+  if (dropdown) {
+    if (!dropdown.classList.contains('open')) {
+      document.querySelectorAll('.menu-dropdown').forEach(d => d.classList.remove('open'));
     }
     dropdown.classList.toggle('open');
   }
@@ -792,14 +1140,10 @@ function toggleSidebar() {
   var labelSidebar = document.getElementById('sidebarUserName');
 
   if (sideBar && !sideBar.classList.contains('active')) {
-    var operador = (function(){
-      try { return sessionStorage.getItem('operadorNome') || localStorage.getItem('operadorNome') || ''; }
-      catch(e){ return ''; }
-    })();
+    var operador = sessionStorage.getItem('operadorNome') || localStorage.getItem('operadorNome') || '';
     if (labelSidebar) labelSidebar.innerText = operador ? operador.trim() : 'Identificando...';
-
-    var dropdowns = sideBar.querySelectorAll('.menu-dropdown');
-    dropdowns.forEach(function(menu) {
+    
+    sideBar.querySelectorAll('.menu-dropdown').forEach(menu => {
       var trigger = menu.querySelector('.menu-trigger');
       if (trigger) {
         trigger.removeAttribute('onclick');
@@ -813,14 +1157,8 @@ function toggleSidebar() {
   if (sideBar) {
     sideBar.classList.toggle('active');
     if (overlay) {
-      var isOpened = sideBar.classList.contains('active');
-      if (isOpened) {
-        overlay.style.display = 'block';
-        setTimeout(function() { overlay.style.opacity = '1'; }, 10);
-      } else {
-        overlay.style.opacity = '0';
-        setTimeout(function() { overlay.style.display = 'none'; }, 300);
-      }
+      overlay.style.display = sideBar.classList.contains('active') ? 'block' : 'none';
+      overlay.style.opacity = sideBar.classList.contains('active') ? '1' : '0';
     }
   }
 }
@@ -830,658 +1168,337 @@ function closeSidebar() {
   var sideBar = document.getElementById('sideBar');
   var overlay = document.getElementById('sidebarOverlay');
   if (sideBar) sideBar.classList.remove('active');
-  if (overlay) { overlay.style.opacity = '0'; setTimeout(function() { overlay.style.display = 'none'; }, 300); }
+  if (overlay) { overlay.style.opacity = '0'; setTimeout(() => overlay.style.display = 'none', 300); }
 }
 window.closeSidebar = closeSidebar;
 
-(function(){
-  function inicializarEventosMenu() {
-    const triggers = document.querySelectorAll('.menu-trigger');
-    triggers.forEach(button => {
-      button.removeEventListener('click', lidarCliqueMenu);
-      button.addEventListener('click', lidarCliqueMenu);
-    });
-  }
+function toggleMenu(element) {
+  if (!element) return;
+  var dropdown = element.closest('.menu-dropdown');
+  if (dropdown) dropdown.classList.toggle('open');
+}
+window.toggleMenu = toggleMenu;
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', inicializarEventosMenu);
-  } else {
-    inicializarEventosMenu();
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const inputUsuario = document.getElementById('usuario');
-    let typingTimeout;
-
-    if (inputUsuario) {
-      inputUsuario.addEventListener('input', function() {
-        const valor = this.value.trim();
-        clearTimeout(typingTimeout);
-        const btn = document.getElementById('btnLogin');
-        if (btn && btn.disabled) return;
-
-        if (valor.length === 8) {
-          fazerLogin();
-        } else if (valor.length >= 6 && valor.length < 8) {
-          typingTimeout = setTimeout(() => {
-            const btnCheck = document.getElementById('btnLogin');
-            if (btnCheck && !btnCheck.disabled) fazerLogin();
-          }, 900);
-        }
-      });
-    }
+function ocultarCabecalhosEMenus() {
+  ['header', 'nav', '.header', '.navbar', '.sidebar', '#header', '#sidebar', '#menu', '.menu', '#headerUser', '.main-header', 'footer'].forEach(s => {
+    document.querySelectorAll(s).forEach(el => el.style.display = 'none');
   });
-
-  const OPENING_GIF = 'https://i.imgur.com/v0xrFKm.gif';
-  const OPENING_GIF_DURATION = 1800;
-
-  function qs(id){ try { return document.getElementById(id); } catch(e){ return null; } }
-  function setAttr(el, name, value){ if(!el) return; el.setAttribute(name, value); }
-
-  function setCookie(name, value, days){
-    try {
-      let expires = '';
-      if (typeof days === 'number') {
-        const d = new Date();
-        d.setTime(d.getTime() + (days*24*60*60*1000));
-        expires = '; expires=' + d.toUTCString();
-      }
-      document.cookie = name + '=' + encodeURIComponent(value || '') + expires + '; path=/';
-      return true;
-    } catch(e){ return false; }
-  }
-  function getCookie(name){
-    try {
-      const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-      return v ? decodeURIComponent(v.pop()) : '';
-    } catch(e){ return ''; }
-  }
-  function delCookie(name){
-    try { document.cookie = name + '=; Max-Age=0; path=/'; } catch(e){}
-  }
-
-  window.APP_SESSION = window.APP_SESSION || { nome: 'Visitante', acesso: [], matricula: '' };
-
-  function ensureStayLoggedCheckbox(){
-    try {
-      const usuario = qs('usuario');
-      if(!usuario || qs('stayLogged') || qs('stayLoggedContainer')) return;
-      const container = document.createElement('div');
-      container.id = 'stayLoggedContainer';
-      container.style.cssText = 'display:flex; align-items:center; justify-content:center; margin:8px 0; width:100%;';
-      container.innerHTML = `<input type="checkbox" id="stayLogged" style="margin:0 2px 0 0; cursor:pointer;">Manter-se Logado`;
-      if(usuario.parentNode) usuario.parentNode.insertBefore(container, usuario.nextSibling);
-      try {
-        const persisted = localStorage.getItem('ptl_stay') || getCookie('ptl_stay');
-        if(persisted === '1'){ const cb = qs('stayLogged'); if(cb) cb.checked = true; }
-      } catch(e){}
-    } catch(e){}
-  }
-
-  function persistSession(nome, acessos, matricula){
-    const stay = (qs('stayLogged') && qs('stayLogged').checked) ? true : false;
-    const data = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
-    window.APP_SESSION = data;
-    try {
-      if(stay){
-        localStorage.setItem('operadorNome', nome);
-        localStorage.setItem('acesso', JSON.stringify(data.acesso));
-        localStorage.setItem('outlog_matricula', matricula);
-        localStorage.setItem('ptl_stay', '1');
-      } else {
-        localStorage.setItem('operadorNome', nome);
-        localStorage.setItem('acesso', JSON.stringify(data.acesso));
-        localStorage.setItem('outlog_matricula', matricula);
-      }
-    } catch(e){}
-    try {
-      sessionStorage.setItem('operadorNome', nome);
-      sessionStorage.setItem('acesso', JSON.stringify(data.acesso));
-      sessionStorage.setItem('outlog_matricula', matricula);
-    } catch(e){}
-    return true;
-  }
-
-  function loadPersistedSession(){
-    try {
-      return sessionStorage.getItem('outlog_matricula') || localStorage.getItem('outlog_matricula') || getCookie('outlog_matricula') || '';
-    } catch(e){ return ''; }
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    ensureStayLoggedCheckbox();
-    try {
-      const user = loadPersistedSession();
-      if (user) {
-        restaurarSessao(user);
-      } else {
-        const lo = qs('loginOverlay');
-        if (lo) lo.style.display = 'flex';
-      }
-    } catch(e) {
-      const lo = qs('loginOverlay'); if (lo) lo.style.display = 'flex';
-    }
-    setTimeout(updateBadges, 400);
-  });
-
-  function toggleMenu(element) {
-    if (!element) return;
-    var dropdown = (typeof element.closest === 'function') ? element.closest('.menu-dropdown') : element.parentElement;
-    if (dropdown && dropdown.classList) dropdown.classList.toggle('open');
-  }
-  window.toggleMenu = toggleMenu;
-
-  function ocultarCabecalhosEMenus() {
-    ['header', 'nav', '.header', '.navbar', '.sidebar', '#header', '#sidebar', '#menu', '.menu', '#headerUser', '.main-header','footer','footer#appFooter'].forEach(seletor => {
-      document.querySelectorAll(seletor).forEach(el => { el.style.display = 'none'; });
-    });
-    const lo = document.getElementById('loginOverlay');
-    if (lo) lo.style.display = 'none';
-  }
-
-  function exibirModalBoasVindasLicenca(mensagem, tempoMs, callback) {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);display:flex;justify-content:center;align-items:center;z-index:999999;font-family:sans-serif;';
-    const modalBox = document.createElement('div');
-    modalBox.style.cssText = 'background:#fc0303;color:#ffffff;padding:20px 35px;border-radius:10px;text-align:center;font-size:18px;font-weight:600;';
-    modalBox.innerText = mensagem;
-    overlay.appendChild(modalBox);
-    document.body.appendChild(overlay);
-    setTimeout(() => { overlay.remove(); if (typeof callback === 'function') callback(); }, tempoMs || 1800);
-  }
-
-  const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
-  const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
-
-  function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
-    try {
-      const dadosSessao = { usuario, ip, nome, acesso, timestamp: Date.now() };
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dadosSessao));
-      localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
-      sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
-    } catch (e) {}
-  }
-
-  function obterSessaoLocal() {
-    try {
-      const sessao = localStorage.getItem(LOCAL_STORAGE_KEY);
-      return sessao ? JSON.parse(sessao) : null;
-    } catch (e) { return null; }
-  }
-
-  function limparSessaoLocal(manterMatricula = true) {
-    try {
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
-      if (!manterMatricula) localStorage.removeItem(LOCAL_STORAGE_MATRICULA);
-    } catch (e) {}
-  }
-
-  window.fazerLogin = async function(autoLogin = false) {
-    const inputUser = document.getElementById('usuario');
-    let usuario = inputUser ? inputUser.value.trim() : '';
-    if (!usuario) {
-      usuario = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
-      if (usuario && inputUser) inputUser.value = usuario;
-    }
-    if (!usuario) return alert('Digite a matrícula');
-
-    try { localStorage.setItem('outlog_matricula', usuario); } catch(e) {}
-
-    const btn = qs('btnLogin');
-    const txtOriginal = btn && (btn.innerText || 'Login');
-    const restaurarBotao = () => { if (btn) { btn.innerText = txtOriginal; btn.disabled = false; } };
-
-    if (btn) { btn.innerText = "Validando..."; btn.disabled = true; }
-
-    const sessaoExistente = obterSessaoLocal();
-    let userIp = sessaoExistente ? (sessaoExistente.ip || 'IP não identificado') : 'IP não identificado';
-    try {
-      const responseIp = await fetch('https://api.ipify.org?format=json');
-      if (responseIp.ok) {
-        const dataIp = await responseIp.json();
-        userIp = dataIp.ip || userIp;
-      }
-    } catch (err) {}
-
-    const exibirModalCustomizado = (mensagem) => {
-      const overlay = document.createElement('div');
-      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;justify-content:center;align-items:center;z-index:99999;font-family:sans-serif;';
-      const modalBox = document.createElement('div');
-      modalBox.style.cssText = 'background:#ffffff;padding:30px;border-radius:12px;max-width:400px;width:85%;text-align:center;border-top:6px solid #dc3545;';
-      const textoMsg = document.createElement('p');
-      textoMsg.innerText = mensagem;
-      textoMsg.style.cssText = 'font-size:16px;color:#333333;margin:0 0 25px 0;font-weight:500;';
-      const btnFechar = document.createElement('button');
-      btnFechar.innerText = 'OK';
-      btnFechar.style.cssText = 'background:#dc3545;color:#ffffff;border:none;padding:10px 35px;font-size:14px;border-radius:6px;cursor:pointer;font-weight:bold;';
-      btnFechar.onclick = () => overlay.remove();
-      modalBox.appendChild(textoMsg); modalBox.appendChild(btnFechar); overlay.appendChild(modalBox);
-      document.body.appendChild(overlay);
-    };
-
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run.withSuccessHandler(res => {
-        restaurarBotao();
-        if (res && res.success) {
-          salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
-          google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
-
-          google.script.run.withSuccessHandler(licRes => {
-            if (licRes && licRes.expirado) {
-              ocultarCabecalhosEMenus();
-              if (typeof abrirLink === 'function') abrirLink("LICENÇA");
-            } else {
-              const dias = licRes ? licRes.diasRestantes : 0;
-              const msgBoasVindas = `Licença Ativa ( ${dias} dias restantes )`;
-              try { salvarSessao(res.nome, res.acesso, usuario); } catch(e){}
-              exibirModalBoasVindasLicenca(msgBoasVindas, 1500, () => {});
-            }
-          }).withFailureHandler(e => {
-            alert('Erro ao validar licença: ' + e);
-          }).verificarLicenca();
-
-        } else {
-          limparSessaoLocal(true);
-          google.script.run.registrarLog(`Usuario tentou acesso Ambev | IP: ${userIp}`, usuario);
-          let mensagemFinal = "Senha incorreta";
-          if (res && (res.status === 'NOK' || res.nok)) {
-            mensagemFinal = "Acesso temporariamente indisponível, aguardando permissão oficial para uso do sistema OutLog.";
-          }
-          exibirModalCustomizado(mensagemFinal);
-        }
-      }).withFailureHandler(e => {
-        restaurarBotao();
-        alert('Erro de conexão: ' + e);
-      }).validarLogin(usuario);
-    } else {
-      setTimeout(() => {
-        restaurarBotao();
-        salvarSessaoLocalmente(usuario, userIp, 'Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11']);
-        salvarSessao('Admin Teste', ['0','1','2','3','4','5','6','7','8','9','10','11'], usuario);
-        exibirModalBoasVindasLicenca("Licença Ativa ( Demo )", 1500, () => {});
-      }, 500);
-    }
-  };
-
-  window.limparSessaoLocal = limparSessaoLocal;
-
-  window.salvarSessao = function(nome, acessos, matricula) {
-    try { persistSession(nome, acessos, matricula); } catch(e){}
-    window.APP_SESSION = { nome: nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula: matricula };
-
-    try {
-      const lo = qs('loginOverlay'); if (lo) lo.style.display = 'none';
-      const hu = qs('headerUser'); if (hu) hu.textContent = (nome||'').split(' ')[0] || '';
-    } catch(e){}
-
-    const botoes = {
-      'btncarregamentoOp': '0', 'btndescargaOp': '1', 'btnAcessoSeparação': '2',
-      'btnPitStop': '3', 'btnadmin': '4', 'btnptlControle': '5', 'btnptlLinha': '6',
-      'btnbuscarProduto': '7', 'btnRanking': '8', 'btnMoviCONF': '9', 'btnAtendimento': '10',
-      'btnMoviApp': '11', 'btnAlocarSelo': '12', 'btnRelatorio':'13', 'btnFeFoCompat':'14',
-      'btnSeloAcess':'15', 'btnRecebidosP1':'16', 'btnContagem':'17', 'btnSepManual':'18', 'btnSimulator3D':'19'
-    };
-
-    for (const [id, nivel] of Object.entries(botoes)) {
-      const btn = qs(id);
-      if (btn) {
-        try {
-          if (window.APP_SESSION.acesso && window.APP_SESSION.acesso.includes(String(nivel))) {
-            btn.style.display = 'flex'; btn.style.background = '#000000'; btn.disabled = false; btn.style.opacity = 1;
-          } else {
-            btn.disabled = true; btn.style.background = 'gray'; btn.style.opacity = 0.3;
-          }
-        } catch(e){}
-      }
-    }
-
-    setTimeout(updateBadges, 250);
-
-    (function openLastPageAfterLogin() {
-      try {
-        if (matricula && typeof google !== 'undefined' && google.script && google.script.run) {
-          google.script.run.withSuccessHandler(function(serverSalvo){
-            if (serverSalvo && String(serverSalvo).trim() !== '') {
-              abrirLink(serverSalvo);
-            } else {
-              showNews();
-              toggleSidebar();
-            }
-          }).withFailureHandler(function(err){
-            showNews();
-          }).getLastOpenedPage(matricula);
-        } else {
-          showNews();
-          toggleSidebar();
-        }
-      } catch(e){
-        try { showNews(); } catch(_) {}
-      }
-    })();
-
-    executarModoCampo();
-  };
-
-  window.restaurarSessao = function(matricula) {
-    function doRestore(){
-      try {
-        const nome = localStorage.getItem('operadorNome') || getCookie('operadorNome') || 'Usuário';
-        const acessosRaw = localStorage.getItem('acesso') || getCookie('acesso') || '[]';
-        const acessos = JSON.parse(acessosRaw || '[]');
-
-        window.APP_SESSION = { nome, acesso: acessos, matricula };
-        try { 
-          sessionStorage.setItem('operadorNome', nome); 
-          sessionStorage.setItem('acesso', JSON.stringify(acessos)); 
-          sessionStorage.setItem('outlog_matricula', matricula); 
-        } catch(e){}
-
-        setTimeout(updateBadges, 250);
-        if (typeof google !== 'undefined' && google.script && google.script.run) {
-          google.script.run.registrarLog('Sessão restaurada', nome);
-          google.script.run.confirmarAtualizacaoUsuario(matricula);
-        }
-      } catch(e2){
-        const lo = qs('loginOverlay'); if (lo) lo.style.display = 'flex';
-        const u = qs('usuario'); if (u) u.value = matricula;
-      }
-    }
-
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run.withSuccessHandler(function(status) {
-        if (Number(status) === 0) {
-          if (typeof abrirLink === 'function') abrirLink("resetarLogin.html");
-          else window.location.href = "resetarLogin.html";
-        } else {
-          doRestore();
-          if (typeof executarModoCampo === 'function') executarModoCampo();
-        }
-      }).verificarStatusNoAcess(matricula);
-    } else {
-      doRestore();
-    }
-  };
-
-  window.logout = function() {
-    try { localStorage.clear(); sessionStorage.clear(); } catch(e){}
-    window.APP_SESSION = { nome: '', acesso: [], matricula: '' };
-    const lo = qs('loginOverlay'); 
-    if (lo) { lo.style.display = 'flex'; lo.setAttribute('aria-hidden', 'false'); }
-    const hu = qs('headerUser'); if (hu) hu.textContent = '';
-    const u = qs('usuario'); if (u) setTimeout(() => u.focus(), 50);
-    const loaded = qs('loadedContent'); if (loaded) loaded.innerHTML = '';
-    if (typeof closeSidebar === 'function') closeSidebar();
-    delCookie('operadorNome'); delCookie('acesso'); delCookie('outlog_matricula'); delCookie('ptl_stay');
-  };
-
-  window.abrirLink = function(nomeArquivo) {
-    if (typeof closeSidebar === 'function') closeSidebar();
-    const contentDiv = qs('loadedContent');
-    const loader = qs('loader');
-    if(!contentDiv || !loader) return;
-    
-    contentDiv.innerHTML = '';
-    loader.style.display = 'flex';
-
-    try {
-      const matricula = (window.APP_SESSION && window.APP_SESSION.matricula) || 
-                        sessionStorage.getItem('outlog_matricula') || 
-                        localStorage.getItem('outlog_matricula') || '';
-
-      if (matricula && nomeArquivo && typeof google !== 'undefined' && google.script && google.script.run) {
-        if (typeof google.script.run.saveLastOpenedPage === 'function') {
-          google.script.run.saveLastOpenedPage(nomeArquivo, matricula);
-        }
-      }
-    } catch(e){}
-
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run
-        .withSuccessHandler(html => {
-          loader.style.display = 'none';
-          injetarHTMLSeguro(html, contentDiv);
-        })
-        .withFailureHandler(e => {
-          loader.style.display = 'none';
-          contentDiv.innerHTML = `<div style="padding:20px;color:#f55;text-align:center"><i class="fa-solid fa-triangle-exclamation" style="font-size:40px;margin-bottom:10px"></i><br><strong>Erro ao carregar módulo.</strong><br><small>${e}</small></div>`;
-        })
-        .carregarConteudo(nomeArquivo);
-    } else {
-      loader.style.display = 'none';
-      contentDiv.innerHTML = `<div style="padding:20px;color:#aaa;text-align:center"><h3>Modo Local</h3><p>Tentando carregar: <strong>${nomeArquivo}</strong></p></div>`;
-    }
-  };
-
-  function injetarHTMLSeguro(html, container) {
-    container.innerHTML = '';
-    const scriptDados = document.createElement('script');
-    const dados = window.APP_SESSION || { nome: '', acesso: [], matricula: '' };
-    const acessoJSON = JSON.stringify(dados.acesso || []);
-    scriptDados.textContent = `
-      window.OPERADOR_NOME = "${(dados.nome||'').replace(/(["\\])/g,'\\$1')}";
-      window.OPERADOR_MATRICULA = "${(dados.matricula||'').replace(/(["\\])/g,'\\$1')}";
-      window.OPERADOR_ACESSO = ${acessoJSON};
-    `;
-    container.appendChild(scriptDados);
-
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
-    const scripts = Array.from(temp.querySelectorAll('script'));
-    scripts.forEach(s => s.remove());
-
-    while (temp.firstChild) { container.appendChild(temp.firstChild); }
-
-    let scriptsPendentes = scripts.filter(s => s.src).length;
-    const tentarInicializar = () => {
-      if (scriptsPendentes <= 0) {
-        setTimeout(() => {
-          if (typeof window.inicializarPagina === 'function') {
-            try { window.inicializarPagina(); } catch(err) {}
-          }
-        }, 300);
-      }
-    };
-
-    scripts.forEach(oldScript => {
-      const newScript = document.createElement('script');
-      Array.from(oldScript.attributes).forEach(attr => { newScript.setAttribute(attr.name, attr.value); });
-      if (oldScript.src) {
-        newScript.async = false;
-        newScript.onload = () => { scriptsPendentes--; tentarInicializar(); };
-        newScript.onerror = () => { scriptsPendentes--; tentarInicializar(); };
-        newScript.src = oldScript.src;
-      } else {
-        newScript.textContent = oldScript.textContent;
-      }
-      container.appendChild(newScript);
-    });
-
-    if (scriptsPendentes === 0) tentarInicializar();
-  }
-
-  window.showNews = function() {
-    try { closeSidebar && closeSidebar(); } catch(e){}
-    const contentDiv = qs('loadedContent');
-    if (!contentDiv) return;
-    contentDiv.innerHTML = '';
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'news-wrap';
-    const list = document.createElement('div');
-    list.className = 'news-list';
-    wrapper.appendChild(list);
-    contentDiv.appendChild(wrapper);
-
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run.withSuccessHandler(function(res){
-        renderNews(res, list);
-      }).withFailureHandler(function(err){
-        renderNews(null, list, err);
-      }).getNews();
-    }
-  };
-
-  function parseCustomTags(str) {
-    if (!str) return '';
-    let safeText = String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    safeText = safeText.replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<b>$1</b>');
-    safeText = safeText.replace(/&lt;color:(.*?)&gt;(.*?)&lt;\/color&gt;/gi, '<span style="color: $1;">$2</span>');
-    return safeText.replace(/\n/g, '<br>');
-  }
-
-  function renderNews(res, listEl, err) {
-    listEl.innerHTML = '';
-    if (err) { listEl.innerHTML = '<div class="news-empty">Erro ao carregar notícias.</div>'; return; }
-    const itemsRaw = Array.isArray(res) ? res.slice() : [];
-    if (itemsRaw.length === 0) { listEl.innerHTML = '<div class="news-empty">Nenhuma notícia encontrada.</div>'; return; }
-
-    itemsRaw.slice(-5).reverse().forEach(item => {
-      const card = document.createElement('article');
-      card.className = 'news-card';
-      card.innerHTML = `<div class="news-title">${parseCustomTags(item.title || item.titulo || '')}</div>
-                        <div class="news-body">${parseCustomTags(item.body || item.conteudo || '')}</div>`;
-      listEl.appendChild(card);
-    });
-  }
-
-  function updateBadges() {
-    if (typeof google === 'undefined' || !google.script || !google.script.run) return;
-    google.script.run.withSuccessHandler(function(res){
-      try {
-        var sep = Number(res.separacao) || 0;
-        var desc = Number(res.descarga) || 0;
-        var alt = Number(res.filtroFalse) || 0;
-        var mov = Number(res.movimentacoes) || 0;
-        var chat = Number(res.chat) || 0;
-        var total = sep + desc + mov;
-
-        addOrUpdateBadge('btncarregamentoOp', sep);
-        addOrUpdateBadge('btndescargaOp', desc);
-        addOrUpdateBadge('btnAtendimento', alt);
-        addOrUpdateBadge('btnMoviApp', mov);
-        addOrUpdateBadge('btnPitStop', chat);
-        addOrUpdateBadge('menuToggle', total);
-      } catch(e) {}
-    }).getPendingCounts();
-  }
-
-  function addOrUpdateBadge(buttonId, count) {
-    var btn = qs(buttonId);
-    if (!btn) return;
-    var existing = btn.querySelector('.sideBadge');
-    if (!count || count <= 0) { if (existing) existing.remove(); return; }
-    if (existing) { existing.textContent = String(count); }
-    else {
-      var span = document.createElement('span');
-      span.className = 'sideBadge';
-      span.textContent = String(count);
-      btn.appendChild(span);
-    }
-  }
-
-  setInterval(updateBadges, 60000);
-  window.updateBadges = updateBadges;
-  window.addOrUpdateBadge = addOrUpdateBadge;
-})();
-
-// Modal Novo Usuário
-function inicializarModalNovoUsuario() {
-  if (!document.getElementById('estiloModalNovoUsuario')) {
-    const estilo = document.createElement('style');
-    estilo.id = 'estiloModalNovoUsuario';
-    estilo.innerHTML = `
-      .modal-overlay-dark { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); justify-content:center; align-items:center; z-index:99999; }
-      .modal-content-dark { background:#1e1e1e; color:#e0e0e0; padding:25px; border-radius:10px; width:380px; border:1px solid #333; }
-      .modal-content-dark input, .modal-content-dark select { width:100%; padding:10px; margin:8px 0 18px 0; background:#2d2d2d; border:1px solid #444; color:#fff; border-radius:6px; }
-      .modal-buttons-dark { display:flex; justify-content:flex-end; gap:10px; }
-      .modal-buttons-dark button { padding:9px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:bold; }
-    `;
-    document.head.appendChild(estilo);
-  }
-
-  if (!document.getElementById('modalNovoUsuarioDinamico')) {
-    const modalHTML = `
-      <div id="modalNovoUsuarioDinamico" class="modal-overlay-dark">
-        <div class="modal-content-dark">
-          <h3 id="modalTituloDinamico">Cadastrar Novo Usuário</h3>
-          <div id="modalBodyDinamico"></div>
-          <div class="modal-buttons-dark">
-            <button type="button" style="background:#d32f2f;color:#fff;" id="modalCancelarDinamico">Cancelar</button>
-            <button type="button" style="background:#0288d1;color:#fff;" id="modalAvancarDinamico">Avançar</button>
-          </div>
-        </div>
-      </div>
-    `;
-    const divContainer = document.createElement('div');
-    divContainer.innerHTML = modalHTML;
-    document.body.appendChild(divContainer);
-  }
-
-  const CONFIG_ACESSOS = { OPERADOR: ['0','1','6','7','11','18','19'], CONFERENTE: ['2','7','9','10','12','16'] };
-  const ADMINS_AUTORIZADOS = ['181020', '104780'];
-  let dadosCadastro = { matricula: '', nome: '', perfil: '', adminMatricula: '' };
-  let etapaAtual = 1;
-
-  const modal = document.getElementById('modalNovoUsuarioDinamico');
-  const btnCancelar = document.getElementById('modalCancelarDinamico');
-  const btnAvancar = document.getElementById('modalAvancarDinamico');
-  const modalTitulo = document.getElementById('modalTituloDinamico');
-  const modalBody = document.getElementById('modalBodyDinamico');
-
-  document.addEventListener('click', function(e) {
-    if (e.target && e.target.id === 'btnNovoUsuario') {
-      etapaAtual = 1;
-      dadosCadastro = { matricula: '', nome: '', perfil: '', adminMatricula: '' };
-      renderizarEtapa();
-      modal.style.display = 'flex';
-    }
-  });
-
-  btnCancelar.onclick = () => { modal.style.display = 'none'; };
-  btnAvancar.onclick = processarEtapa;
-
-  function renderizarEtapa() {
-    if (etapaAtual === 1) {
-      modalTitulo.innerText = 'Passo 1 de 4: Matrícula';
-      modalBody.innerHTML = `<label>Matrícula (6 a 8 números):</label><input type="text" id="inputMatriculaDinamico" maxlength="8" autofocus />`;
-    } else if (etapaAtual === 2) {
-      modalTitulo.innerText = 'Passo 2 de 4: Nome';
-      modalBody.innerHTML = `<label>Nome Completo:</label><input type="text" id="inputNomeDinamico" autofocus />`;
-    } else if (etapaAtual === 3) {
-      modalTitulo.innerText = 'Passo 3 de 4: Categoria';
-      modalBody.innerHTML = `<label>Selecione:</label><select id="selectPerfilDinamico"><option value="OPERADOR">OPERADOR</option><option value="CONFERENTE">CONFERENTE</option></select>`;
-    } else if (etapaAtual === 4) {
-      modalTitulo.innerText = 'Passo 4 de 4: Admin';
-      modalBody.innerHTML = `<label>Matrícula do Administrador:</label><input type="password" id="inputAdminDinamico" maxlength="8" autofocus />`;
-      btnAvancar.innerText = 'Confirmar';
-    }
-  }
-
-  function processarEtapa() {
-    if (etapaAtual === 1) {
-      const input = document.getElementById('inputMatriculaDinamico').value.trim();
-      if (!/^\d{6,8}$/.test(input)) { alert('Matrícula inválida.'); return; }
-      dadosCadastro.matricula = input; etapaAtual = 2; renderizarEtapa();
-    } else if (etapaAtual === 2) {
-      const input = document.getElementById('inputNomeDinamico').value.trim();
-      if (input.split(/\s+/).length < 2) { alert('Informe nome e sobrenome.'); return; }
-      dadosCadastro.nome = input; etapaAtual = 3; renderizarEtapa();
-    } else if (etapaAtual === 3) {
-      dadosCadastro.perfil = document.getElementById('selectPerfilDinamico').value;
-      etapaAtual = 4; renderizarEtapa();
-    } else if (etapaAtual === 4) {
-      const adminInput = document.getElementById('inputAdminDinamico').value.trim();
-      if (!ADMINS_AUTORIZADOS.includes(adminInput)) { alert('Administrador não autorizado!'); return; }
-      const acessosAtribuidos = CONFIG_ACESSOS[dadosCadastro.perfil] || [];
-      
-      google.script.run.withSuccessHandler(resposta => {
-        if (resposta.sucesso) { alert('Cadastrado com sucesso!'); modal.style.display = 'none'; }
-        else { alert('Erro: ' + resposta.mensagem); }
-      }).inserirUsuarioGS(dadosCadastro.matricula, dadosCadastro.nome, acessosAtribuidos, `Admin ${adminInput}`);
-    }
+  const lo = document.getElementById('loginOverlay');
+  if (lo) lo.style.display = 'none';
+}
+
+function exibirModalBoasVindasLicenca(mensagem, tempoMs, callback) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);display:flex;justify-content:center;align-items:center;z-index:999999;';
+  const modalBox = document.createElement('div');
+  modalBox.style.cssText = 'background:#fc0303;color:#fff;padding:20px 35px;border-radius:10px;text-align:center;font-size:18px;font-weight:600;';
+  modalBox.innerText = mensagem;
+  overlay.appendChild(modalBox);
+  document.body.appendChild(overlay);
+  setTimeout(() => { overlay.remove(); if (callback) callback(); }, tempoMs || 1800);
+}
+
+const LOCAL_STORAGE_KEY = 'outlog_sessao_dispositivo';
+const LOCAL_STORAGE_MATRICULA = 'outlog_matricula';
+
+function enviarMatriculaParaApp(matricula) {
+  if (window.AppInventor && window.AppInventor.setWebViewString) {
+    window.AppInventor.setWebViewString(matricula);
   }
 }
-document.addEventListener('DOMContentLoaded', inicializarModalNovoUsuario);
+
+function salvarSessaoLocalmente(usuario, ip, nome, acesso) {
+  try {
+    const dados = { usuario, ip, nome, acesso, timestamp: Date.now() };
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(dados));
+    localStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
+    sessionStorage.setItem(LOCAL_STORAGE_MATRICULA, usuario);
+    enviarMatriculaParaApp(usuario);
+  } catch (e) {}
+}
+
+function obterSessaoLocal() {
+  try { return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)); } catch (e) { return null; }
+}
+
+function limparSessaoLocal(manterMatricula = true) {
+  try {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    if (!manterMatricula) localStorage.removeItem(LOCAL_STORAGE_MATRICULA);
+  } catch (e) {}
+}
+
+async function fazerLogin() {
+  const inputUser = document.getElementById('usuario');
+  let usuario = inputUser ? inputUser.value.trim() : '';
+  if (!usuario) {
+    usuario = localStorage.getItem(LOCAL_STORAGE_MATRICULA) || '';
+    if (usuario && inputUser) inputUser.value = usuario;
+  }
+  if (!usuario) return alert('Digite a matrícula');
+
+  enviarMatriculaParaApp(usuario);
+  localStorage.setItem('outlog_matricula', usuario);
+
+  const btn = document.getElementById('btnLogin');
+  const txtOriginal = btn ? btn.innerText : 'Login';
+  if (btn) { btn.innerText = "Validando..."; btn.disabled = true; }
+
+  const restaurarBotao = () => { if (btn) { btn.innerText = txtOriginal; btn.disabled = false; } };
+
+  let userIp = 'IP não identificado';
+  try {
+    const resIp = await fetch('https://api.ipify.org?format=json');
+    if (resIp.ok) userIp = (await resIp.json()).ip || userIp;
+  } catch (e) {}
+
+  google.script.run.withSuccessHandler(res => {
+    restaurarBotao();
+    if (res && res.success) {
+      salvarSessaoLocalmente(usuario, userIp, res.nome, res.acesso);
+      google.script.run.registrarLog(`Login efetuado com sucesso | IP: ${userIp}`, res.nome);
+
+      google.script.run.withSuccessHandler(licRes => {
+        if (licRes && licRes.expirado) {
+          ocultarCabecalhosEMenus();
+          abrirLink("LICENÇA");
+        } else {
+          const dias = licRes ? licRes.diasRestantes : 0;
+          salvarSessao(res.nome, res.acesso, usuario);
+          exibirModalBoasVindasLicenca(`Licença Ativa ( ${dias} dias restantes )`, 1500);
+        }
+      }).verificarLicenca();
+    } else {
+      limparSessaoLocal(true);
+      google.script.run.registrarLog(`Usuario tentou acesso Ambev | IP: ${userIp}`, usuario);
+      alert('Senha incorreta ou acesso restrito.');
+    }
+  }).withFailureHandler(e => {
+    restaurarBotao();
+    alert('Erro de conexão: ' + e);
+  }).validarLogin(usuario);
+}
+window.fazerLogin = fazerLogin;
+
+function salvarSessao(nome, acessos, matricula) {
+  window.APP_SESSION = { nome, acesso: Array.isArray(acessos) ? acessos.map(String) : [], matricula };
+  try {
+    sessionStorage.setItem('operadorNome', nome);
+    sessionStorage.setItem('acesso', JSON.stringify(window.APP_SESSION.acesso));
+    sessionStorage.setItem('outlog_matricula', matricula);
+    localStorage.setItem('operadorNome', nome);
+    localStorage.setItem('acesso', JSON.stringify(window.APP_SESSION.acesso));
+    localStorage.setItem('outlog_matricula', matricula);
+  } catch (e) {}
+
+  const lo = document.getElementById('loginOverlay');
+  if (lo) lo.style.display = 'none';
+  const hu = document.getElementById('headerUser');
+  if (hu) hu.textContent = (nome || '').split(' ')[0] || '';
+
+  const botoes = {
+    'btncarregamentoOp': '0', 'btndescargaOp': '1', 'btnAcessoSeparação': '2',
+    'btnPitStop': '3', 'btnadmin': '4', 'btnptlControle': '5', 'btnptlLinha': '6',
+    'btnbuscarProduto': '7', 'btnRanking': '8', 'btnMoviCONF': '9', 'btnAtendimento': '10',
+    'btnMoviApp': '11', 'btnAlocarSelo': '12', 'btnRelatorio': '13', 'btnFeFoCompat': '14',
+    'btnSeloAcess': '15', 'btnRecebidosP1': '16', 'btnContagem': '17', 'btnSepManual': '18', 'btnSimulator3D': '19'
+  };
+
+  for (const [id, nivel] of Object.entries(botoes)) {
+    const btn = document.getElementById(id);
+    if (btn) {
+      if (window.APP_SESSION.acesso.includes(String(nivel))) {
+        btn.style.display = 'flex'; btn.style.background = '#000000'; btn.disabled = false; btn.style.opacity = 1;
+      } else {
+        btn.disabled = true; btn.style.background = 'gray'; btn.style.opacity = 0.3;
+      }
+    }
+  }
+
+  setTimeout(updateBadges, 250);
+  showNews();
+  toggleSidebar();
+  executarModoCampo();
+}
+window.salvarSessao = salvarSessao;
+
+function restaurarSessao(matricula) {
+  google.script.run.withSuccessHandler(status => {
+    if (Number(status) === 0) {
+      abrirLink("resetarLogin.html");
+    } else {
+      const nome = localStorage.getItem('operadorNome') || 'Usuário';
+      const acessos = JSON.parse(localStorage.getItem('acesso') || '[]');
+      salvarSessao(nome, acessos, matricula);
+    }
+  }).verificarStatusNoAcess(matricula);
+}
+window.restaurarSessao = restaurarSessao;
+
+function logout() {
+  try { localStorage.clear(); sessionStorage.clear(); } catch(e){}
+  window.APP_SESSION = { nome: '', acesso: [], matricula: '' };
+  const lo = document.getElementById('loginOverlay');
+  if (lo) { lo.style.display = 'flex'; lo.setAttribute('aria-hidden', 'false'); }
+  const hu = document.getElementById('headerUser'); if (hu) hu.textContent = '';
+  const loaded = document.getElementById('loadedContent'); if (loaded) loaded.innerHTML = '';
+  closeSidebar();
+}
+window.logout = logout;
+
+function abrirLink(nomeArquivo) {
+  closeSidebar();
+  const contentDiv = document.getElementById('loadedContent');
+  const loader = document.getElementById('loader');
+  if (!contentDiv || !loader) return;
+  
+  contentDiv.innerHTML = '';
+  loader.style.display = 'flex';
+
+  try {
+    const matricula = window.APP_SESSION?.matricula || sessionStorage.getItem('outlog_matricula') || '';
+    if (matricula && nomeArquivo) {
+      google.script.run.saveLastOpenedPage(nomeArquivo, matricula);
+    }
+  } catch(e) {}
+
+  google.script.run
+    .withSuccessHandler(html => {
+      loader.style.display = 'none';
+      injetarHTMLSeguro(html, contentDiv);
+    })
+    .withFailureHandler(e => {
+      loader.style.display = 'none';
+      contentDiv.innerHTML = `<div style="padding:20px;color:#f55;text-align:center">Erro ao carregar módulo: ${e}</div>`;
+    })
+    .carregarConteudo(nomeArquivo);
+}
+window.abrirLink = abrirLink;
+
+function injetarHTMLSeguro(html, container) {
+  container.innerHTML = '';
+  const scriptDados = document.createElement('script');
+  const dados = window.APP_SESSION || { nome: '', acesso: [], matricula: '' };
+  scriptDados.textContent = `
+    window.OPERADOR_NOME = "${(dados.nome||'')}";
+    window.OPERADOR_MATRICULA = "${(dados.matricula||'')}";
+    window.OPERADOR_ACESSO = ${JSON.stringify(dados.acesso || [])};
+  `;
+  container.appendChild(scriptDados);
+
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  const scripts = Array.from(temp.querySelectorAll('script'));
+  scripts.forEach(s => s.remove());
+
+  while (temp.firstChild) {
+    container.appendChild(temp.firstChild);
+  }
+
+  scripts.forEach(oldScript => {
+    const newScript = document.createElement('script');
+    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+    if (oldScript.src) {
+      newScript.src = oldScript.src;
+    } else {
+      newScript.textContent = oldScript.textContent;
+    }
+    container.appendChild(newScript);
+  });
+
+  setTimeout(() => {
+    if (typeof window.inicializarPagina === 'function') {
+      try { window.inicializarPagina(); } catch(err) { console.error(err); }
+    }
+  }, 300);
+}
+
+function showNews() {
+  closeSidebar();
+  const contentDiv = document.getElementById('loadedContent');
+  if (!contentDiv) return;
+  contentDiv.innerHTML = '';
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'news-wrap';
+  const list = document.createElement('div');
+  list.className = 'news-list';
+  wrapper.appendChild(list);
+  contentDiv.appendChild(wrapper);
+
+  google.script.run
+    .withSuccessHandler(res => renderNews(res, list))
+    .withFailureHandler(err => renderNews(null, list, err))
+    .getNews();
+}
+window.showNews = showNews;
+
+function parseCustomTags(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/&lt;b&gt;(.*?)&lt;\/b&gt;/gi, '<b>$1</b>')
+    .replace(/\n/g, '<br>');
+}
+
+function renderNews(res, listEl, err) {
+  listEl.innerHTML = '';
+  if (err || !res) {
+    listEl.innerHTML = '<div class="news-empty">Nenhuma notícia encontrada.</div>';
+    return;
+  }
+  res.slice(-5).reverse().forEach(item => {
+    const card = document.createElement('article');
+    card.className = 'news-card';
+    card.innerHTML = `
+      <div class="news-title">${parseCustomTags(item.title || item[0])}</div>
+      <div class="news-body">${parseCustomTags(item.body || item[1])}</div>
+    `;
+    listEl.appendChild(card);
+  });
+}
+
+function addOrUpdateBadge(buttonId, count) {
+  var btn = document.getElementById(buttonId);
+  if (!btn) return;
+  var existing = btn.querySelector('.sideBadge');
+  if (!count || count <= 0) {
+    if (existing) existing.remove();
+    return;
+  }
+  if (existing) {
+    existing.textContent = String(count);
+  } else {
+    var span = document.createElement('span');
+    span.className = 'sideBadge';
+    span.textContent = String(count);
+    btn.appendChild(span);
+  }
+}
+
+function updateBadges() {
+  if (typeof google === 'undefined' || !google.script || !google.script.run) return;
+  google.script.run.withSuccessHandler(res => {
+    try {
+      addOrUpdateBadge('btncarregamentoOp', Number(res.separacao) || 0);
+      addOrUpdateBadge('btndescargaOp', Number(res.descarga) || 0);
+      addOrUpdateBadge('btnAtendimento', Number(res.filtroFalse) || 0);
+      addOrUpdateBadge('btnMoviApp', Number(res.movimentacoes) || 0);
+    } catch(e) {}
+  }).getPendingCounts();
+}
+window.updateBadges = updateBadges;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const matriculaSalva = localStorage.getItem('outlog_matricula');
+  if (matriculaSalva) {
+    restaurarSessao(matriculaSalva);
+  } else {
+    const lo = document.getElementById('loginOverlay');
+    if (lo) lo.style.display = 'flex';
+  }
+  setInterval(updateBadges, 60000);
+});
 </script>
 
 </body>
